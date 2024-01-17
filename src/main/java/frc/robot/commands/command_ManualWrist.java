@@ -3,18 +3,28 @@
 // the WPILib BSD license file in the root directory of this project.
 
 package frc.robot.commands;
+import frc.robot.subsystems.subsystem_ShooterWrist;
+
+import edu.wpi.first.wpilibj.Timer;
+import frc.robot.Constants.ShooterWristConstants;
 
 import edu.wpi.first.wpilibj2.command.Command;
 
 public class command_ManualWrist extends Command {
   /** Creates a new command_ManualWrist. */
-  public command_ManualWrist() {
+  private final subsystem_ShooterWrist m_wrist;
+  public command_ManualWrist(subsystem_ShooterWrist wrist) {
+    m_wrist = wrist;
+    addRequirements(m_wrist);
     // Use addRequirements() here to declare subsystem dependencies.
+
   }
 
   // Called when the command is initially scheduled.
   @Override
-  public void initialize() {}
+  public void initialize() {
+    
+  }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
