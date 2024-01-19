@@ -4,21 +4,25 @@
 
 package frc.robot;
 
-import frc.robot.Constants.ControllerConstants;
-import frc.robot.Constants.SwerveConstants;
+import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.Autos;
+import frc.robot.commands.ExampleCommand;
 import frc.robot.subsystems.ExampleSubsystem;
+import frc.robot.subsystems.subsystem_ShooterWheels;
+import frc.robot.subsystems.subsystem_ShooterWrist;
+import frc.robot.subsystems.subsystem_LED;
+import frc.robot.subsystems.subsystem_DriveTrain;
+
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.commands.command_DriveTeleop;
-import frc.robot.subsystems.subsystem_DriveTrain;
-import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.button.JoystickButton;
-// import frc.robot.commands.ExampleCommand;
-// import edu.wpi.first.wpilibj2.command.Command;
-// import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.commands.command_AutoSpeakerWrist;
+import frc.robot.commands.command_ManualWrist;
+import frc.robot.commands.command_ToAmpWrist;
+import frc.robot.commands.command_ToFlywheelSpeed;
+import frc.robot.commands.isReadyLEDs;
+
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -29,36 +33,20 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
+  private final subsystem_ShooterWheels m_flywheels = new subsystem_ShooterWheels();
+  private final subsystem_ShooterWrist m_wrist = new subsystem_ShooterWrist();
+  private final subsystem_LED m_LED = new subsystem_LED();
+  private final subsystem_DriveTrain m_drivetrain = new subsystem_DriveTrain();
 
-  /* Controllers */  
-  private final Joystick driver = new Joystick(ControllerConstants.xboxDriveID);
-  
-  /* Drive Controls */
-  private final int translationAxis = ControllerConstants.xboxLYAxis;
-  private final int strafeAxis = ControllerConstants.xboxLXAxis;
-  private final int rotationAxis = ControllerConstants.xboxRXAxis;
-
-  private final int zeroGyroButton = ControllerConstants.xboxY;
-  private final int changeThrottleButton = ControllerConstants.xboxRightJoyPress;
-
-  /* Driver Buttons */
-  private final JoystickButton zeroGyro = new JoystickButton(driver, zeroGyroButton);
-  private final JoystickButton changeThrottle = new JoystickButton(driver, changeThrottleButton);
-
-  /* Subsystems */
-  private final subsystem_DriveTrain m_DriveTrain = new subsystem_DriveTrain();
+  // Replace with CommandPS4Controller or CommandJoystick if needed
+  private final CommandXboxController m_driverController =
+      new CommandXboxController(OperatorConstants.kDriverControllerPort);
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     // Configure the trigger bindings
-    m_DriveTrain.setDefaultCommand(new command_DriveTeleop(m_DriveTrain, 
-                                                          () -> {return -driver.getRawAxis(translationAxis);},
-                                                          () -> {return -driver.getRawAxis(strafeAxis);},
-                                                          () -> {return -driver.getRawAxis(rotationAxis);},
-                                                          () -> {return driver.getRawButtonPressed(ControllerConstants.xboxLB);},
-                                                          () -> {return driver.getRawButtonPressed(ControllerConstants.xboxRB);},
-                                                          () -> {return SwerveConstants.isFieldRelative;},
-                                                          () -> {return SwerveConstants.isOpenLoop;}));
+    m_wrist.setDefaultCommand(new command_ManualWrist(m_wrist,
+     () -> -m_driverController.getRawAxis(Constants.OperatorConstants.Left_y_axis)));
     configureBindings();
   }
 
@@ -72,15 +60,29 @@ public class RobotContainer {
    * joysticks}.
    */
   private void configureBindings() {
-    // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
+    // // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
     // new Trigger(m_exampleSubsystem::exampleCondition)
     //     .onTrue(new ExampleCommand(m_exampleSubsystem));
 
     // Schedule `exampleMethodCommand` when the Xbox controller's B button is pressed,
     // cancelling on release.
-    // m_driverController.b().whileTrue(m_exampleSubsystem.exampleMethodCommand());
-    zeroGyro.onTrue(new InstantCommand(() -> m_DriveTrain.zeroGyroCommand()));
-    changeThrottle.onTrue(new InstantCommand(() -> m_DriveTrain.toggleThrottleCommand()));
+    
+      m_driverController.b().toggleOnTrue(Commands.parallel(new command_ToFlywheelSpeed(m_flywheels, () -> 
+      Constants.ShooterFlywheelConstants.AmpSpeed), new command_ToAmpWrist(m_wrist, ()->Constants.ShooterWristConstants.ampWrist)));
+      // b for arm amp
+
+      m_driverController.a().toggleOnTrue(Commands.sequence(new isReadyLEDs(m_flywheels, m_wrist, m_LED), 
+                                            m_flywheels.toggle_feeder_Command(() -> true),
+                                                  m_LED.offLED())) ;
+    // a for shoot (generic)
+
+    m_driverController.y().toggleOnTrue(Commands.parallel(new command_ToAmpWrist(m_wrist,() -> Constants.ShooterWristConstants.minWrist),
+                                                          new command_ToFlywheelSpeed(m_flywheels, ()->Constants.ShooterFlywheelConstants.StowSpeed)));
+// y is stow
+      //x speaker shoot ready button  
+      m_driverController.x().toggleOnTrue(Commands.parallel(new command_AutoSpeakerWrist(m_wrist, m_drivetrain),
+       new command_ToFlywheelSpeed(m_flywheels, ()-> Constants.ShooterFlywheelConstants.SpeakerSpeed)));
+      //make a change to the to amp writst commmand and add a paramet for stow
   }
 
   /**

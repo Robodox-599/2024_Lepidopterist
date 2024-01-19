@@ -25,6 +25,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.MathUtil;
 import frc.robot.Constants.SwerveConstants;
+import frc.robot.HardwareConfig;
+
 
 public class SwerveModule {
     private TalonFX m_DriveMotor;
@@ -55,16 +57,13 @@ public class SwerveModule {
         // m_AngleMotor.configFactoryDefault();
         m_AngleMotor.getConfigurator().apply(new TalonFXConfiguration());
         m_AngleMotor.getConfigurator().apply(m_Settings.swerveAngleFXConfig);
-        m_AngleMotor.setPosition(0.0);
         
         m_AngleMotor.setInverted(SwerveConstants.angleMotorInvert);
         m_AngleMotor.setNeutralMode(NeutralModeValue.Coast);
-
-        m_AngleMotor.setControl(new PositionVoltage(degreesToFalcon(m_AngleOffset - getCANCoder().getDegrees())));
         
         // Old Code
         m_AngleMotor.setPosition(degreesToFalcon(getCANCoder().getDegrees() - m_AngleOffset));
-        // m_AngleMotor.setControl(new PositionVoltage(0.0));
+        m_AngleMotor.setControl(new PositionVoltage(0.0));
         
         // New Code
         // setDesiredState(new SwerveModuleState(0.0, Rotation2d.fromDegrees(0.0)), false);
@@ -126,9 +125,9 @@ public class SwerveModule {
     }
 
     public SwerveModuleState optimize(SwerveModuleState desiredState, Rotation2d currentAngle){
-        double modReferenceAngleDeg = MathUtil.angleModulus(currentAngle.getRadians()) * 180.0 / Math.PI;
+        double modReferenceAngle = MathUtil.angleModulus(currentAngle.getRadians()) * 180.0 / Math.PI;
         double targetSpeed = desiredState.speedMetersPerSecond;
-        double delta = desiredState.angle.getDegrees() - modReferenceAngleDeg;
+        double delta = desiredState.angle.getDegrees() - modReferenceAngle;
         if(delta >= 270.0){
             delta -= 360.0;
         }

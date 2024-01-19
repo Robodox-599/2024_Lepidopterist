@@ -55,6 +55,7 @@ public class subsystem_DriveTrain extends SubsystemBase {
   
   private boolean m_IsBalancing;
   private boolean m_IsAutoOrient;
+  private boolean m_isAiming;
   // private boolean m_IsPark;
   
   private int m_DPAD;
@@ -93,7 +94,7 @@ public class subsystem_DriveTrain extends SubsystemBase {
     m_RollCorrectionPID = new PIDController(0.01, 0.0, 0.0);
 
     m_Throttle = Throttle.LINEAR;
-
+    m_isAiming = false;
     m_IsBalancing = false;
     m_IsAutoOrient = false;
     // m_IsPark = false;
@@ -104,7 +105,7 @@ public class subsystem_DriveTrain extends SubsystemBase {
     //                                                 AutoConstants.MaxAngularAccelMetersPerSecondSquared);
     
     Timer.delay(1.0);
-    resetModulesToAbsolute();
+    // resetModulesToAbsolute();
     // zeroModules();
     m_Gyro.getConfigurator().apply(new Pigeon2Configuration());
     zeroGyro();
@@ -228,6 +229,17 @@ public class subsystem_DriveTrain extends SubsystemBase {
   public void disableBalanceCorrection(){
     m_IsBalancing = false;
   }
+  public void toggleYawCorrection(){
+    m_isAiming = !m_isAiming;
+  }
+
+  public void enableYawCorrection(){
+    m_isAiming = true;
+  }
+
+  public void disableYawCorrection(){
+    m_isAiming = false;
+  }
 
   public void zeroGyro(){
     m_Gyro.setYaw(0.0);
@@ -292,25 +304,25 @@ public class subsystem_DriveTrain extends SubsystemBase {
     switch(module){
       case 0:
         SmartDashboard.putNumber("FL Angle", m_FrontLeft.getState().angle.getDegrees());
-        // SmartDashboard.putNumber("FL CANcoder w/o Offset", m_FrontLeft.getCANCoder().getDegrees());
+        SmartDashboard.putNumber("FL CANcoder w/o Offset", m_FrontLeft.getCANCoder().getDegrees());
         SmartDashboard.putNumber("FL CANcoder w/ Offset", m_FrontLeft.getValDegWithOffset());
         SmartDashboard.putNumber("FL Error Units: " + m_FrontLeft.getErrorCodeUnits(), m_FrontLeft.getErrorCodeVal());
         break;
       case 1:
         SmartDashboard.putNumber("FR Angle", m_FrontRight.getState().angle.getDegrees());
-        // SmartDashboard.putNumber("FR CANcoder w/o Offset", m_FrontRight.getCANCoder().getDegrees());
+        SmartDashboard.putNumber("FR CANcoder w/o Offset", m_FrontRight.getCANCoder().getDegrees());
         SmartDashboard.putNumber("FR CANcoder w/ Offset", m_FrontRight.getValDegWithOffset());
         SmartDashboard.putNumber("FR Error Units: " + m_FrontRight.getErrorCodeUnits(), m_FrontRight.getErrorCodeVal());
         break;
       case 2:
         SmartDashboard.putNumber("BL Angle", m_BackLeft.getState().angle.getDegrees());
-        // SmartDashboard.putNumber("BL CANcoder w/o Offset", m_BackLeft.getCANCoder().getDegrees());
+        SmartDashboard.putNumber("BL CANcoder w/o Offset", m_BackLeft.getCANCoder().getDegrees());
         SmartDashboard.putNumber("BL CANcoder w/ Offset", m_BackLeft.getValDegWithOffset());
         SmartDashboard.putNumber("BL Error Units: " + m_BackLeft.getErrorCodeUnits(), m_BackLeft.getErrorCodeVal());
         break;
       case 3:
         SmartDashboard.putNumber("BR Angle", m_BackRight.getState().angle.getDegrees());
-        // SmartDashboard.putNumber("BR CANcoder w/o Offset", m_BackRight.getCANCoder().getDegrees());
+        SmartDashboard.putNumber("BR CANcoder w/o Offset", m_BackRight.getCANCoder().getDegrees());
         SmartDashboard.putNumber("BR CANcoder w/ Offset", m_BackRight.getValDegWithOffset());
         SmartDashboard.putNumber("BR Error Units: " + m_BackRight.getErrorCodeUnits(), m_BackRight.getErrorCodeVal());
         break;
@@ -326,9 +338,6 @@ public class subsystem_DriveTrain extends SubsystemBase {
     SmartDashboard.putNumber("Est Y Position", m_PoseEstimator.getEstimatedPosition().getY());
     SmartDashboard.putNumber("Est Pose Yaw", m_PoseEstimator.getEstimatedPosition().getRotation().getDegrees());
     print(0);
-    print(1);
-    print(2);
-    print(3);
     // SmartDashboard.putNumber("FL Angle", m_FrontLeft.getState().angle.getDegrees());
     // SmartDashboard.putNumber("BL Angle", m_BackLeft.getState().angle.getDegrees());
     // SmartDashboard.putNumber("BR Angle", m_BackRight.getState().angle.getDegrees());
