@@ -45,9 +45,7 @@ public class command_DriveTeleop extends Command {
 
   // Called when the command is initially scheduled.
   @Override
-  public void initialize() {
-    // m_DriveTrain.zeroModules();
-  }
+  public void initialize() {}
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override

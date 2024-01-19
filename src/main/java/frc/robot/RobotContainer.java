@@ -14,7 +14,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.command_DriveTeleop;
 import frc.robot.subsystems.subsystem_DriveTrain;
 import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
+// import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 // import frc.robot.commands.ExampleCommand;
 // import edu.wpi.first.wpilibj2.command.Command;
@@ -79,8 +79,10 @@ public class RobotContainer {
     // Schedule `exampleMethodCommand` when the Xbox controller's B button is pressed,
     // cancelling on release.
     // m_driverController.b().whileTrue(m_exampleSubsystem.exampleMethodCommand());
-    zeroGyro.onTrue(new InstantCommand(() -> m_DriveTrain.zeroGyroCommand()));
-    changeThrottle.onTrue(new InstantCommand(() -> m_DriveTrain.toggleThrottleCommand()));
+    // zeroGyro.onTrue(new InstantCommand(() -> m_DriveTrain.zeroGyroCommand()));
+    // changeThrottle.onTrue(new InstantCommand(() -> m_DriveTrain.toggleThrottleCommand()));
+    zeroGyro.onTrue(m_DriveTrain.zeroGyroInstantCommand());
+    changeThrottle.onTrue(m_DriveTrain.toggleThrottleInstantCommand());
   }
 
   /**

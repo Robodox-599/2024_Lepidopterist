@@ -23,6 +23,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.SwerveModule;
 import frc.robot.Constants.DPAD;
 import frc.robot.Constants.FrontLeftModule;
@@ -49,11 +50,8 @@ public class subsystem_DriveTrain extends SubsystemBase {
   
   private SwerveConstants.Throttle m_Throttle;
 
-  private PIDController m_PitchCorrectionPID;
-  private PIDController m_RollCorrectionPID;
   private PIDController m_AutoOrientPID;
   
-  private boolean m_IsBalancing;
   private boolean m_IsAutoOrient;
   // private boolean m_IsPark;
   
@@ -73,30 +71,20 @@ public class subsystem_DriveTrain extends SubsystemBase {
                                             SwerveConstants.frontRight,
                                             SwerveConstants.backLeft,
                                             SwerveConstants.backRight);
-    // m_FrontLeft.setDesiredState(new SwerveModuleState(0.0, Rotation2d.fromDegrees(0.0)), false);
-    // m_FrontRight.setDesiredState(new SwerveModuleState(0.0, Rotation2d.fromDegrees(0.0)), false);
-    // m_BackLeft.setDesiredState(new SwerveModuleState(0.0, Rotation2d.fromDegrees(0.0)), false);
-    // m_BackRight.setDesiredState(new SwerveModuleState(0.0, Rotation2d.fromDegrees(0.0)), false);    
 
     m_ModulePositions = new SwerveModulePosition[4];
     updateModulePositions();
     
     m_PoseEstimator = new SwerveDrivePoseEstimator(m_Kinematics, 
-                                                  // Rotation2d.fromDegrees(0.0),
                                                   new Rotation2d(),
                                                   m_ModulePositions,
                                                   new Pose2d(0.0, 0.0, 
-                                                  // Rotation2d.fromDegrees(0.0)
                                                   new Rotation2d()
                                                   ), vec1, vec2);
-    m_PitchCorrectionPID = new PIDController(0.0, 0.0, 0.0);
-    m_RollCorrectionPID = new PIDController(0.01, 0.0, 0.0);
 
     m_Throttle = Throttle.LINEAR;
 
-    m_IsBalancing = false;
     m_IsAutoOrient = false;
-    // m_IsPark = false;
     m_OrientCounter = 0;
     m_DPAD = DPAD.value(ORIENTATION.NON_ORIENTED);
     m_AutoOrientPID = new PIDController(0.05, 0.0, 0.001);
@@ -105,15 +93,8 @@ public class subsystem_DriveTrain extends SubsystemBase {
     
     Timer.delay(1.0);
     resetModulesToAbsolute();
-    // zeroModules();
     m_Gyro.getConfigurator().apply(new Pigeon2Configuration());
     zeroGyro();
-
-    m_PitchCorrectionPID.setSetpoint(0.0);
-    m_PitchCorrectionPID.setTolerance(2.0);
-
-    m_RollCorrectionPID.setSetpoint(0.0);
-    m_RollCorrectionPID.setTolerance(2.0);
 
     m_AutoOrientPID.enableContinuousInput(-180.0, 180.0);
     m_AutoOrientPID.setTolerance(1.0);
@@ -126,35 +107,20 @@ public class subsystem_DriveTrain extends SubsystemBase {
     m_ModulePositions[3] = m_BackRight.getPosition();
   }
 
-  public boolean isBalanced(){
-    return Math.abs(m_Gyro.getPitch().getValueAsDouble()) < 2 && Math.abs(m_Gyro.getRoll().getValueAsDouble()) < 2;
-  }
-
   public void swerveDrive(double xSpeedMetersPerSecond, 
                           double ySpeedMetersPerSecond, 
                           double zRotRadiansPerSecond, 
                           boolean isFieldRelative, 
                           boolean isOpenLoop){
-    if (m_IsBalancing){
-      xSpeedMetersPerSecond += addRollCorrection() * getPoseYaw().getCos();
-    }
     zRotRadiansPerSecond = m_IsAutoOrient ? getAngularVelocity() : zRotRadiansPerSecond;
 
     SwerveModuleState[] moduleStates = SwerveConstants.kinematics.toSwerveModuleStates(
-      // isFieldRelative ? ChassisSpeeds.fromFieldRelativeSpeeds(
-      //                       xSpeedMetersPerSecond,
-      //                       ySpeedMetersPerSecond,
-      //                       zRotRadiansPerSecond,
-      //                       getPoseYaw()
-      //                       ) : 
-      //                   new ChassisSpeeds(xSpeedMetersPerSecond, ySpeedMetersPerSecond, zRotRadiansPerSecond)
       ChassisSpeeds.fromFieldRelativeSpeeds(
                             xSpeedMetersPerSecond,
                             ySpeedMetersPerSecond,
                             zRotRadiansPerSecond,
-                            getPoseYaw()
-                            )
-    );
+                            getPoseYaw()));
+
     SwerveDriveKinematics.desaturateWheelSpeeds(moduleStates, SwerveConstants.maxSpeed);
     SwerveModuleState frontLeft = moduleStates[0];
     SwerveModuleState frontRight = moduleStates[1];
@@ -180,12 +146,7 @@ public class subsystem_DriveTrain extends SubsystemBase {
     m_BackRight.setDesiredState(desiredStates[3], false);
   }
 
-  public double setThrottle(double input){
-    return m_Throttle != Throttle.NONLINEAR ? input : Math.signum(input) * (1.01 * Math.pow(input, 2) - 0.0202 * input + 0.0101);
-  }
-
   public void changeThrottle(){
-    SmartDashboard.putBoolean("Signal Received", false);
     if(m_Throttle == Throttle.LINEAR){
       m_Throttle = Throttle.NONLINEAR;
       SmartDashboard.putBoolean("DRIVE MODE", false);
@@ -195,8 +156,28 @@ public class subsystem_DriveTrain extends SubsystemBase {
     }
   }
 
+  public double setThrottle(double input){
+    return m_Throttle != Throttle.NONLINEAR ? input : Math.signum(input) * (1.01 * Math.pow(input, 2) - 0.0202 * input + 0.0101);
+  }
+
   public Command toggleThrottleCommand(){
     return this.runOnce(() -> changeThrottle());
+  }
+
+  public InstantCommand toggleThrottleInstantCommand(){
+    return new InstantCommand(() -> changeThrottle(), this);
+  }
+
+  public void zeroGyro(){
+    m_Gyro.setYaw(0.0);
+  }
+
+  public Command zeroGyroCommand(){
+    return this.runOnce(() -> zeroGyro());
+  }
+
+  public InstantCommand zeroGyroInstantCommand(){
+    return new InstantCommand(() -> zeroGyro(), this);
   }
 
   public void resetOdometry(Pose2d pose){
@@ -217,46 +198,11 @@ public class subsystem_DriveTrain extends SubsystemBase {
     return m_PoseEstimator.getEstimatedPosition().getRotation();
   }
 
-  public void toggleBalanceCorrection(){
-    m_IsBalancing = !m_IsBalancing;
-  }
-
-  public void enableBalanceCorrection(){
-    m_IsBalancing = true;
-  }
-
-  public void disableBalanceCorrection(){
-    m_IsBalancing = false;
-  }
-
-  public void zeroGyro(){
-    m_Gyro.setYaw(0.0);
-  }
-
-  public Command zeroGyroCommand(){
-    return this.runOnce(() -> zeroGyro());
-  }
-
   public void resetModulesToAbsolute(){
     m_FrontLeft.resetToAbsolute();
     m_FrontRight.resetToAbsolute();
     m_BackLeft.resetToAbsolute();
     m_BackRight.resetToAbsolute();
-  }
-
-  public void zeroModules(){
-    m_FrontLeft.setDesiredAngle(Rotation2d.fromDegrees(0.0));
-    m_FrontRight.setDesiredAngle(Rotation2d.fromDegrees(0.0));
-    m_BackLeft.setDesiredAngle(Rotation2d.fromDegrees(0.0));
-    m_BackRight.setDesiredAngle(Rotation2d.fromDegrees(0.0));
-  }
-
-  public double addPitchCorrection(){
-    return m_PitchCorrectionPID.calculate(m_Gyro.getPitch().getValueAsDouble());
-  }
-
-  public double addRollCorrection(){
-    return m_RollCorrectionPID.calculate(m_Gyro.getRoll().getValueAsDouble());
   }
 
   public void setAutoOrient(boolean isOrientFront, boolean isOrientBack, double rotVelocity){
@@ -288,6 +234,7 @@ public class subsystem_DriveTrain extends SubsystemBase {
     }
     return m_AutoOrientPID.calculate(m_PoseEstimator.getEstimatedPosition().getRotation().getDegrees());
   }
+
   public void print(int module){
     switch(module){
       case 0:
@@ -296,24 +243,28 @@ public class subsystem_DriveTrain extends SubsystemBase {
         SmartDashboard.putNumber("FL CANcoder w/ Offset", m_FrontLeft.getValDegWithOffset());
         SmartDashboard.putNumber("FL Error Units: " + m_FrontLeft.getErrorCodeUnits(), m_FrontLeft.getErrorCodeVal());
         break;
+      
       case 1:
         SmartDashboard.putNumber("FR Angle", m_FrontRight.getState().angle.getDegrees());
         // SmartDashboard.putNumber("FR CANcoder w/o Offset", m_FrontRight.getCANCoder().getDegrees());
         SmartDashboard.putNumber("FR CANcoder w/ Offset", m_FrontRight.getValDegWithOffset());
         SmartDashboard.putNumber("FR Error Units: " + m_FrontRight.getErrorCodeUnits(), m_FrontRight.getErrorCodeVal());
         break;
+      
       case 2:
         SmartDashboard.putNumber("BL Angle", m_BackLeft.getState().angle.getDegrees());
         // SmartDashboard.putNumber("BL CANcoder w/o Offset", m_BackLeft.getCANCoder().getDegrees());
         SmartDashboard.putNumber("BL CANcoder w/ Offset", m_BackLeft.getValDegWithOffset());
         SmartDashboard.putNumber("BL Error Units: " + m_BackLeft.getErrorCodeUnits(), m_BackLeft.getErrorCodeVal());
         break;
+      
       case 3:
         SmartDashboard.putNumber("BR Angle", m_BackRight.getState().angle.getDegrees());
         // SmartDashboard.putNumber("BR CANcoder w/o Offset", m_BackRight.getCANCoder().getDegrees());
         SmartDashboard.putNumber("BR CANcoder w/ Offset", m_BackRight.getValDegWithOffset());
         SmartDashboard.putNumber("BR Error Units: " + m_BackRight.getErrorCodeUnits(), m_BackRight.getErrorCodeVal());
         break;
+      
       default:
         break;
     }
@@ -329,12 +280,6 @@ public class subsystem_DriveTrain extends SubsystemBase {
     print(1);
     print(2);
     print(3);
-    // SmartDashboard.putNumber("FL Angle", m_FrontLeft.getState().angle.getDegrees());
-    // SmartDashboard.putNumber("BL Angle", m_BackLeft.getState().angle.getDegrees());
-    // SmartDashboard.putNumber("BR Angle", m_BackRight.getState().angle.getDegrees());
-    // SmartDashboard.putNumber("FL CANcoder", m_FrontLeft.getValDeg());
-    // SmartDashboard.putNumber("BL CANcoder", m_BackLeft.getValDeg());
-    // SmartDashboard.putNumber("BR CANcoder", m_BackRight.getValDeg());
     m_PoseEstimator.update(m_Gyro.getRotation2d(), m_ModulePositions);
   }
 }
