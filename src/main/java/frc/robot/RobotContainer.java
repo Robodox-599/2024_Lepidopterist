@@ -9,6 +9,7 @@ import frc.robot.Constants.SwerveConstants;
 import frc.robot.commands.Autos;
 import frc.robot.subsystems.ExampleSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.command_DriveTeleop;
@@ -40,11 +41,11 @@ public class RobotContainer {
 
   private final int zeroGyroButton = ControllerConstants.xboxY;
   private final int changeThrottleButton = ControllerConstants.xboxRightJoyPress;
-
+  private final int readyShootButton = ControllerConstants.xboxA;
   /* Driver Buttons */
   private final JoystickButton zeroGyro = new JoystickButton(driver, zeroGyroButton);
   private final JoystickButton changeThrottle = new JoystickButton(driver, changeThrottleButton);
-
+  private final JoystickButton readyShoot = new JoystickButton(driver, readyShootButton);
   /* Subsystems */
   private final subsystem_DriveTrain m_DriveTrain = new subsystem_DriveTrain();
 
@@ -59,7 +60,8 @@ public class RobotContainer {
                                                           () -> {return driver.getRawButtonPressed(ControllerConstants.xboxRB);},
                                                           () -> {return SwerveConstants.isFieldRelative;},
                                                           () -> {return SwerveConstants.isOpenLoop;}));
-    configureBindings();
+    
+                                                          configureBindings();
   }
 
   /**
@@ -83,6 +85,7 @@ public class RobotContainer {
     // changeThrottle.onTrue(new InstantCommand(() -> m_DriveTrain.toggleThrottleCommand()));
     zeroGyro.onTrue(m_DriveTrain.zeroGyroInstantCommand());
     changeThrottle.onTrue(m_DriveTrain.toggleThrottleInstantCommand());
+    readyShoot.toggleOnTrue(m_DriveTrain.toggleShooterPrepCommand());
   }
 
   /**

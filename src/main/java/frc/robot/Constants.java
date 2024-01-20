@@ -5,6 +5,7 @@
 package frc.robot;
 
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.util.Units;
 
@@ -21,6 +22,13 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
  * constants are needed, to reduce verbosity.
  */
 public final class Constants {
+  public static class FieldConstants{ //created to make merging more painful (but keep this over the other one)
+    public static final Translation3d blueSpeakerCenter = new Translation3d(318.2145, -56.81975, 81.321);
+    // TODO: update
+    public static final Translation3d redSpeakerCenter = new Translation3d(318.2145, -56.81975, 81.321);
+    public static final Translation3d shooterOffset = new Translation3d(0, 0, 0); //offset from robot coords to shooter exit pt
+  }
+
   public static class SwerveConstants{
     public static final int balancekP = 0;
     public static final int balancekI = 0;
@@ -123,7 +131,6 @@ public final class Constants {
   
   }
   
-
   public static final class DPAD{
 
     public static enum ORIENTATION{

@@ -208,31 +208,47 @@ public class subsystem_DriveTrain extends SubsystemBase {
     m_BackRight.resetToAbsolute();
   }
 
-  //DPAD + autoalign code
-  public void setDriveState(SwerveConstants.DRIVE_STATE newState, double desiredAngle){
+  public SwerveConstants.DRIVE_STATE getDriveState(){
+    return m_state;
+  }
+  
+//DPAD align code
+  public void setDriveState(SwerveConstants.DRIVE_STATE newState){
     if (!DriverStation.isTeleopEnabled()){
       return;
     }
     switch (newState) {
       case ALIGNING_TO_DPAD:
-        // idk what this code does
-        // if(DriverStation.getAlliance().get() == DriverStation.Alliance.Blue){
-        //   desiredAngle = DPAD.value(ORIENTATION.RIGHT);
-        // } else {
-        //   desiredAngle = DPAD.value(ORIENTATION.DOWN);
-        // }
         SmartDashboard.putString("State", "Aligning to DPAD");
         break;
       case SHOOTER_PREP:
-        if (m_state == DRIVE_STATE.ALIGNING_TO_DPAD) return; //override if currently dpadding
         SmartDashboard.putString("State", "Shooter Prep");
         break;
-      case DRIVER_CONTROL:
+      case DRIVER_CONTROL: //why are you calling the method like this
+        SmartDashboard.putString("State", "Shooter Prep");
       default:
         SmartDashboard.putBoolean("STATE ERROR", true);
         break;
     }
     m_state = newState;
+  }
+
+  public Command toggleShooterPrepCommand(){
+    if (m_state == DRIVE_STATE.SHOOTER_PREP)
+      return this.runOnce(() -> setDriveState(DRIVE_STATE.DRIVER_CONTROL));
+    return this.runOnce(() -> setDriveState(DRIVE_STATE.SHOOTER_PREP));
+  }
+
+  public InstantCommand toggleShooterPrepInstantCommand(){
+    if (m_state == DRIVE_STATE.SHOOTER_PREP)
+      return new InstantCommand(() -> setDriveState(DRIVE_STATE.DRIVER_CONTROL), this);
+    return new InstantCommand(() -> setDriveState(DRIVE_STATE.SHOOTER_PREP), this);
+  }
+
+  public void setDesiredAngle(double desiredAngle){
+    if (!DriverStation.isTeleopEnabled()){
+      return;
+    }
     m_AutoOrientPID.setSetpoint(m_DPAD);
   }
 
@@ -252,6 +268,7 @@ public class subsystem_DriveTrain extends SubsystemBase {
     return m_AutoOrientPID.calculate(m_PoseEstimator.getEstimatedPosition().getRotation().getDegrees()); 
   }
 
+  //deprecated
   public void setAutoOrient(boolean isOrientFront, boolean isOrientBack){
     if(DriverStation.isTeleopEnabled()){
       if(isOrientFront){
@@ -269,6 +286,7 @@ public class subsystem_DriveTrain extends SubsystemBase {
     
   }
 
+  //deprecated
   public double getAngularVelocity(){
     m_AutoOrientPID.setSetpoint(m_DPAD);
     if(m_AutoOrientPID.atSetpoint()){

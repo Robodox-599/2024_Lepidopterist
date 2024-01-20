@@ -4,12 +4,19 @@
 
 package frc.robot.commands;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+
+import java.util.Optional;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 import frc.robot.Constants.ControllerConstants;
+import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.SwerveConstants;
+import frc.robot.Constants.SwerveConstants.DRIVE_STATE;
 import frc.robot.subsystems.subsystem_DriveTrain;
 
 public class command_DriveTeleop extends Command {
@@ -67,6 +74,28 @@ public class command_DriveTeleop extends Command {
     SmartDashboard.putNumber("X Speed", transformedXSpeed);
     SmartDashboard.putNumber("Y Speed", transformedYSpeed);
     SmartDashboard.putNumber("Z Rot", transformedZRot);
+
+    if (m_DriveTrain.getDriveState() == DRIVE_STATE.SHOOTER_PREP){
+      Pose2d drivePose = m_DriveTrain.getPose();
+      double deltaX = drivePose.getX();
+      double deltaY = drivePose.getY();
+
+      Optional<Alliance> ally = DriverStation.getAlliance();
+      if (ally.isPresent()) {
+        if (ally.get() == Alliance.Red) {
+          deltaX-=FieldConstants.redSpeakerCenter.getX();
+          deltaY-=FieldConstants.redSpeakerCenter.getY();
+        } else if (ally.get() == Alliance.Blue) {
+          deltaX-=FieldConstants.blueSpeakerCenter.getX();
+          deltaY-=FieldConstants.blueSpeakerCenter.getY();
+        } else {
+          SmartDashboard.putBoolean("Alliance Color Error", true);
+        }
+      m_DriveTrain.setDesiredAngle(-Math.atan(deltaY/deltaX)%360);
+    } else {
+      SmartDashboard.putBoolean("Alliance Color Error", true);
+    }
+  }
 
     m_DriveTrain.swerveDrive(transformedXSpeed * SwerveConstants.maxSpeed,
                             transformedYSpeed * SwerveConstants.maxSpeed,
