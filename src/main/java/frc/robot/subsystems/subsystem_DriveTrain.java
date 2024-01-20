@@ -34,6 +34,7 @@ import frc.robot.Constants.BackRightModule;
 import frc.robot.Constants.ControllerConstants;
 import frc.robot.Constants.SwerveConstants;
 import frc.robot.Constants.DPAD.ORIENTATION;
+import frc.robot.Constants.SwerveConstants.DRIVE_STATE;
 import frc.robot.Constants.SwerveConstants.Throttle;
 
 public class subsystem_DriveTrain extends SubsystemBase {
@@ -55,6 +56,8 @@ public class subsystem_DriveTrain extends SubsystemBase {
   private boolean m_IsAutoOrient;
   // private boolean m_IsPark;
   
+  private SwerveConstants.DRIVE_STATE m_state = DRIVE_STATE.DRIVER_CONTROL;
+
   private int m_DPAD;
   private int m_OrientCounter;
 
@@ -112,7 +115,7 @@ public class subsystem_DriveTrain extends SubsystemBase {
                           double zRotRadiansPerSecond, 
                           boolean isFieldRelative, 
                           boolean isOpenLoop){
-    zRotRadiansPerSecond = m_IsAutoOrient ? getAngularVelocity() : zRotRadiansPerSecond;
+    zRotRadiansPerSecond = transformZRot(zRotRadiansPerSecond);
 
     SwerveModuleState[] moduleStates = SwerveConstants.kinematics.toSwerveModuleStates(
       ChassisSpeeds.fromFieldRelativeSpeeds(
@@ -205,8 +208,52 @@ public class subsystem_DriveTrain extends SubsystemBase {
     m_BackRight.resetToAbsolute();
   }
 
-  public void setAutoOrient(boolean isOrientFront, boolean isOrientBack, double rotVelocity){
-    if((Math.abs(rotVelocity) <= ControllerConstants.deadband) && DriverStation.isTeleopEnabled()){
+  //DPAD + autoalign code
+  public void setDriveState(SwerveConstants.DRIVE_STATE newState, double desiredAngle){
+    if (!DriverStation.isTeleopEnabled()){
+      return;
+    }
+    switch (newState) {
+      case ALIGNING_TO_DPAD:
+        // idk what this code does
+        // if(DriverStation.getAlliance().get() == DriverStation.Alliance.Blue){
+        //   desiredAngle = DPAD.value(ORIENTATION.RIGHT);
+        // } else {
+        //   desiredAngle = DPAD.value(ORIENTATION.DOWN);
+        // }
+        SmartDashboard.putString("State", "Aligning to DPAD");
+        break;
+      case SHOOTER_PREP:
+        if (m_state == DRIVE_STATE.ALIGNING_TO_DPAD) return; //override if currently dpadding
+        SmartDashboard.putString("State", "Shooter Prep");
+        break;
+      case DRIVER_CONTROL:
+      default:
+        SmartDashboard.putBoolean("STATE ERROR", true);
+        break;
+    }
+    m_state = newState;
+    m_AutoOrientPID.setSetpoint(m_DPAD);
+  }
+
+  public double transformZRot(double oldZRot){
+    if (oldZRot!=0){ //note deadband already accounted for earlier
+      m_state = DRIVE_STATE.DRIVER_CONTROL;
+      return oldZRot;
+    }
+     if(m_AutoOrientPID.atSetpoint()){
+      m_OrientCounter++; //wait 4 cycles before stopping
+      if(m_OrientCounter >= 4){
+        m_state = DRIVE_STATE.DRIVER_CONTROL;
+        m_OrientCounter = 0;
+        return 0.0;
+      }
+    }
+    return m_AutoOrientPID.calculate(m_PoseEstimator.getEstimatedPosition().getRotation().getDegrees()); 
+  }
+
+  public void setAutoOrient(boolean isOrientFront, boolean isOrientBack){
+    if(DriverStation.isTeleopEnabled()){
       if(isOrientFront){
         if(DriverStation.getAlliance().get() == DriverStation.Alliance.Blue){
           m_DPAD = DPAD.value(ORIENTATION.RIGHT);
@@ -219,12 +266,13 @@ public class subsystem_DriveTrain extends SubsystemBase {
       m_IsAutoOrient = false;
       m_DPAD = DPAD.value(ORIENTATION.NON_ORIENTED);
     }
+    
   }
 
   public double getAngularVelocity(){
     m_AutoOrientPID.setSetpoint(m_DPAD);
     if(m_AutoOrientPID.atSetpoint()){
-      m_OrientCounter++;
+      m_OrientCounter++; //wait 4 cycles before stopping
       if(m_OrientCounter >= 4){
         m_IsAutoOrient = false;
         m_DPAD = DPAD.value(ORIENTATION.NON_ORIENTED);

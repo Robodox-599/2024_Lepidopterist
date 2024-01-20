@@ -50,8 +50,6 @@ public class command_DriveTeleop extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    m_DriveTrain.setAutoOrient(m_IsOrientFront.getAsBoolean(), m_IsOrientBack.getAsBoolean(), m_zRot.getAsDouble());
-    
     double transformedXSpeed = 0.0;
     double transformedYSpeed = 0.0;
     double transformedZRot = 0.0;

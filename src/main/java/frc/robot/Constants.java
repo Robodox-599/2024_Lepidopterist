@@ -114,7 +114,15 @@ public final class Constants {
     public static final double maxAngularVelocity = 360 * 0.25; // deg per sec
     public static final boolean isFieldRelative = true;
     public static final boolean isOpenLoop = false;  
+
+    public static enum DRIVE_STATE{
+    DRIVER_CONTROL,
+    SHOOTER_PREP,
+    ALIGNING_TO_DPAD
+  };
+  
   }
+  
 
   public static final class DPAD{
 
