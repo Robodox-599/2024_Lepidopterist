@@ -339,13 +339,23 @@ public class subsystem_DriveTrain extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+     switch (m_state) {
+      case ALIGNING_TO_DPAD:
+        SmartDashboard.putString("State", "Aligning to DPAD");
+        break;
+      case SHOOTER_PREP:
+        SmartDashboard.putString("State", "Shooter Prep");
+        break;
+      case DRIVER_CONTROL:
+        SmartDashboard.putString("State", "Shooter Prep");
+        break;
+      default:
+        SmartDashboard.putBoolean("STATE ERROR", true);
+        break;
+    }
     SmartDashboard.putNumber("Est X Position", m_PoseEstimator.getEstimatedPosition().getX());
     SmartDashboard.putNumber("Est Y Position", m_PoseEstimator.getEstimatedPosition().getY());
     SmartDashboard.putNumber("Est Pose Yaw", m_PoseEstimator.getEstimatedPosition().getRotation().getDegrees());
-    print(0);
-    print(1);
-    print(2);
-    print(3);
     m_PoseEstimator.update(m_Gyro.getRotation2d(), m_ModulePositions);
   }
 }

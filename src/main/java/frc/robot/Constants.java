@@ -119,7 +119,7 @@ public final class Constants {
 
     /* Swerve Profiling values */
     public static final double maxSpeed = 5.0; // mps
-    public static final double maxAngularVelocity = 360 * 0.25; // deg per sec
+    public static final double maxAngularVelocity = 3 * 0.25; // deg per sec
     public static final boolean isFieldRelative = true;
     public static final boolean isOpenLoop = false;  
 
