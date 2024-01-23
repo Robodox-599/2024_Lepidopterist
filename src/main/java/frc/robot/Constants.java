@@ -23,9 +23,9 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
  */
 public final class Constants {
   public static class FieldConstants{ //created to make merging more painful (but keep this over the other one)
-    public static final Translation3d blueSpeakerCenter = new Translation3d(318.2145, -56.81975, 81.321);
     // TODO: update
-    public static final Translation3d redSpeakerCenter = new Translation3d(318.2145, -56.81975, 81.321);
+    public static final Translation3d blueSpeakerCenter = new Translation3d(10, 0, 81.321);
+    public static final Translation3d redSpeakerCenter = new Translation3d(10, 0, 81.321);
     public static final Translation3d shooterOffset = new Translation3d(0, 0, 0); //offset from robot coords to shooter exit pt
   }
 
@@ -118,7 +118,7 @@ public final class Constants {
     public static final boolean driveMotorInvert = false;
 
     /* Swerve Profiling values */
-    public static final double maxSpeed = 5.0; // mps
+    public static final double maxSpeed = 1.0; // mps
     public static final double maxAngularVelocity = 3 * 0.25; // deg per sec
     public static final boolean isFieldRelative = true;
     public static final boolean isOpenLoop = false;  

@@ -21,6 +21,7 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -58,12 +59,13 @@ public class subsystem_DriveTrain extends SubsystemBase {
   
   private SwerveConstants.DRIVE_STATE m_state = DRIVE_STATE.DRIVER_CONTROL;
 
-  private int m_DPAD;
+  // private int m_DPAD;
   private int m_OrientCounter;
 
   private Vector<N3> vec1 = VecBuilder.fill(0.7, 0.7, 0.1);
   private Vector<N3> vec2 = VecBuilder.fill(0.3, 0.3, 0.9);
-  
+  private Field2d m_field = new Field2d();
+
   public subsystem_DriveTrain() {
     m_Gyro = new Pigeon2(SwerveConstants.canCoderID, "DriveCANivore");
     m_FrontLeft = new SwerveModule(FrontLeftModule.constants);
@@ -89,7 +91,7 @@ public class subsystem_DriveTrain extends SubsystemBase {
 
     m_IsAutoOrient = false;
     m_OrientCounter = 0;
-    m_DPAD = DPAD.value(ORIENTATION.NON_ORIENTED);
+    // m_DPAD = DPAD.value(ORIENTATION.NON_ORIENTED);
     m_AutoOrientPID = new PIDController(0.05, 0.0, 0.001);
     // m_Constraints = new TrapezoidProfile.Constraints(AutoConstants.MaxAngularSpeedMetersPerSecond, 
     //                                                 AutoConstants.MaxAngularAccelMetersPerSecondSquared);
@@ -115,6 +117,7 @@ public class subsystem_DriveTrain extends SubsystemBase {
                           double zRotRadiansPerSecond, 
                           boolean isFieldRelative, 
                           boolean isOpenLoop){
+    SmartDashboard.putNumber("first pass", zRotRadiansPerSecond);
     zRotRadiansPerSecond = transformZRot(zRotRadiansPerSecond);
 
     SwerveModuleState[] moduleStates = SwerveConstants.kinematics.toSwerveModuleStates(
@@ -135,10 +138,10 @@ public class subsystem_DriveTrain extends SubsystemBase {
     m_BackLeft.setDesiredState(backLeft, isOpenLoop);
     m_BackRight.setDesiredState(backRight, isOpenLoop);
 
-    SmartDashboard.putNumber("FL Desired Angle", frontLeft.angle.getDegrees());
-    SmartDashboard.putNumber("FR Desired Angle", frontRight.angle.getDegrees());
-    SmartDashboard.putNumber("BL Desired Angle", backLeft.angle.getDegrees());
-    SmartDashboard.putNumber("BR Desired Angle", backRight.angle.getDegrees());
+    // SmartDashboard.putNumber("FL Desired Angle", frontLeft.angle.getDegrees());
+    // SmartDashboard.putNumber("FR Desired Angle", frontRight.angle.getDegrees());
+    // SmartDashboard.putNumber("BL Desired Angle", backLeft.angle.getDegrees());
+    // SmartDashboard.putNumber("BR Desired Angle", backRight.angle.getDegrees());
   }
 
   public void setModuleStates(SwerveModuleState[] desiredStates){
@@ -249,15 +252,17 @@ public class subsystem_DriveTrain extends SubsystemBase {
     if (!DriverStation.isTeleopEnabled()){
       return;
     }
-    m_AutoOrientPID.setSetpoint(m_DPAD);
+    SmartDashboard.putNumber("desired align angle", desiredAngle);
+    m_AutoOrientPID.setSetpoint(desiredAngle);
   }
 
   public double transformZRot(double oldZRot){
-    if (oldZRot!=0){ //note deadband already accounted for earlier
+    SmartDashboard.putNumber("Given Input", oldZRot);
+    if (oldZRot!=0 || m_state == DRIVE_STATE.DRIVER_CONTROL){ //note deadband already accounted for earlier
       m_state = DRIVE_STATE.DRIVER_CONTROL;
       return oldZRot;
     }
-     if(m_AutoOrientPID.atSetpoint()){
+     if(m_AutoOrientPID.atSetpoint() && m_state == DRIVE_STATE.ALIGNING_TO_DPAD){
       m_OrientCounter++; //wait 4 cycles before stopping
       if(m_OrientCounter >= 4){
         m_state = DRIVE_STATE.DRIVER_CONTROL;
@@ -269,75 +274,76 @@ public class subsystem_DriveTrain extends SubsystemBase {
   }
 
   //deprecated
-  public void setAutoOrient(boolean isOrientFront, boolean isOrientBack){
-    if(DriverStation.isTeleopEnabled()){
-      if(isOrientFront){
-        if(DriverStation.getAlliance().get() == DriverStation.Alliance.Blue){
-          m_DPAD = DPAD.value(ORIENTATION.RIGHT);
-        } else {
-          m_DPAD = DPAD.value(ORIENTATION.DOWN);
-          m_IsAutoOrient = true;
-        }
-      }
-    } else {
-      m_IsAutoOrient = false;
-      m_DPAD = DPAD.value(ORIENTATION.NON_ORIENTED);
-    }
+  // public void setAutoOrient(boolean isOrientFront, boolean isOrientBack){
+  //   if(DriverStation.isTeleopEnabled()){
+  //     if(isOrientFront){
+  //       if(DriverStation.getAlliance().get() == DriverStation.Alliance.Blue){
+  //         m_DPAD = DPAD.value(ORIENTATION.RIGHT);
+  //       } else {
+  //         m_DPAD = DPAD.value(ORIENTATION.DOWN);
+  //         m_IsAutoOrient = true;
+  //       }
+  //     }
+  //   } else {
+  //     m_IsAutoOrient = false;
+  //     m_DPAD = DPAD.value(ORIENTATION.NON_ORIENTED);
+  //   }
     
-  }
+  // }
 
   //deprecated
-  public double getAngularVelocity(){
-    m_AutoOrientPID.setSetpoint(m_DPAD);
-    if(m_AutoOrientPID.atSetpoint()){
-      m_OrientCounter++; //wait 4 cycles before stopping
-      if(m_OrientCounter >= 4){
-        m_IsAutoOrient = false;
-        m_DPAD = DPAD.value(ORIENTATION.NON_ORIENTED);
-        m_OrientCounter = 0;
-        return 0.0;
-      }
-    }
-    return m_AutoOrientPID.calculate(m_PoseEstimator.getEstimatedPosition().getRotation().getDegrees());
-  }
+  // public double getAngularVelocity(){
+  //   m_AutoOrientPID.setSetpoint(m_DPAD);
+  //   if(m_AutoOrientPID.atSetpoint()){
+  //     m_OrientCounter++; //wait 4 cycles before stopping
+  //     if(m_OrientCounter >= 4){
+  //       m_IsAutoOrient = false;
+  //       m_DPAD = DPAD.value(ORIENTATION.NON_ORIENTED);
+  //       m_OrientCounter = 0;
+  //       return 0.0;
+  //     }
+  //   }
+  //   return m_AutoOrientPID.calculate(m_PoseEstimator.getEstimatedPosition().getRotation().getDegrees());
+  // }
 
-  public void print(int module){
-    switch(module){
-      case 0:
-        SmartDashboard.putNumber("FL Angle", m_FrontLeft.getState().angle.getDegrees());
-        // SmartDashboard.putNumber("FL CANcoder w/o Offset", m_FrontLeft.getCANCoder().getDegrees());
-        SmartDashboard.putNumber("FL CANcoder w/ Offset", m_FrontLeft.getValDegWithOffset());
-        SmartDashboard.putNumber("FL Error Units: " + m_FrontLeft.getErrorCodeUnits(), m_FrontLeft.getErrorCodeVal());
-        break;
+  // public void print(int module){
+  //   switch(module){
+  //     case 0:
+  //       SmartDashboard.putNumber("FL Angle", m_FrontLeft.getState().angle.getDegrees());
+  //       // SmartDashboard.putNumber("FL CANcoder w/o Offset", m_FrontLeft.getCANCoder().getDegrees());
+  //       SmartDashboard.putNumber("FL CANcoder w/ Offset", m_FrontLeft.getValDegWithOffset());
+  //       SmartDashboard.putNumber("FL Error Units: " + m_FrontLeft.getErrorCodeUnits(), m_FrontLeft.getErrorCodeVal());
+  //       break;
       
-      case 1:
-        SmartDashboard.putNumber("FR Angle", m_FrontRight.getState().angle.getDegrees());
-        // SmartDashboard.putNumber("FR CANcoder w/o Offset", m_FrontRight.getCANCoder().getDegrees());
-        SmartDashboard.putNumber("FR CANcoder w/ Offset", m_FrontRight.getValDegWithOffset());
-        SmartDashboard.putNumber("FR Error Units: " + m_FrontRight.getErrorCodeUnits(), m_FrontRight.getErrorCodeVal());
-        break;
+  //     case 1:
+  //       SmartDashboard.putNumber("FR Angle", m_FrontRight.getState().angle.getDegrees());
+  //       // SmartDashboard.putNumber("FR CANcoder w/o Offset", m_FrontRight.getCANCoder().getDegrees());
+  //       SmartDashboard.putNumber("FR CANcoder w/ Offset", m_FrontRight.getValDegWithOffset());
+  //       SmartDashboard.putNumber("FR Error Units: " + m_FrontRight.getErrorCodeUnits(), m_FrontRight.getErrorCodeVal());
+  //       break;
       
-      case 2:
-        SmartDashboard.putNumber("BL Angle", m_BackLeft.getState().angle.getDegrees());
-        // SmartDashboard.putNumber("BL CANcoder w/o Offset", m_BackLeft.getCANCoder().getDegrees());
-        SmartDashboard.putNumber("BL CANcoder w/ Offset", m_BackLeft.getValDegWithOffset());
-        SmartDashboard.putNumber("BL Error Units: " + m_BackLeft.getErrorCodeUnits(), m_BackLeft.getErrorCodeVal());
-        break;
+  //     case 2:
+  //       SmartDashboard.putNumber("BL Angle", m_BackLeft.getState().angle.getDegrees());
+  //       // SmartDashboard.putNumber("BL CANcoder w/o Offset", m_BackLeft.getCANCoder().getDegrees());
+  //       SmartDashboard.putNumber("BL CANcoder w/ Offset", m_BackLeft.getValDegWithOffset());
+  //       SmartDashboard.putNumber("BL Error Units: " + m_BackLeft.getErrorCodeUnits(), m_BackLeft.getErrorCodeVal());
+  //       break;
       
-      case 3:
-        SmartDashboard.putNumber("BR Angle", m_BackRight.getState().angle.getDegrees());
-        // SmartDashboard.putNumber("BR CANcoder w/o Offset", m_BackRight.getCANCoder().getDegrees());
-        SmartDashboard.putNumber("BR CANcoder w/ Offset", m_BackRight.getValDegWithOffset());
-        SmartDashboard.putNumber("BR Error Units: " + m_BackRight.getErrorCodeUnits(), m_BackRight.getErrorCodeVal());
-        break;
+  //     case 3:
+  //       SmartDashboard.putNumber("BR Angle", m_BackRight.getState().angle.getDegrees());
+  //       // SmartDashboard.putNumber("BR CANcoder w/o Offset", m_BackRight.getCANCoder().getDegrees());
+  //       SmartDashboard.putNumber("BR CANcoder w/ Offset", m_BackRight.getValDegWithOffset());
+  //       SmartDashboard.putNumber("BR Error Units: " + m_BackRight.getErrorCodeUnits(), m_BackRight.getErrorCodeVal());
+  //       break;
       
-      default:
-        break;
-    }
-  }
+  //     default:
+  //       break;
+  //   }
+  // }
 
   @Override
   public void periodic() {
+    // updateModulePositions();
     // This method will be called once per scheduler run
      switch (m_state) {
       case ALIGNING_TO_DPAD:
@@ -347,15 +353,18 @@ public class subsystem_DriveTrain extends SubsystemBase {
         SmartDashboard.putString("State", "Shooter Prep");
         break;
       case DRIVER_CONTROL:
-        SmartDashboard.putString("State", "Shooter Prep");
+        SmartDashboard.putString("State", "Driver Control");
         break;
       default:
         SmartDashboard.putBoolean("STATE ERROR", true);
         break;
     }
+    m_PoseEstimator.update(m_Gyro.getRotation2d(), m_ModulePositions);
     SmartDashboard.putNumber("Est X Position", m_PoseEstimator.getEstimatedPosition().getX());
     SmartDashboard.putNumber("Est Y Position", m_PoseEstimator.getEstimatedPosition().getY());
     SmartDashboard.putNumber("Est Pose Yaw", m_PoseEstimator.getEstimatedPosition().getRotation().getDegrees());
-    m_PoseEstimator.update(m_Gyro.getRotation2d(), m_ModulePositions);
+    m_field.setRobotPose(m_PoseEstimator.getEstimatedPosition());
+    
+    SmartDashboard.putData(m_field);
   }
 }
