@@ -96,7 +96,7 @@ public final class Constants {
     /*Swerve Drive Motor PID gains*/
     public static final double driveKP = 0.1;
     public static final double driveKI = 0.0;
-    public static final double driveKD = 0.00;
+    public static final double driveKD = 0.0;
     public static final double driveKF = 0.0;
 
     /*Swerve Drive Current Limit Config*/
@@ -111,7 +111,7 @@ public final class Constants {
 
     /* Swerve Profiling values */
     public static final double maxSpeed = 5.0; // mps
-    public static final double maxAngularVelocity = 360 * 0.25; // deg per sec
+    public static final double maxAngularVelocity = 360.0 * 1.25; // deg per sec
     public static final boolean isFieldRelative = true;
     public static final boolean isOpenLoop = false;  
   }

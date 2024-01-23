@@ -54,7 +54,7 @@ public class SwerveModule {
         m_DriveMotor.getConfigurator().apply(new TalonFXConfiguration());
         m_DriveMotor.getConfigurator().apply(m_Settings.swerveDriveFXConfig);
         m_DriveMotor.setInverted(SwerveConstants.driveMotorInvert);
-        m_DriveMotor.setNeutralMode(NeutralModeValue.Coast);
+        m_DriveMotor.setNeutralMode(NeutralModeValue.Brake);
         m_DriveMotor.setPosition(0.0);
         m_LastAngle = getState().angle.getDegrees();
     }

@@ -281,5 +281,6 @@ public class subsystem_DriveTrain extends SubsystemBase {
     print(2);
     print(3);
     m_PoseEstimator.update(m_Gyro.getRotation2d(), m_ModulePositions);
+    updateModulePositions();
   }
 }
