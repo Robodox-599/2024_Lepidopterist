@@ -316,26 +316,26 @@ public final class Constants {
   }
 
   public static class ShooterWristConstants {
-    public static final double ampWrist = 200; // change
+    public static final double ampWrist = 20; // change
     public static final double minWrist = 0.0; // change
-    public static final double maxWrist = 200; // change
+    public static final double maxWrist = 101; // change
     public static final double wristError = 0.05;
     public static final double targetTime = 0.05;
-    public static final double ticks_to_rotations = 1 / 8192;
-    public static final double rotations_to_angle = 1 / 60; // gear ratio stuffs
+    public static final double ticks_to_rotations = 1.0 / 8192.0;
+    public static final double rotations_to_angle = 1.0 / 60.0; // gear ratio stuffs
 
     public static class PIDConstants {
-      public static final double wristkP = 0.1;
+      public static final double wristkP = 0.01;
       public static final double wristkI = 0.0;
       public static final double wristkD = 0.0;
     }
 
     public static class MotorConstants {
-      public static final int wristID = 6; //BACK RIGHT DRIVE
+      public static final int wristID = 40; //BACK RIGHT DRIVE is 6
       public static final int DIO_pin1 = 0;
       public static final int DIO_pin2 = 1;
-      public static final double ticks_to_rotations = 1 / 8192;
-      public static final double rotations_to_angle = 1 / 10; // gear ratios and stuff
+      public static final double ticks_to_rotations = 0.00012207;
+      public static final double rotations_to_angle = 1; // gear ratios and stuff
     }
 
   }

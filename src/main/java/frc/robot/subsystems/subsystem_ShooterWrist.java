@@ -54,6 +54,7 @@ private final RelativeEncoder m_RelativeEncoder;
     m_PidController.setD(Constants.ShooterWristConstants.PIDConstants.wristkD);
 
     m_RelativeEncoder.setPosition(0);
+    m_desired_wrist_angle=0;
   }
 
   public void set_wrist(double angle) {
