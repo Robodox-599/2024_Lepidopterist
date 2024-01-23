@@ -36,7 +36,7 @@ public class command_ManualWrist extends Command {
   @Override
   public void execute() {
      if (Math.abs(m_stickPos.getAsDouble()) > OperatorConstants.manual_wrist_threshold){
-      m_wrist.set_wrist(m_stickPos.getAsDouble());
+      m_wrist.set_wrist(m_stickPos.getAsDouble()*10);//magic number pls change
     }
   }
 
