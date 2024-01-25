@@ -53,7 +53,7 @@ public class subsystem_DriveTrain extends SubsystemBase {
   private PIDController m_AutoOrientPID;
   
   private boolean m_IsAutoOrient;
-  // private boolean m_IsPark;
+  private boolean m_IsPark;
   
   private int m_DPAD;
   private int m_OrientCounter;
@@ -85,6 +85,7 @@ public class subsystem_DriveTrain extends SubsystemBase {
     m_Throttle = Throttle.LINEAR;
 
     m_IsAutoOrient = false;
+    m_IsPark = false;
     m_OrientCounter = 0;
     m_DPAD = DPAD.value(ORIENTATION.NON_ORIENTED);
     m_AutoOrientPID = new PIDController(0.05, 0.0, 0.001);
@@ -112,8 +113,17 @@ public class subsystem_DriveTrain extends SubsystemBase {
                           double zRotRadiansPerSecond, 
                           boolean isFieldRelative, 
                           boolean isOpenLoop){
+    
     zRotRadiansPerSecond = m_IsAutoOrient ? getAngularVelocity() : zRotRadiansPerSecond;
-
+    if(m_IsPark){
+      xSpeedMetersPerSecond = 0.03 * Math.cos(25.0 * SwerveConstants.DEG_TO_RAD);
+      ySpeedMetersPerSecond = 0.03 * Math.sin(25.0 * SwerveConstants.DEG_TO_RAD);
+      zRotRadiansPerSecond = 0.0;
+    }
+    SmartDashboard.putNumber("X Speed", xSpeedMetersPerSecond);
+    SmartDashboard.putNumber("Y Speed", ySpeedMetersPerSecond);
+    SmartDashboard.putNumber("Z Rot", zRotRadiansPerSecond);
+    
     SwerveModuleState[] moduleStates = SwerveConstants.kinematics.toSwerveModuleStates(
       ChassisSpeeds.fromFieldRelativeSpeeds(
                             xSpeedMetersPerSecond,
@@ -126,16 +136,17 @@ public class subsystem_DriveTrain extends SubsystemBase {
     SwerveModuleState frontRight = moduleStates[1];
     SwerveModuleState backLeft = moduleStates[2];
     SwerveModuleState backRight = moduleStates[3];
-
+    
+    SmartDashboard.putNumber("FL Desired Angle", frontLeft.angle.getDegrees());
+    SmartDashboard.putNumber("FR Desired Angle", frontRight.angle.getDegrees());
+    SmartDashboard.putNumber("BL Desired Angle", backLeft.angle.getDegrees());
+    SmartDashboard.putNumber("BR Desired Angle", backRight.angle.getDegrees());
+    
     m_FrontLeft.setDesiredState(frontLeft, isOpenLoop);
     m_FrontRight.setDesiredState(frontRight, isOpenLoop);
     m_BackLeft.setDesiredState(backLeft, isOpenLoop);
     m_BackRight.setDesiredState(backRight, isOpenLoop);
 
-    SmartDashboard.putNumber("FL Desired Angle", frontLeft.angle.getDegrees());
-    SmartDashboard.putNumber("FR Desired Angle", frontRight.angle.getDegrees());
-    SmartDashboard.putNumber("BL Desired Angle", backLeft.angle.getDegrees());
-    SmartDashboard.putNumber("BR Desired Angle", backRight.angle.getDegrees());
   }
 
   public void setModuleStates(SwerveModuleState[] desiredStates){
@@ -149,15 +160,17 @@ public class subsystem_DriveTrain extends SubsystemBase {
   public void changeThrottle(){
     if(m_Throttle == Throttle.LINEAR){
       m_Throttle = Throttle.NONLINEAR;
-      SmartDashboard.putBoolean("DRIVE MODE", false);
-    } else {
-      m_Throttle = Throttle.NONLINEAR;
-      SmartDashboard.putBoolean("DRIVE MODE", true);
+      SmartDashboard.putBoolean("SLOW MODE", false);
+    } 
+    if(m_Throttle == Throttle.NONLINEAR) {
+      m_Throttle = Throttle.LINEAR;
+      SmartDashboard.putBoolean("SLOW MODE", true);
     }
   }
 
   public double setThrottle(double input){
-    return m_Throttle != Throttle.NONLINEAR ? input : Math.signum(input) * (1.01 * Math.pow(input, 2) - 0.0202 * input + 0.0101);
+    SmartDashboard.putString("Throttle Type", m_Throttle.toString());
+    return m_Throttle == Throttle.LINEAR ? input : Math.signum(input) * (1.01 * Math.pow(input, 2) - 0.0202 * input + 0.0101);
   }
 
   public Command toggleThrottleCommand(){
@@ -270,12 +283,21 @@ public class subsystem_DriveTrain extends SubsystemBase {
     }
   }
 
+  public void togglePark(){
+    m_IsPark = !m_IsPark;
+  }
+
+  public InstantCommand toggleParkCommand(){
+    return new InstantCommand(() -> togglePark(), this);
+  }
+
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
     SmartDashboard.putNumber("Est X Position", m_PoseEstimator.getEstimatedPosition().getX());
     SmartDashboard.putNumber("Est Y Position", m_PoseEstimator.getEstimatedPosition().getY());
     SmartDashboard.putNumber("Est Pose Yaw", m_PoseEstimator.getEstimatedPosition().getRotation().getDegrees());
+    SmartDashboard.putBoolean("Park Mode Enabled", m_IsPark);
     print(0);
     print(1);
     print(2);

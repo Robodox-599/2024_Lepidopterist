@@ -22,6 +22,9 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
  */
 public final class Constants {
   public static class SwerveConstants{
+    public static final double DEG_TO_RAD = Math.PI / 180.0;
+    public static final double RAD_TO_DEG = 180.0 / Math.PI; 
+
     public static final int balancekP = 0;
     public static final int balancekI = 0;
     public static final int balancekD = 0;
@@ -82,9 +85,9 @@ public final class Constants {
     public static final boolean canCoderInvert = false;
 
     /*Swerve Angle Motor PID gains*/
-    public static final double angleKP = 0.7;
+    public static final double angleKP = 0.15;
     public static final double angleKI = 0.0;
-    public static final double angleKD = 0.05;
+    public static final double angleKD = 0.0;
     public static final double angleKF = 0.0;
 
     /*Swerve Angle Current Limit Config*/
@@ -110,10 +113,10 @@ public final class Constants {
     public static final boolean driveMotorInvert = false;
 
     /* Swerve Profiling values */
-    public static final double maxSpeed = 5.0; // mps
-    public static final double maxAngularVelocity = 360.0 * 1.25; // deg per sec
+    public static final double maxSpeed = 2.0 / 4.0; // mps
+    public static final double maxAngularVelocity = 360.0 * 0.25 * DEG_TO_RAD / 4.0; // rad per sec
     public static final boolean isFieldRelative = true;
-    public static final boolean isOpenLoop = false;  
+    public static final boolean isOpenLoop = false;
   }
 
   public static final class DPAD{

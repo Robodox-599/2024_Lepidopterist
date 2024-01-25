@@ -40,10 +40,12 @@ public class RobotContainer {
 
   private final int zeroGyroButton = ControllerConstants.xboxY;
   private final int changeThrottleButton = ControllerConstants.xboxRightJoyPress;
+  private final int parkButton = ControllerConstants.xboxA;
 
   /* Driver Buttons */
   private final JoystickButton zeroGyro = new JoystickButton(driver, zeroGyroButton);
   private final JoystickButton changeThrottle = new JoystickButton(driver, changeThrottleButton);
+  private final JoystickButton park = new JoystickButton(driver, parkButton);
 
   /* Subsystems */
   private final subsystem_DriveTrain m_DriveTrain = new subsystem_DriveTrain();
@@ -83,6 +85,7 @@ public class RobotContainer {
     // changeThrottle.onTrue(new InstantCommand(() -> m_DriveTrain.toggleThrottleCommand()));
     zeroGyro.onTrue(m_DriveTrain.zeroGyroInstantCommand());
     changeThrottle.onTrue(m_DriveTrain.toggleThrottleInstantCommand());
+    park.onTrue(m_DriveTrain.toggleParkCommand());
   }
 
   /**

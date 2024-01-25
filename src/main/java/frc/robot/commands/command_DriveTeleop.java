@@ -57,18 +57,16 @@ public class command_DriveTeleop extends Command {
     double transformedZRot = 0.0;
 
     if(Math.abs(m_xSpeed.getAsDouble()) > ControllerConstants.deadband){
-      transformedXSpeed = m_DriveTrain.setThrottle(m_xSpeed.getAsDouble());
-    }
-    if(Math.abs(m_ySpeed.getAsDouble()) > ControllerConstants.deadband){
-      transformedYSpeed = m_DriveTrain.setThrottle(m_ySpeed.getAsDouble());
-    }
-    if(Math.abs(m_zRot.getAsDouble()) > ControllerConstants.deadband){
-      transformedZRot = m_DriveTrain.setThrottle(m_zRot.getAsDouble());
+      transformedXSpeed = m_DriveTrain.setThrottle(2.0 * m_xSpeed.getAsDouble());
     }
 
-    SmartDashboard.putNumber("X Speed", transformedXSpeed);
-    SmartDashboard.putNumber("Y Speed", transformedYSpeed);
-    SmartDashboard.putNumber("Z Rot", transformedZRot);
+    if(Math.abs(m_ySpeed.getAsDouble()) > ControllerConstants.deadband){
+      transformedYSpeed = m_DriveTrain.setThrottle(2.0 * m_ySpeed.getAsDouble());
+    }
+
+    if(Math.abs(m_zRot.getAsDouble()) > ControllerConstants.deadband){
+      transformedZRot = m_DriveTrain.setThrottle(2.0 * m_zRot.getAsDouble());
+    }
 
     m_DriveTrain.swerveDrive(transformedXSpeed * SwerveConstants.maxSpeed,
                             transformedYSpeed * SwerveConstants.maxSpeed,
