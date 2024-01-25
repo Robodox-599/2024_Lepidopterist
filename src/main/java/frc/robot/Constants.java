@@ -18,7 +18,7 @@ public final class Constants {
   }
 
   public static class WristConstants {
-    public static final int wristMotorID = 8;
+    public static final int wristMotorID = 0;
 
     public static final double kWristExtendP = 0.5;
     public static final double kWristExtendI = 0;
@@ -39,10 +39,16 @@ public final class Constants {
   }
 
   public static class IntakeConstants {
-    
+    public static final int intakeMotorID = 40;
+
+    public static final double kIntakeP = 0.5;
+    public static final double kIntakeI = 0;
+    public static final double kIntakeD = 0;
+
+    public static final double kIntakeSpeed = 0.2;
   }
 
   public static class BreakerConstants {
-    
+    public static final int breakerPort = 0;
   }
 }

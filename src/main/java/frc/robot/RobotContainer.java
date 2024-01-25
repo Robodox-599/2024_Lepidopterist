@@ -9,12 +9,16 @@ import frc.robot.Constants.WristConstants;
 import frc.robot.commands.Autos;
 import frc.robot.commands.ExampleCommand;
 import frc.robot.subsystems.ExampleSubsystem;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 import frc.robot.subsystems.subsystem_Wrist;
 import frc.robot.commands.command_MoveWrist;
+import frc.robot.subsystems.subsystem_Breakers;
+import frc.robot.subsystems.subsystem_Intake;
+import frc.robot.commands.command_RunIntake;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -26,6 +30,8 @@ public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
   private final subsystem_Wrist m_Subsystem_Wrist = new subsystem_Wrist();
+  private final subsystem_Breakers m_Subsystem_Breakers = new subsystem_Breakers();
+  private final subsystem_Intake m_Subsystem_Intake = new subsystem_Intake();
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final CommandXboxController m_driverController =
@@ -33,7 +39,9 @@ public class RobotContainer {
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
-    // Configure the trigger bindings
+     SmartDashboard.putBoolean("Robot container initialized", true);
+    m_Subsystem_Intake.setDefaultCommand(new command_RunIntake(m_Subsystem_Intake, m_Subsystem_Breakers));
+
     configureBindings();
   }
 

@@ -22,7 +22,7 @@ import frc.robot.Constants.WristConstants;
 public class subsystem_Wrist extends SubsystemBase {
   private CANSparkMax m_wristMotor;
   private double desiredWristPos;
-  private SparkPIDController m_WristPIDController;
+  private SparkPIDController m_wristPIDController;
   private RelativeEncoder m_wristEncoder;
   private int desiredWristSlot;
 
@@ -30,15 +30,15 @@ public class subsystem_Wrist extends SubsystemBase {
   public subsystem_Wrist() {
       m_wristMotor = new CANSparkMax(WristConstants.wristMotorID, MotorType.kBrushless);
       m_wristEncoder = m_wristMotor.getEncoder();
-      m_WristPIDController = m_wristMotor.getPIDController();
+      m_wristPIDController = m_wristMotor.getPIDController();
 
-      m_WristPIDController.setP(WristConstants.kWristExtendP, WristConstants.wristExtendSlot);
-      m_WristPIDController.setI(WristConstants.kWristExtendI, WristConstants.wristExtendSlot);
-      m_WristPIDController.setD(WristConstants.kWristExtendD, WristConstants.wristExtendSlot);
+      m_wristPIDController.setP(WristConstants.kWristExtendP, WristConstants.wristExtendSlot);
+      m_wristPIDController.setI(WristConstants.kWristExtendI, WristConstants.wristExtendSlot);
+      m_wristPIDController.setD(WristConstants.kWristExtendD, WristConstants.wristExtendSlot);
 
-      m_WristPIDController.setP(WristConstants.kWristRetractP, WristConstants.wristRetractSlot);
-      m_WristPIDController.setI(WristConstants.kWristRetractI, WristConstants.wristRetractSlot);
-      m_WristPIDController.setD(WristConstants.kWristRetractD, WristConstants.wristRetractSlot);
+      m_wristPIDController.setP(WristConstants.kWristRetractP, WristConstants.wristRetractSlot);
+      m_wristPIDController.setI(WristConstants.kWristRetractI, WristConstants.wristRetractSlot);
+      m_wristPIDController.setD(WristConstants.kWristRetractD, WristConstants.wristRetractSlot);
 
       m_wristMotor.setIdleMode(IdleMode.kBrake);
 
@@ -73,7 +73,7 @@ public class subsystem_Wrist extends SubsystemBase {
     // SmartDashboard.putBoolean("At Desired Wrist Position", isWristAtDesiredPosition(desiredWristPos));
 
     if(!isWristAtDesiredPosition(desiredWristPos)){
-      m_WristPIDController.setReference(desiredWristPos, ControlType.kPosition, desiredWristSlot);
+      m_wristPIDController.setReference(desiredWristPos, ControlType.kPosition, desiredWristSlot);
     }
     else{
       m_wristMotor.stopMotor();
