@@ -5,6 +5,8 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.signals.AbsoluteSensorRangeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
 // import com.ctre.phoenix6.StatusSignal;
 
 import frc.robot.Constants.SwerveConstants;
@@ -38,6 +40,12 @@ public class HardwareConfig {
 
         /* Angle Motor Config */
         swerveAngleFXConfig = new TalonFXConfiguration();
+        // SmartDashboard.putNumber("Angle P", SwerveConstants.angleKP);
+        // SmartDashboard.putNumber("Angle I", SwerveConstants.angleKI);
+        // SmartDashboard.putNumber("Angle D", SwerveConstants.angleKD);
+        // double m_newP = SmartDashboard.getNumber("Angle P", SwerveConstants.angleKP);
+        // double m_newI = SmartDashboard.getNumber("Angle I", SwerveConstants.angleKI);
+        // double m_newD = SmartDashboard.getNumber("Angle D", SwerveConstants.angleKD);
         swerveAngleFXConfig.Slot0.kP = SwerveConstants.angleKP;
         swerveAngleFXConfig.Slot0.kI = SwerveConstants.angleKI;
         swerveAngleFXConfig.Slot0.kD = SwerveConstants.angleKD;

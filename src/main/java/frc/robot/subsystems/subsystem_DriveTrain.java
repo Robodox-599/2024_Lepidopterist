@@ -22,7 +22,7 @@ import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
+// import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.SwerveModule;
 import frc.robot.Constants.DPAD;
@@ -131,16 +131,20 @@ public class subsystem_DriveTrain extends SubsystemBase {
                             zRotRadiansPerSecond,
                             getPoseYaw()));
 
-    SwerveDriveKinematics.desaturateWheelSpeeds(moduleStates, SwerveConstants.maxSpeed);
+    SwerveDriveKinematics.desaturateWheelSpeeds(moduleStates, SwerveConstants.maxSpeed * 4.0);
     SwerveModuleState frontLeft = moduleStates[0];
     SwerveModuleState frontRight = moduleStates[1];
     SwerveModuleState backLeft = moduleStates[2];
     SwerveModuleState backRight = moduleStates[3];
     
-    SmartDashboard.putNumber("FL Desired Angle", frontLeft.angle.getDegrees());
-    SmartDashboard.putNumber("FR Desired Angle", frontRight.angle.getDegrees());
-    SmartDashboard.putNumber("BL Desired Angle", backLeft.angle.getDegrees());
-    SmartDashboard.putNumber("BR Desired Angle", backRight.angle.getDegrees());
+    // SmartDashboard.putNumber("FL Desired Angle", frontLeft.angle.getDegrees());
+    // SmartDashboard.putNumber("FR Desired Angle", frontRight.angle.getDegrees());
+    // SmartDashboard.putNumber("BL Desired Angle", backLeft.angle.getDegrees());
+    // SmartDashboard.putNumber("BR Desired Angle", backRight.angle.getDegrees());
+    SmartDashboard.putNumber("FL Desired Speed", frontLeft.speedMetersPerSecond);
+    SmartDashboard.putNumber("FR Desired Speed", frontRight.speedMetersPerSecond);
+    SmartDashboard.putNumber("BL Desired Speed", backLeft.speedMetersPerSecond);
+    SmartDashboard.putNumber("BR Desired Speed", backRight.speedMetersPerSecond);
     
     m_FrontLeft.setDesiredState(frontLeft, isOpenLoop);
     m_FrontRight.setDesiredState(frontRight, isOpenLoop);
@@ -158,24 +162,25 @@ public class subsystem_DriveTrain extends SubsystemBase {
   }
 
   public void changeThrottle(){
-    if(m_Throttle == Throttle.LINEAR){
-      m_Throttle = Throttle.NONLINEAR;
-      SmartDashboard.putBoolean("SLOW MODE", false);
-    } 
-    if(m_Throttle == Throttle.NONLINEAR) {
-      m_Throttle = Throttle.LINEAR;
-      SmartDashboard.putBoolean("SLOW MODE", true);
-    }
+    // if(m_Throttle == Throttle.LINEAR){
+    //   m_Throttle = Throttle.NONLINEAR;
+    //   SmartDashboard.putBoolean("SLOW MODE", false);
+    // } 
+    // if(m_Throttle == Throttle.NONLINEAR) {
+    //   m_Throttle = Throttle.LINEAR;
+    //   SmartDashboard.putBoolean("SLOW MODE", true);
+    // }
+    m_Throttle = m_Throttle == Throttle.LINEAR ? Throttle.NONLINEAR : Throttle.LINEAR;
   }
 
   public double setThrottle(double input){
-    SmartDashboard.putString("Throttle Type", m_Throttle.toString());
+    // SmartDashboard.putString("Throttle Type", m_Throttle.toString());
     return m_Throttle == Throttle.LINEAR ? input : Math.signum(input) * (1.01 * Math.pow(input, 2) - 0.0202 * input + 0.0101);
   }
 
-  public Command toggleThrottleCommand(){
-    return this.runOnce(() -> changeThrottle());
-  }
+  // public Command toggleThrottleCommand(){
+  //   return this.runOnce(() -> changeThrottle());
+  // }
 
   public InstantCommand toggleThrottleInstantCommand(){
     return new InstantCommand(() -> changeThrottle(), this);
@@ -185,9 +190,9 @@ public class subsystem_DriveTrain extends SubsystemBase {
     m_Gyro.setYaw(0.0);
   }
 
-  public Command zeroGyroCommand(){
-    return this.runOnce(() -> zeroGyro());
-  }
+  // public Command zeroGyroCommand(){
+  //   return this.runOnce(() -> zeroGyro());
+  // }
 
   public InstantCommand zeroGyroInstantCommand(){
     return new InstantCommand(() -> zeroGyro(), this);
@@ -253,29 +258,29 @@ public class subsystem_DriveTrain extends SubsystemBase {
       case 0:
         SmartDashboard.putNumber("FL Angle", m_FrontLeft.getState().angle.getDegrees());
         // SmartDashboard.putNumber("FL CANcoder w/o Offset", m_FrontLeft.getCANCoder().getDegrees());
-        SmartDashboard.putNumber("FL CANcoder w/ Offset", m_FrontLeft.getValDegWithOffset());
-        SmartDashboard.putNumber("FL Error Units: " + m_FrontLeft.getErrorCodeUnits(), m_FrontLeft.getErrorCodeVal());
+        SmartDashboard.putNumber("FL Speed", m_FrontLeft.getState().speedMetersPerSecond);
+        // SmartDashboard.putNumber("FL Error Units: " + m_FrontLeft.getErrorCodeUnits(), m_FrontLeft.getErrorCodeVal());
         break;
       
       case 1:
         SmartDashboard.putNumber("FR Angle", m_FrontRight.getState().angle.getDegrees());
         // SmartDashboard.putNumber("FR CANcoder w/o Offset", m_FrontRight.getCANCoder().getDegrees());
-        SmartDashboard.putNumber("FR CANcoder w/ Offset", m_FrontRight.getValDegWithOffset());
-        SmartDashboard.putNumber("FR Error Units: " + m_FrontRight.getErrorCodeUnits(), m_FrontRight.getErrorCodeVal());
+        SmartDashboard.putNumber("FR Speed", m_FrontRight.getState().speedMetersPerSecond);
+        // SmartDashboard.putNumber("FR Error Units: " + m_FrontRight.getErrorCodeUnits(), m_FrontRight.getErrorCodeVal());
         break;
       
       case 2:
         SmartDashboard.putNumber("BL Angle", m_BackLeft.getState().angle.getDegrees());
         // SmartDashboard.putNumber("BL CANcoder w/o Offset", m_BackLeft.getCANCoder().getDegrees());
-        SmartDashboard.putNumber("BL CANcoder w/ Offset", m_BackLeft.getValDegWithOffset());
-        SmartDashboard.putNumber("BL Error Units: " + m_BackLeft.getErrorCodeUnits(), m_BackLeft.getErrorCodeVal());
+        SmartDashboard.putNumber("BL Speed", m_BackLeft.getState().speedMetersPerSecond);
+        // SmartDashboard.putNumber("BL Error Units: " + m_BackLeft.getErrorCodeUnits(), m_BackLeft.getErrorCodeVal());
         break;
       
       case 3:
         SmartDashboard.putNumber("BR Angle", m_BackRight.getState().angle.getDegrees());
         // SmartDashboard.putNumber("BR CANcoder w/o Offset", m_BackRight.getCANCoder().getDegrees());
-        SmartDashboard.putNumber("BR CANcoder w/ Offset", m_BackRight.getValDegWithOffset());
-        SmartDashboard.putNumber("BR Error Units: " + m_BackRight.getErrorCodeUnits(), m_BackRight.getErrorCodeVal());
+        SmartDashboard.putNumber("BR Speed", m_BackRight.getState().speedMetersPerSecond);
+        // SmartDashboard.putNumber("BR Error Units: " + m_BackRight.getErrorCodeUnits(), m_BackRight.getErrorCodeVal());
         break;
       
       default:
@@ -297,7 +302,7 @@ public class subsystem_DriveTrain extends SubsystemBase {
     SmartDashboard.putNumber("Est X Position", m_PoseEstimator.getEstimatedPosition().getX());
     SmartDashboard.putNumber("Est Y Position", m_PoseEstimator.getEstimatedPosition().getY());
     SmartDashboard.putNumber("Est Pose Yaw", m_PoseEstimator.getEstimatedPosition().getRotation().getDegrees());
-    SmartDashboard.putBoolean("Park Mode Enabled", m_IsPark);
+    SmartDashboard.putBoolean("SLOW MODE", m_Throttle == Throttle.LINEAR);
     print(0);
     print(1);
     print(2);

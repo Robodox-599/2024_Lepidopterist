@@ -85,7 +85,7 @@ public final class Constants {
     public static final boolean canCoderInvert = false;
 
     /*Swerve Angle Motor PID gains*/
-    public static final double angleKP = 0.15;
+    public static final double angleKP = 5.0;
     public static final double angleKI = 0.0;
     public static final double angleKD = 0.0;
     public static final double angleKF = 0.0;
@@ -113,8 +113,8 @@ public final class Constants {
     public static final boolean driveMotorInvert = false;
 
     /* Swerve Profiling values */
-    public static final double maxSpeed = 2.0 / 4.0; // mps
-    public static final double maxAngularVelocity = 360.0 * 0.25 * DEG_TO_RAD / 4.0; // rad per sec
+    public static final double maxSpeed = 5.0 / 4.0; // mps
+    public static final double maxAngularVelocity = 360.0 * 1.25 * DEG_TO_RAD / 4.0; // rad per sec
     public static final boolean isFieldRelative = true;
     public static final boolean isOpenLoop = false;
   }
