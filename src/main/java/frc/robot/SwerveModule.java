@@ -13,6 +13,7 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.MathUtil;
 import frc.robot.Constants.SwerveConstants;
 // import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.Constants.UnitConstants;
 
 public class SwerveModule {
     private TalonFX m_DriveMotor;
@@ -47,14 +48,14 @@ public class SwerveModule {
         
         m_AngleMotor.setInverted(SwerveConstants.angleMotorInvert);
         m_AngleMotor.setNeutralMode(NeutralModeValue.Coast);
-        m_AngleMotor.setControl(new PositionVoltage(degreesToFalcon(m_AngleOffset - getCANCoder().getDegrees())));
+        // m_AngleMotor.setControl(new PositionVoltage(degreesToFalcon(m_AngleOffset - getCANCoder().getDegrees())));
         m_AngleMotor.setPosition(degreesToFalcon(getCANCoder().getDegrees() - m_AngleOffset));
     
         /* Drive Motor Config */
         m_DriveMotor.getConfigurator().apply(new TalonFXConfiguration());
         m_DriveMotor.getConfigurator().apply(m_Settings.swerveDriveFXConfig);
         m_DriveMotor.setInverted(SwerveConstants.driveMotorInvert);
-        m_DriveMotor.setNeutralMode(NeutralModeValue.Coast);
+        m_DriveMotor.setNeutralMode(NeutralModeValue.Brake);
         m_DriveMotor.setPosition(0.0);
         m_LastAngle = getState().angle.getDegrees();
     }
@@ -65,15 +66,19 @@ public class SwerveModule {
 
     public void setDesiredState(SwerveModuleState desiredState, boolean isOpenLoop){
         desiredState = optimize(desiredState, getState().angle);
-        if(isOpenLoop){
-            double percentOutput = desiredState.speedMetersPerSecond / SwerveConstants.maxSpeed;
-            m_DriveMotor.set(percentOutput);
-        } else {
-            double velocity = mpsToFalcon(desiredState.speedMetersPerSecond);
-            double voltageFeedforward = m_Feedforward.calculate(velocity) / SwerveConstants.kNominal;
-            m_DriveMotor.setVoltage(voltageFeedforward);
-        }
-        double minSpeed = SwerveConstants.maxSpeed * 0.01;
+        // if(isOpenLoop){
+        //     double percentOutput = desiredState.speedMetersPerSecond / SwerveConstants.maxSpeed;
+        //     m_DriveMotor.set(percentOutput);
+        // } else {
+        //     double velocity = mpsToFalcon(desiredState.speedMetersPerSecond);
+        //     double voltageFeedforward = m_Feedforward.calculate(velocity) / SwerveConstants.kNominal;
+        //     m_DriveMotor.setVoltage(voltageFeedforward);
+        // }
+        double velocity = mpsToFalcon(desiredState.speedMetersPerSecond);
+        double voltageFeedforward = m_Feedforward.calculate(velocity) / SwerveConstants.kNominal;
+        m_DriveMotor.setVoltage(voltageFeedforward);
+
+        double minSpeed = SwerveConstants.maxSpeed * 4.0 * 0.01;
         double angle = Math.abs(desiredState.speedMetersPerSecond) <= minSpeed ? m_LastAngle : desiredState.angle.getDegrees();
         m_AngleMotor.setControl(new PositionVoltage(degreesToFalcon(angle)).withSlot(0));
         m_LastAngle = angle;
@@ -91,7 +96,7 @@ public class SwerveModule {
     }
 
     public SwerveModuleState optimize(SwerveModuleState desiredState, Rotation2d currentAngle){
-        double modReferenceAngleDeg = MathUtil.angleModulus(currentAngle.getRadians()) * 180.0 / Math.PI;
+        double modReferenceAngleDeg = MathUtil.angleModulus(currentAngle.getRadians()) * UnitConstants.RAD_TO_DEG;
         double targetSpeed = desiredState.speedMetersPerSecond;
         double delta = desiredState.angle.getDegrees() - modReferenceAngleDeg;
         if(delta >= 270.0){
