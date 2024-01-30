@@ -4,7 +4,9 @@
 
 package frc.robot.commands;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.subsystems.subsystem_Intake;
 import frc.robot.subsystems.subsystem_Wrist;
 import java.util.function.DoubleSupplier;
 
@@ -25,6 +27,9 @@ public class command_MoveWrist extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
+    SmartDashboard.putBoolean("entered move wrist", true);
+    //m_Wrist.setDesiredWristPos(desiredPos.getAsDouble());
+    m_Wrist.resetWristPos();
     m_Wrist.setDesiredWristPos(desiredPos.getAsDouble());
   }
 
@@ -34,11 +39,18 @@ public class command_MoveWrist extends Command {
 
   // Called once the command ends or is interrupted.
   @Override
-  public void end(boolean interrupted) {}
+  public void end(boolean interrupted) {
+
+  }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
+
+    if(m_Wrist.isWristAtDesiredPosition(desiredPos.getAsDouble()) == true){
+      return true;
+    }
+    
     return false;
   }
 }

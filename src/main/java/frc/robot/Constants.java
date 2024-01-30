@@ -18,7 +18,7 @@ public final class Constants {
   }
 
   public static class WristConstants {
-    public static final int wristMotorID = 0;
+    public static final int wristMotorID = 40;
 
     public static final double kWristExtendP = 0.5;
     public static final double kWristExtendI = 0;
@@ -34,21 +34,49 @@ public final class Constants {
     public static final double kWristExtendVal = 30;
     public static final double kWristRetractVal = -30;
 
-    public static final double kWristBufferZone = 0;
+    public static final double kWristBufferZone = 2;
 
   }
 
   public static class IntakeConstants {
-    public static final int intakeMotorID = 40;
+    public static final int intakeMotorID = 2;
 
     public static final double kIntakeP = 0.5;
     public static final double kIntakeI = 0;
-    public static final double kIntakeD = 0;
+    public static final double kIntakeD = 0.1;
 
-    public static final double kIntakeSpeed = 0.2;
+    public static final double kIntakeSpeed = 0.3;
   }
 
   public static class BreakerConstants {
     public static final int breakerPort = 0;
   }
+
+  public static final class ControllerConstants{
+    public static final double deadband = 0.1;
+    public static final double triggerActivate = 0.8;
+    
+    public static final int xboxHaperatorID = 0;
+
+    public static final int xboxLXAxis = 0;
+    public static final int xboxLYAxis = 1;
+    public static final int xboxRXAxis = 4;
+    public static final int xboxRYAxis = 5;
+
+    public static final int xboxLTAxis = 2;
+    public static final int xboxRTAxis = 3;
+
+    public static final int xboxA = 1;
+    public static final int xboxB = 2;
+    public static final int xboxX = 3;
+    public static final int xboxY = 4;
+    public static final int xboxLB = 5;
+    public static final int xboxRB = 6;
+    public static final int xboxView = 7;
+    public static final int xboxMenu = 8;
+    public static final int xboxLeftJoyPress = 9;
+    public static final int xboxRightJoyPress = 10;
+    public static final int xboxRightDPad = 11;
+  }
+
 }

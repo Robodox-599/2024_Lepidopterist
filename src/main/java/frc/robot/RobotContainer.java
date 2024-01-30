@@ -4,15 +4,20 @@
 
 package frc.robot;
 
+import frc.robot.Constants.ControllerConstants;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.Constants.WristConstants;
 import frc.robot.commands.Autos;
 import frc.robot.commands.ExampleCommand;
+import frc.robot.commands.cGroup_Intake;
 import frc.robot.subsystems.ExampleSubsystem;
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 
 import frc.robot.subsystems.subsystem_Wrist;
 import frc.robot.commands.command_MoveWrist;
@@ -32,6 +37,11 @@ public class RobotContainer {
   private final subsystem_Wrist m_Subsystem_Wrist = new subsystem_Wrist();
   private final subsystem_Breakers m_Subsystem_Breakers = new subsystem_Breakers();
   private final subsystem_Intake m_Subsystem_Intake = new subsystem_Intake();
+  
+  private final Joystick haPerator = new Joystick(ControllerConstants.xboxHaperatorID);
+
+  private final JoystickButton intakeTime = 
+      new JoystickButton(haPerator, Constants.ControllerConstants.xboxY);
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final CommandXboxController m_driverController =
@@ -39,8 +49,13 @@ public class RobotContainer {
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
-     SmartDashboard.putBoolean("Robot container initialized", true);
-    m_Subsystem_Intake.setDefaultCommand(new command_RunIntake(m_Subsystem_Intake, m_Subsystem_Breakers));
+    //  SmartDashboard.putBoolean("Robot container initialized", true);
+    // m_Subsystem_Intake.setDefaultCommand(new command_RunIntake(m_Subsystem_Intake, m_Subsystem_Breakers));
+
+    
+    
+    
+
 
     configureBindings();
   }
@@ -62,8 +77,13 @@ public class RobotContainer {
     // Schedule `exampleMethodCommand` when the Xbox controller's B button is pressed,
     // cancelling on release.
    
-    m_driverController.x().whileTrue(new command_MoveWrist(m_Subsystem_Wrist, () -> WristConstants.kWristExtendVal));
-    m_driverController.y().whileTrue(new command_MoveWrist(m_Subsystem_Wrist, () -> WristConstants.kWristRetractVal));
+    // m_driverController.x().whileTrue(new command_MoveWrist(m_Subsystem_Wrist, () -> WristConstants.kWristExtendVal));
+    // m_driverController.y().whileTrue(new command_MoveWrist(m_Subsystem_Wrist, () -> WristConstants.kWristRetractVal));
+
+    intakeTime.onTrue(cGroup_Intake.intakeTime(m_Subsystem_Wrist, m_Subsystem_Intake, m_Subsystem_Breakers));
+    
+
+
   }
 
   /**

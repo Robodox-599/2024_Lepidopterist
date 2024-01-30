@@ -23,14 +23,21 @@ public class subsystem_Wrist extends SubsystemBase {
   private CANSparkMax m_wristMotor;
   private double desiredWristPos;
   private SparkPIDController m_wristPIDController;
-  private RelativeEncoder m_wristEncoder;
+  public RelativeEncoder m_wristEncoder;
   private int desiredWristSlot;
+  public double wristExtendVal; 
+  // private double wristRetractVal; 
+  // private double wristInitialPosition;
 
   /** Creates a new subsystem_Wrist. */
   public subsystem_Wrist() {
       m_wristMotor = new CANSparkMax(WristConstants.wristMotorID, MotorType.kBrushless);
       m_wristEncoder = m_wristMotor.getEncoder();
       m_wristPIDController = m_wristMotor.getPIDController();
+      // wristInitialPosition = m_wristEncoder.getPosition();
+
+      // wristExtendVal = m_wristEncoder.getPosition() + WristConstants.kWristExtendVal;
+      // wristRetractVal = m_wristEncoder.getPosition() + WristConstants.kWristRetractVal;
 
       m_wristPIDController.setP(WristConstants.kWristExtendP, WristConstants.wristExtendSlot);
       m_wristPIDController.setI(WristConstants.kWristExtendI, WristConstants.wristExtendSlot);
@@ -45,7 +52,13 @@ public class subsystem_Wrist extends SubsystemBase {
 
   }
 
+  public void resetWristPos(){
+    m_wristEncoder.setPosition(0);
+  }
+
   public void setDesiredWristPos(double passedInPosition){
+
+    
 
     desiredWristPos = passedInPosition;
 
@@ -68,11 +81,13 @@ public class subsystem_Wrist extends SubsystemBase {
   public void periodic() {
     // This method will be called once per scheduler run
 
-    // SmartDashboard.putNumber("Wrist Built-in Encoder", m_wristEncoder.getPosition());
-    // SmartDashboard.putNumber("Current Slot", desiredWristSlot);
-    // SmartDashboard.putBoolean("At Desired Wrist Position", isWristAtDesiredPosition(desiredWristPos));
+    SmartDashboard.putNumber("Wrist Built-in Encoder", m_wristEncoder.getPosition());
+    SmartDashboard.putNumber("Current Slot", desiredWristSlot);
+    SmartDashboard.putBoolean("At Desired Wrist Position", isWristAtDesiredPosition(desiredWristPos));
+    SmartDashboard.putNumber("Desired wrist pos", desiredWristPos);
 
     if(!isWristAtDesiredPosition(desiredWristPos)){
+
       m_wristPIDController.setReference(desiredWristPos, ControlType.kPosition, desiredWristSlot);
     }
     else{

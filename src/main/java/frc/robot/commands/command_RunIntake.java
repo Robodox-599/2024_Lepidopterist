@@ -28,20 +28,17 @@ public class command_RunIntake extends Command {
   @Override
   public void initialize() {
     SmartDashboard.putBoolean("Run intake initialized", true);
-  
+    m_Intake.runIntake();
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
     SmartDashboard.putBoolean("Run intake executed", true);
-    if(m_Breakers.isBeamBroken()){
-      m_Intake.runIntake();
-      SmartDashboard.putBoolean("intake ran", true);
-    }
-    else{
-      m_Intake.stopIntake();
-    }
+    
+  
+    //Has not reached indexer
+    // m_Intake.runIntake();
     
   }
 
@@ -52,6 +49,12 @@ public class command_RunIntake extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
+
+    if(m_Breakers.isBeamBroken()){
+      m_Intake.stopIntake();
+      return true;
+    }
+
     return false;
   }
 }
