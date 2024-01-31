@@ -29,6 +29,7 @@ public class command_MoveWrist extends Command {
   public void initialize() {
     SmartDashboard.putBoolean("entered move wrist", true);
     //m_Wrist.setDesiredWristPos(desiredPos.getAsDouble());
+    
     m_Wrist.resetWristPos();
     m_Wrist.setDesiredWristPos(desiredPos.getAsDouble());
   }

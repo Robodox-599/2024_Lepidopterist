@@ -20,13 +20,21 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 /** Add your docs here. */
 public class cGroup_Intake {
 
-    public static Command intakeTime(subsystem_Wrist wrist, subsystem_Intake intake, subsystem_Breakers breakers){
+    public static Command intakeTime(subsystem_Wrist wrist, subsystem_Intake intake, subsystem_Breakers breakers, subsystem_Indexer indexer){
         SmartDashboard.putBoolean("- cgruop entered", true);
         return Commands.sequence(
           new command_MoveWrist(wrist, () -> {return WristConstants.kWristExtendVal;}),
-          new command_RunIntake(intake, breakers)
+          new command_RunIntake(intake, breakers),
+          new command_RunIndexer(indexer, breakers),
+          new command_MoveWrist(wrist, () -> {return WristConstants.kWristRetractVal;})
         );
     }
+
+    // public static Command testRetract(subsystem_Indexer indexer, subsystem_Wrist wrist, subsystem_Breakers breakers){
+    //   return Commands.sequence(
+    //     new command_MoveWrist(wrist, () -> {return WristConstants.kWristRetractVal;})
+    //   );
+    // }
 
     // public static Command intakeRetract(subsystem_Intake wrist, subsystem_Intake intake){
     //     return Commands.sequence(

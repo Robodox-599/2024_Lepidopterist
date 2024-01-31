@@ -32,7 +32,7 @@ public final class Constants {
     public static final int wristRetractSlot = 1;
 
     public static final double kWristExtendVal = 30;
-    public static final double kWristRetractVal = -30;
+    public static final double kWristRetractVal = -20;
 
     public static final double kWristBufferZone = 2;
 
@@ -49,7 +49,14 @@ public final class Constants {
   }
 
   public static class BreakerConstants {
-    public static final int breakerPort = 0;
+    public static final int breakerPort1 = 0;
+    public static final int breakerPort2 = 1;
+  }
+
+  public static class IndexerConstants {
+    public static final int indexerMotorID = 9;
+
+    public static final double indexerSpeed = 0.3;
   }
 
   public static final class ControllerConstants{

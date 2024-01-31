@@ -66,7 +66,7 @@ public class subsystem_Wrist extends SubsystemBase {
     if(passedInPosition == WristConstants.kWristExtendVal){
       desiredWristSlot = WristConstants.wristExtendSlot;
     }
-    else{
+    if(passedInPosition == WristConstants.kWristRetractVal){
       desiredWristSlot = WristConstants.wristRetractSlot;
     }
 
@@ -81,7 +81,7 @@ public class subsystem_Wrist extends SubsystemBase {
   public void periodic() {
     // This method will be called once per scheduler run
 
-    SmartDashboard.putNumber("Wrist Built-in Encoder", m_wristEncoder.getPosition());
+    SmartDashboard.putNumber("Wrist Pos", m_wristEncoder.getPosition());
     SmartDashboard.putNumber("Current Slot", desiredWristSlot);
     SmartDashboard.putBoolean("At Desired Wrist Position", isWristAtDesiredPosition(desiredWristPos));
     SmartDashboard.putNumber("Desired wrist pos", desiredWristPos);

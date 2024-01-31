@@ -22,6 +22,7 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.subsystems.subsystem_Wrist;
 import frc.robot.commands.command_MoveWrist;
 import frc.robot.subsystems.subsystem_Breakers;
+import frc.robot.subsystems.subsystem_Indexer;
 import frc.robot.subsystems.subsystem_Intake;
 import frc.robot.commands.command_RunIntake;
 
@@ -37,11 +38,15 @@ public class RobotContainer {
   private final subsystem_Wrist m_Subsystem_Wrist = new subsystem_Wrist();
   private final subsystem_Breakers m_Subsystem_Breakers = new subsystem_Breakers();
   private final subsystem_Intake m_Subsystem_Intake = new subsystem_Intake();
+  private final subsystem_Indexer m_Subsystem_Indexer = new subsystem_Indexer();
   
   private final Joystick haPerator = new Joystick(ControllerConstants.xboxHaperatorID);
 
   private final JoystickButton intakeTime = 
       new JoystickButton(haPerator, Constants.ControllerConstants.xboxY);
+
+  // private final JoystickButton testRetract =
+  //     new JoystickButton((haPerator), Constants.ControllerConstants.xboxA);
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final CommandXboxController m_driverController =
@@ -80,8 +85,8 @@ public class RobotContainer {
     // m_driverController.x().whileTrue(new command_MoveWrist(m_Subsystem_Wrist, () -> WristConstants.kWristExtendVal));
     // m_driverController.y().whileTrue(new command_MoveWrist(m_Subsystem_Wrist, () -> WristConstants.kWristRetractVal));
 
-    intakeTime.onTrue(cGroup_Intake.intakeTime(m_Subsystem_Wrist, m_Subsystem_Intake, m_Subsystem_Breakers));
-    
+    intakeTime.onTrue(cGroup_Intake.intakeTime(m_Subsystem_Wrist, m_Subsystem_Intake, m_Subsystem_Breakers, m_Subsystem_Indexer));
+    //testRetract.onTrue(cGroup_Intake.testRetract(m_Subsystem_Indexer, m_Subsystem_Wrist, m_Subsystem_Breakers));
 
 
   }

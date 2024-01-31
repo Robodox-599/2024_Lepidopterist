@@ -4,43 +4,36 @@
 
 package frc.robot.commands;
 
-import java.util.function.DoubleSupplier;
-
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.subsystem_Breakers;
-import frc.robot.subsystems.subsystem_Intake;
-import frc.robot.subsystems.subsystem_Wrist;
 
-public class command_RunIntake extends Command {
-  /** Creates a new command_RunIntake. */
-  private final subsystem_Intake m_Intake;
+import frc.robot.subsystems.subsystem_Breakers;
+import frc.robot.subsystems.subsystem_Indexer;
+
+public class command_RunIndexer extends Command {
+
+  private final subsystem_Indexer m_Indexer;
   private final subsystem_Breakers m_Breakers;
 
-  public command_RunIntake(subsystem_Intake intakeSubsystem, subsystem_Breakers breakerSubsystem) {
+  /** Creates a new command_RunIndexer. */
+  public command_RunIndexer(subsystem_Indexer indexerSubsystem, subsystem_Breakers breakerSubsystem) {
     // Use addRequirements() here to declare subsystem dependencies.
-    m_Intake = intakeSubsystem;
+
+    m_Indexer = indexerSubsystem;
     m_Breakers = breakerSubsystem;
-    addRequirements(m_Intake,m_Breakers);
+
+    addRequirements(m_Indexer,m_Breakers);
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    SmartDashboard.putBoolean("Run intake initialized", true);
-    m_Intake.runIntake();
+    m_Indexer.runIndexer();
+
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
-  public void execute() {
-    SmartDashboard.putBoolean("Run intake executed", true);
-    
-  
-    //Has not reached indexer
-    // m_Intake.runIntake();
-    
-  }
+  public void execute() {}
 
   // Called once the command ends or is interrupted.
   @Override
@@ -50,9 +43,8 @@ public class command_RunIntake extends Command {
   @Override
   public boolean isFinished() {
 
-    if(m_Breakers.isFirstBeamBroken()){
-      
-      m_Intake.stopIntake();
+    if(m_Breakers.isSecondBeamBroken()){
+      m_Indexer.stopIndexer();
       return true;
     }
 
