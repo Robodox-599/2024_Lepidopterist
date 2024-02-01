@@ -4,10 +4,14 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
+// import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.util.Units;
-
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
@@ -21,6 +25,24 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
  * constants are needed, to reduce verbosity.
  */
 public final class Constants {
+
+  public static class VisionConstants {
+    public static final double camHeight = 5;
+    public static final double targetHeight = 5;
+    public static final double camPitch = 0;
+    public static final String kCameraName = "Global_Shutter_Camera";
+    public static final double threshold = 0.3;//radians?
+    // Cam mounted facing forward, half a meter forward of center, half a meter up
+    // from center.
+    public static final Transform3d kRobotToCam = new Transform3d(Units.inchesToMeters(3.5),
+                                                                  Units.inchesToMeters(7.0),
+                                                                  Units.inchesToMeters(17.5),
+                                                                  new Rotation3d(0, 0, 0));
+
+    public static final AprilTagFieldLayout kTagLayout = AprilTagFields.k2024Crescendo.loadAprilTagLayoutField();
+  
+  }
+
   public static class SwerveConstants{
     public static final double DEG_TO_RAD = Math.PI / 180.0;
     public static final double RAD_TO_DEG = 180.0 / Math.PI; 
@@ -113,7 +135,7 @@ public final class Constants {
     public static final boolean driveMotorInvert = false;
 
     /* Swerve Profiling values */
-    public static final double maxSpeed = 5.0 / 4.0; // mps
+    public static final double maxSpeed = 2.5 / 4.0; // mps
     public static final double maxAngularVelocity = 360.0 * 1.25 * DEG_TO_RAD / 4.0; // rad per sec
     public static final boolean isFieldRelative = true;
     public static final boolean isOpenLoop = false;

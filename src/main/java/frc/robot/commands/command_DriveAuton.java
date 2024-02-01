@@ -11,6 +11,8 @@ import java.util.function.BooleanSupplier;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.path.PathPlannerTrajectory;
 
+// import com.choreo.lib.*;
+
 import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -32,6 +34,9 @@ public class command_DriveAuton extends Command {
 
   private PathPlannerTrajectory m_Trajectory;
   private PathPlannerPath m_Path;
+  // private ChoreoTrajectory m_ChoreoTrajectory;
+  // private ChoreoTrajectoryState m_ChoreoTrajectoryState;
+  // private Choreo m_Choreo;
   private HolonomicDriveController m_DriveController;
 
   public command_DriveAuton(subsystem_DriveTrain driveTrain,
@@ -40,10 +45,13 @@ public class command_DriveAuton extends Command {
     // Use addRequirements() here to declare subsystem dependencies.
     m_DriveTrain = driveTrain;
     m_ToReset = toReset;
-    addRequirements(m_DriveTrain);
-
-    m_Path = PathPlannerPath.fromPathFile(trajFilePath);
+    
+    // m_Path = PathPlannerPath.fromPathFile(trajFilePath);
+    m_Path = PathPlannerPath.fromChoreoTrajectory(trajFilePath);
     m_Trajectory = new PathPlannerTrajectory(m_Path, new ChassisSpeeds(0, 0, 0), Rotation2d.fromDegrees(0.0));
+    // m_ChoreoTrajectory = Choreo.getTrajectory(trajFilePath);
+    // m_ChoreoTrajectoryState = new ChoreoTrajectoryState(0, 0, 0, 0, 0, 0, 0)
+    addRequirements(m_DriveTrain);
     m_Timer = new Timer();
   }
 
@@ -53,6 +61,8 @@ public class command_DriveAuton extends Command {
     m_Timer.stop();
     m_Timer.reset();
     m_Timer.start();
+
+    // Pose2d initialOdo = m_ChoreoTrajectory.getInitialPose();
 
     Pose2d initOdometry = m_Trajectory.getInitialTargetHolonomicPose();
 
@@ -68,12 +78,26 @@ public class command_DriveAuton extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
+    //Test Case 1
+    // ChoreoTrajectoryState statey = m_ChoreoTrajectory.sample(m_Timer.get(), false);
+    // ChassisSpeeds chassisSpeeds1 = m_DriveController.calculate(m_DriveTrain.getPose(), 
+    //                                                         statey.getPose(), 
+    //                                                         Math.hypot(statey.velocityX, statey.velocityY),
+    //                                                         Rotation2d.fromRadians(statey.heading));
+    
+    //Test Case 2
+    // ChoreoTrajectoryState stateys = m_ChoreoTrajectory.sample(m_Timer.get(), false);
+    // ChassisSpeeds chassisSpeeds2 = stateys.getChassisSpeeds();
+
+    //Default Case
     PathPlannerTrajectory.State state = m_Trajectory.sample(m_Timer.get());
-    ChassisSpeeds chassisSpeeds = m_DriveController.calculate(m_DriveTrain.getPose(),
+    ChassisSpeeds chassisSpeeds3 = m_DriveController.calculate(m_DriveTrain.getPose(),
                                               state.getTargetHolonomicPose(),
                                               state.velocityMps,
                                               state.targetHolonomicRotation);
-    SwerveModuleState[] moduleStates = SwerveConstants.kinematics.toSwerveModuleStates(chassisSpeeds);
+    
+    SwerveModuleState[] moduleStates = SwerveConstants.kinematics.toSwerveModuleStates(chassisSpeeds3);
+    
     SwerveDriveKinematics.desaturateWheelSpeeds(moduleStates, AutoConstants.MaxSpeedMetersPerSecond);
     m_DriveTrain.setModuleStates(moduleStates);
   }
