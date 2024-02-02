@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.command_DriveTeleop;
 import frc.robot.subsystems.subsystem_DriveTrain;
+import frc.robot.subsystems.subsystem_Vision;
 import edu.wpi.first.wpilibj.Joystick;
 // import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
@@ -28,7 +29,11 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
  */
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
+  
+  /* Subsystems */
   private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
+  private final subsystem_DriveTrain m_DriveTrain = new subsystem_DriveTrain();
+  private final subsystem_Vision m_Vision = new subsystem_Vision();
 
   /* Controllers */  
   private final Joystick driver = new Joystick(ControllerConstants.xboxDriveID);
@@ -47,13 +52,11 @@ public class RobotContainer {
   private final JoystickButton changeThrottle = new JoystickButton(driver, changeThrottleButton);
   private final JoystickButton park = new JoystickButton(driver, parkButton);
 
-  /* Subsystems */
-  private final subsystem_DriveTrain m_DriveTrain = new subsystem_DriveTrain();
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     // Configure the trigger bindings
-    m_DriveTrain.setDefaultCommand(new command_DriveTeleop(m_DriveTrain, 
+    m_DriveTrain.setDefaultCommand(new command_DriveTeleop(m_DriveTrain, m_Vision,
                                                           () -> {return -driver.getRawAxis(translationAxis);},
                                                           () -> {return -driver.getRawAxis(strafeAxis);},
                                                           () -> {return -driver.getRawAxis(rotationAxis);},

@@ -162,25 +162,12 @@ public class subsystem_DriveTrain extends SubsystemBase {
   }
 
   public void changeThrottle(){
-    // if(m_Throttle == Throttle.LINEAR){
-    //   m_Throttle = Throttle.NONLINEAR;
-    //   SmartDashboard.putBoolean("SLOW MODE", false);
-    // } 
-    // if(m_Throttle == Throttle.NONLINEAR) {
-    //   m_Throttle = Throttle.LINEAR;
-    //   SmartDashboard.putBoolean("SLOW MODE", true);
-    // }
     m_Throttle = m_Throttle == Throttle.LINEAR ? Throttle.NONLINEAR : Throttle.LINEAR;
   }
 
   public double setThrottle(double input){
-    // SmartDashboard.putString("Throttle Type", m_Throttle.toString());
     return m_Throttle == Throttle.LINEAR ? input : Math.signum(input) * (1.01 * Math.pow(input, 2) - 0.0202 * input + 0.0101);
   }
-
-  // public Command toggleThrottleCommand(){
-  //   return this.runOnce(() -> changeThrottle());
-  // }
 
   public InstantCommand toggleThrottleInstantCommand(){
     return new InstantCommand(() -> changeThrottle(), this);
@@ -189,10 +176,6 @@ public class subsystem_DriveTrain extends SubsystemBase {
   public void zeroGyro(){
     m_Gyro.setYaw(0.0);
   }
-
-  // public Command zeroGyroCommand(){
-  //   return this.runOnce(() -> zeroGyro());
-  // }
 
   public InstantCommand zeroGyroInstantCommand(){
     return new InstantCommand(() -> zeroGyro(), this);
@@ -237,6 +220,10 @@ public class subsystem_DriveTrain extends SubsystemBase {
       m_IsAutoOrient = false;
       m_DPAD = DPAD.value(ORIENTATION.NON_ORIENTED);
     }
+  }
+
+  public void implementVisionPose(Pose2d visionPose, double timestamp){
+    m_PoseEstimator.addVisionMeasurement(visionPose, timestamp);
   }
 
   public double getAngularVelocity(){

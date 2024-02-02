@@ -4,6 +4,10 @@
 
 package frc.robot.commands;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 // import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import java.util.function.BooleanSupplier;
@@ -11,10 +15,12 @@ import java.util.function.DoubleSupplier;
 import frc.robot.Constants.ControllerConstants;
 import frc.robot.Constants.SwerveConstants;
 import frc.robot.subsystems.subsystem_DriveTrain;
+import frc.robot.subsystems.subsystem_Vision;
 
 public class command_DriveTeleop extends Command {
   /** Creates a new command_DriveTeleop. */
   private subsystem_DriveTrain m_DriveTrain;
+  private subsystem_Vision m_Vision;
   private DoubleSupplier m_xSpeed;
   private DoubleSupplier m_ySpeed;
   private DoubleSupplier m_zRot;
@@ -24,6 +30,7 @@ public class command_DriveTeleop extends Command {
   private BooleanSupplier m_OpenLoop;
 
   public command_DriveTeleop(subsystem_DriveTrain driveTrain,
+                            subsystem_Vision vision,
                             DoubleSupplier xSpeed,
                             DoubleSupplier ySpeed,
                             DoubleSupplier zRot,
@@ -33,6 +40,7 @@ public class command_DriveTeleop extends Command {
                             BooleanSupplier openLoop) {
     // Use addRequirements() here to declare subsystem dependencies.
     m_DriveTrain = driveTrain;
+    m_Vision = vision;
     m_xSpeed = xSpeed;
     m_ySpeed = ySpeed;
     m_zRot = zRot;
@@ -40,7 +48,7 @@ public class command_DriveTeleop extends Command {
     m_IsOrientBack = isOrientBack;
     m_FieldRelative = fieldRelative;
     m_OpenLoop = openLoop;
-    addRequirements(m_DriveTrain);
+    addRequirements(m_DriveTrain, m_Vision);
   }
 
   // Called when the command is initially scheduled.
@@ -66,6 +74,20 @@ public class command_DriveTeleop extends Command {
 
     if(Math.abs(m_zRot.getAsDouble()) > ControllerConstants.deadband){
       transformedZRot = m_DriveTrain.setThrottle(2.0 * m_zRot.getAsDouble());
+    }
+
+    if(m_Vision.isDetected()){
+      Pose2d robotPose = m_Vision.pullPose2d(m_DriveTrain.getYaw());
+      SmartDashboard.putNumber("Vision Robot X", robotPose.getX());
+      SmartDashboard.putNumber("Vision Robot Y", robotPose.getY());
+      SmartDashboard.putNumber("Vision Robot Rot", robotPose.getRotation().getDegrees());
+      
+      // Transform3d camToTarget = m_Vision.getVisionResult().getBestTarget().getBestCameraToTarget();
+      // SmartDashboard.putNumber("Target X", Units.metersToInches(camToTarget.getX()));
+      // SmartDashboard.putNumber("Target Y", Units.metersToInches(camToTarget.getY()));
+      // SmartDashboard.putNumber("Yaw", Units.radiansToDegrees(camToTarget.getRotation().getZ()));
+
+      m_DriveTrain.implementVisionPose(robotPose, m_Vision.getTimestampMS());
     }
 
     m_DriveTrain.swerveDrive(transformedXSpeed * SwerveConstants.maxSpeed,
