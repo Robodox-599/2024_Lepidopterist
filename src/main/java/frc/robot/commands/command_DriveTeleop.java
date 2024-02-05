@@ -16,7 +16,6 @@ import frc.robot.subsystems.subsystem_Vision;
 public class command_DriveTeleop extends Command {
   /** Creates a new command_DriveTeleop. */
   private subsystem_DriveTrain m_DriveTrain;
-  private subsystem_Vision m_Vision;
   private DoubleSupplier m_xSpeed;
   private DoubleSupplier m_ySpeed;
   private DoubleSupplier m_zRot;
@@ -26,7 +25,6 @@ public class command_DriveTeleop extends Command {
   private BooleanSupplier m_OpenLoop;
 
   public command_DriveTeleop(subsystem_DriveTrain driveTrain,
-                            subsystem_Vision vision,
                             DoubleSupplier xSpeed,
                             DoubleSupplier ySpeed,
                             DoubleSupplier zRot,
@@ -36,7 +34,6 @@ public class command_DriveTeleop extends Command {
                             BooleanSupplier openLoop) {
     // Use addRequirements() here to declare subsystem dependencies.
     m_DriveTrain = driveTrain;
-    m_Vision = vision;
     m_xSpeed = xSpeed;
     m_ySpeed = ySpeed;
     m_zRot = zRot;
@@ -82,12 +79,6 @@ public class command_DriveTeleop extends Command {
                             m_FieldRelative.getAsBoolean(),
                             m_OpenLoop.getAsBoolean());
 
-    if(m_Vision.LLhasTargets()){
-      double[] bot_pose = m_Vision.getTable();
-        SmartDashboard.putNumber("Field X", bot_pose[0]);
-        SmartDashboard.putNumber("Field Y", bot_pose[1]);
-        SmartDashboard.putNumber("Field Rotation", bot_pose[5]+360 %360);                        
-                            }
   }
 
   // Called once the command ends or is interrupted.
