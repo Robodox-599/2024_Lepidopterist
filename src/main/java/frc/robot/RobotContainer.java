@@ -12,9 +12,10 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.command_DriveTeleop;
+import frc.robot.commands.command_LEDToggle;
 import frc.robot.subsystems.subsystem_DriveTrain;
 import frc.robot.subsystems.subsystem_Vision;
-import frc.robot.commands.command_AlignmentTest;
+import frc.robot.commands.command_Pipeline_Toggle;
 
 import org.photonvision.PhotonCamera;
 
@@ -44,14 +45,19 @@ public class RobotContainer {
   private final int rotationAxis = ControllerConstants.xboxRXAxis;
 
   private final int alignmentButton = ControllerConstants.xboxA;
+  private final int pipelineButton = ControllerConstants.xboxRB;
+  private final int LEDbutton = ControllerConstants.xboxRightDPad;
+
   
   private final int zeroGyroButton = ControllerConstants.xboxY;
-  private final int changeThrottleButton = ControllerConstants.xboxRightJoyPress;
+  private final int changeThrottleButton = ControllerConstants.xboxX;
 
   /* Driver Buttons */
   private final JoystickButton zeroGyro = new JoystickButton(driver, zeroGyroButton);
   private final JoystickButton changeThrottle = new JoystickButton(driver, changeThrottleButton);
   private final JoystickButton alignmentTest = new JoystickButton(driver, alignmentButton);
+  private final JoystickButton pipelineToggle = new JoystickButton(driver, pipelineButton);
+  private final JoystickButton LEDtoggle = new JoystickButton(driver, LEDbutton);
 
 
   /* Subsystems */
@@ -64,6 +70,7 @@ public class RobotContainer {
   public RobotContainer() {
     // Configure the trigger bindings
     m_DriveTrain.setDefaultCommand(new command_DriveTeleop(m_DriveTrain, 
+                                                          m_Vision,
                                                           () -> {return -driver.getRawAxis(translationAxis);},
                                                           () -> {return -driver.getRawAxis(strafeAxis);},
                                                           () -> {return -driver.getRawAxis(rotationAxis);},
@@ -95,7 +102,9 @@ public class RobotContainer {
     // m_driverController.b().whileTrue(m_exampleSubsystem.exampleMethodCommand());
     zeroGyro.onTrue(new InstantCommand(() -> m_DriveTrain.zeroGyroCommand()));
     changeThrottle.onTrue(new InstantCommand(() -> m_DriveTrain.toggleThrottleCommand()));
-    alignmentTest.whileTrue(new command_AlignmentTest(m_DriveTrain, m_Vision));
+    pipelineToggle.onTrue(new command_Pipeline_Toggle(m_Vision));
+    LEDtoggle.onTrue(new command_LEDToggle(m_Vision));
+
     //new JoystickButton(driver, Alignment_Button).onTrue(new command_AlignmentTest());
     
   }
