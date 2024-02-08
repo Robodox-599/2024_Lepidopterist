@@ -89,7 +89,6 @@ public class command_DriveTeleop extends Command {
       // SmartDashboard.putNumber("Target Y", Units.metersToInches(camToTarget.getY()));
       // SmartDashboard.putNumber("Yaw", Units.radiansToDegrees(camToTarget.getRotation().getZ()));
 
-      // m_DriveTrain.implementVisionPose(robotPose, m_Vision.getTimestampMS());
       m_DriveTrain.implementVisionPose(robotPose, m_Vision.getTimestampMS());
     }
 

@@ -8,6 +8,9 @@ import edu.wpi.first.wpilibj2.command.Command;
 import java.util.function.BooleanSupplier;
 // import java.util.function.DoubleSupplier;
 
+import com.choreo.lib.Choreo;
+import com.choreo.lib.ChoreoTrajectory;
+import com.choreo.lib.ChoreoTrajectoryState;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.path.PathPlannerTrajectory;
 
@@ -34,7 +37,7 @@ public class command_DriveAuton extends Command {
 
   private PathPlannerTrajectory m_Trajectory;
   private PathPlannerPath m_Path;
-  // private ChoreoTrajectory m_ChoreoTrajectory;
+  private ChoreoTrajectory m_ChoreoTrajectory;
   // private ChoreoTrajectoryState m_ChoreoTrajectoryState;
   // private Choreo m_Choreo;
   private HolonomicDriveController m_DriveController;
@@ -43,13 +46,23 @@ public class command_DriveAuton extends Command {
                             BooleanSupplier toReset,
                             String trajFilePath) {
     // Use addRequirements() here to declare subsystem dependencies.
+    SmartDashboard.putBoolean("Constructor", true);
     m_DriveTrain = driveTrain;
     m_ToReset = toReset;
-    
+    SmartDashboard.putBoolean("Line 49", true);
     // m_Path = PathPlannerPath.fromPathFile(trajFilePath);
-    m_Path = PathPlannerPath.fromChoreoTrajectory(trajFilePath);
-    m_Trajectory = new PathPlannerTrajectory(m_Path, new ChassisSpeeds(0, 0, 0), Rotation2d.fromDegrees(0.0));
-    // m_ChoreoTrajectory = Choreo.getTrajectory(trajFilePath);
+    // m_Path = PathPlannerPath.fromChoreoTrajectory(trajFilePath);
+    SmartDashboard.putBoolean("Line 52", true);
+    m_DriveController = new HolonomicDriveController(AutoConstants.XPID, 
+                                                    AutoConstants.YPID, 
+                                                    AutoConstants.ThetaPIDRadians);
+    // m_Trajectory = new PathPlannerTrajectory(m_Path, new ChassisSpeeds(), new Rotation2d());
+    // m_Trajectory = new PathPlannerTrajectory(m_Path, new ChassisSpeeds(0, 0, 0), Rotation2d.fromDegrees(0.0));
+    m_ChoreoTrajectory = Choreo.getTrajectory(trajFilePath);
+    // ChoreoTrajectoryState initialState = m_ChoreoTrajectory.getInitialState();
+    // ChassisSpeeds initialSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(null, null)
+    // m_Trajectory = new PathPlannerTrajectory(m_Path, initialSpeeds, null)
+    SmartDashboard.putBoolean("Line 54", true);
     // m_ChoreoTrajectoryState = new ChoreoTrajectoryState(0, 0, 0, 0, 0, 0, 0)
     addRequirements(m_DriveTrain);
     m_Timer = new Timer();
@@ -58,48 +71,79 @@ public class command_DriveAuton extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
+    SmartDashboard.putBoolean("Initialize", true);
     m_Timer.stop();
     m_Timer.reset();
     m_Timer.start();
 
     // Pose2d initialOdo = m_ChoreoTrajectory.getInitialPose();
 
-    Pose2d initOdometry = m_Trajectory.getInitialTargetHolonomicPose();
+    // Pose2d initOdometry = m_Trajectory.getInitialTargetHolonomicPose();
+    Pose2d initialOdometry = m_ChoreoTrajectory.getInitialPose();
 
     if(m_ToReset.getAsBoolean()){
-      m_DriveTrain.resetOdometry(initOdometry);
+      // m_DriveTrain.resetOdometry(initOdometry);
+      m_DriveTrain.resetOdometry(initialOdometry);
     }
 
-    SmartDashboard.getNumber("Initial_X", initOdometry.getX());
-    SmartDashboard.getNumber("Initial_Y", initOdometry.getX());
-    SmartDashboard.getNumber("Initial_Heading", initOdometry.getRotation().getDegrees());
+    // SmartDashboard.getNumber("Initial_X", initOdometry.getX());
+    // SmartDashboard.getNumber("Initial_Y", initOdometry.getX());
+    // SmartDashboard.getNumber("Initial_Heading", initOdometry.getRotation().getDegrees());
+    SmartDashboard.getNumber("Initial_X", initialOdometry.getX());
+    SmartDashboard.getNumber("Initial_Y", initialOdometry.getX());
+    SmartDashboard.getNumber("Initial_Heading", initialOdometry.getRotation().getDegrees());
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    //Test Case 1
+    double[] flags = new double[7];
+    SmartDashboard.putBoolean("Execute", true);
+    // Test Case 1
     // ChoreoTrajectoryState statey = m_ChoreoTrajectory.sample(m_Timer.get(), false);
     // ChassisSpeeds chassisSpeeds1 = m_DriveController.calculate(m_DriveTrain.getPose(), 
     //                                                         statey.getPose(), 
     //                                                         Math.hypot(statey.velocityX, statey.velocityY),
     //                                                         Rotation2d.fromRadians(statey.heading));
     
-    //Test Case 2
+    // Test Case 2
     // ChoreoTrajectoryState stateys = m_ChoreoTrajectory.sample(m_Timer.get(), false);
     // ChassisSpeeds chassisSpeeds2 = stateys.getChassisSpeeds();
 
     //Default Case
-    PathPlannerTrajectory.State state = m_Trajectory.sample(m_Timer.get());
-    ChassisSpeeds chassisSpeeds3 = m_DriveController.calculate(m_DriveTrain.getPose(),
-                                              state.getTargetHolonomicPose(),
-                                              state.velocityMps,
-                                              state.targetHolonomicRotation);
+    ChoreoTrajectoryState statey = m_ChoreoTrajectory.sample(m_Timer.get());
+    // PathPlannerTrajectory.State state = m_Trajectory.sample(m_Timer.get());
+    // SmartDashboard.putNumber("Line 112", flags[0]);
+    // flags[0]++;
     
-    SwerveModuleState[] moduleStates = SwerveConstants.kinematics.toSwerveModuleStates(chassisSpeeds3);
-    
+    // double velocity = Math.signum(statey.velocityY) * Math.hypot(statey.velocityX, statey.velocityY);
+    // ChassisSpeeds chassisSpeeds3 = m_DriveController.calculate(m_DriveTrain.getPose(),
+    //                                           state.getTargetHolonomicPose(),
+    //                                           state.velocityMps,
+    //                                           state.targetHolonomicRotation);
+    // SmartDashboard.putNumber("Line 118", flags[1]);
+    // flags[1]++;
+    // ChassisSpeeds chassisSpeeds = m_DriveController.calculate(m_DriveTrain.getPose(),
+    //                                                           statey.getPose(),
+    //                                                           velocity, 
+    //                                                           Rotation2d.fromRadians(statey.heading));
+    SmartDashboard.putNumber("Auton Angular Velocity (Deg/s)", statey.angularVelocity * SwerveConstants.RAD_TO_DEG);
+    SmartDashboard.putNumber("Auton Heading (Deg)", statey.heading * SwerveConstants.RAD_TO_DEG);
+    ChassisSpeeds chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(statey.velocityX, 
+                                                                        statey.velocityY, 
+                                                                        statey.angularVelocity,
+                                                                        Rotation2d.fromRadians(statey.heading));
+    // SmartDashboard.putNumber("Line 123", flags[0]);
+    // flags[0]++;
+    SwerveModuleState[] moduleStates = SwerveConstants.kinematics.toSwerveModuleStates(chassisSpeeds);
+    // SmartDashboard.putNumber("Line 125", flags[1]);
+    // flags[1]++;
     SwerveDriveKinematics.desaturateWheelSpeeds(moduleStates, AutoConstants.MaxSpeedMetersPerSecond);
+    // SmartDashboard.putNumber("Line 127", flags[2]);
+    // flags[2]++;
     m_DriveTrain.setModuleStates(moduleStates);
+    // SmartDashboard.putNumber("Line 129", flags[3]);
+    // flags[3]++;
   }
 
   // Called once the command ends or is interrupted.
@@ -111,6 +155,6 @@ public class command_DriveAuton extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return m_Timer.get() >= m_Trajectory.getTotalTimeSeconds();
+    return m_Timer.get() >= m_ChoreoTrajectory.getFinalState().timestamp;
   }
 }
