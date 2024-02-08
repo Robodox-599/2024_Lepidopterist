@@ -33,9 +33,9 @@ m_encoder = m_motor.getEncoder();
 m_PidController = m_motor.getPIDController();
 m_PidController.setP(Constants.PIDConstants.extendP);
 
-m_PidController.setP(Constants.PIDConstants.extendI);
+m_PidController.setI(Constants.PIDConstants.extendI);
 
-m_PidController.setP(Constants.PIDConstants.extendD);
+m_PidController.setD(Constants.PIDConstants.extendD);
 
 m_encoder.setPosition(0);
 }
@@ -46,13 +46,13 @@ m_desired_pos = setpoint;
 }
 
 public boolean is_at_desired(){
-    return(m_encoder.getPosition() - m_desired_pos>Constants.Setpoints.setPointDeadband);
+    return(Math.abs(m_encoder.getPosition() - m_desired_pos)<Constants.Setpoints.setPointDeadband);
     }
     
 @Override
 public void periodic() {
 // This method will be called once per scheduler run
-if ((Math.abs(m_encoder.getPosition()- m_desired_pos) > Constants.Setpoints.setPointDeadband)){
+if (!is_at_desired()){
 
 m_PidController.setReference(m_desired_pos,CANSparkMax.ControlType.kPosition, 0);
 
