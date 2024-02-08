@@ -10,13 +10,15 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.LimelightHelpers;
 import frc.robot.LimelightHelpers.LimelightResults;
 
-public class subsystem_LimelightVision extends SubsystemBase {
+public class subsystem_Vision extends SubsystemBase {
   /** Creates a new subsystem_Vision. */
   private NetworkTable m_Table;
   // private NetworkTableEntry m_TV;
@@ -31,17 +33,15 @@ public class subsystem_LimelightVision extends SubsystemBase {
   // private double m_Pipeline;
   // private double m_LEDMode;
   private AprilTagFieldLayout m_AprilTagField;
-  private Field2d m_Field;
 
-  public subsystem_LimelightVision() {
+  public subsystem_Vision() {
     m_Table = NetworkTableInstance.getDefault().getTable("limelight");
     m_Helpers = new LimelightHelpers();
-    m_Table.getEntry("pipeline").setDouble(1);
+    m_Table.getEntry("pipeline").setDouble(1.0);
     // m_TV = m_Table.getEntry("tv");
     m_HasTargets = false;
     m_Timestamp = 0.0;
     m_AprilTagField = AprilTagFields.k2024Crescendo.loadAprilTagLayoutField();
-    m_Field = new Field2d();
   }
 
   public double[] getBotToTagVector(){
@@ -77,16 +77,17 @@ public class subsystem_LimelightVision extends SubsystemBase {
   }
 
   public Pose2d getEstimatedPose(){
-    return LimelightHelpers.getBotPose2d("limelight");
+    return DriverStation.getAlliance().get() == Alliance.Blue ? 
+            LimelightHelpers.getBotPose2d_wpiBlue("limelight") : 
+            LimelightHelpers.getBotPose2d_wpiRed("limelight");
   }
 
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
     m_HasTargets = m_Table.getEntry("tv").getDouble(0.0) == 1.0;
-    SmartDashboard.putData("field", m_Field);
     if(m_HasTargets){
-      m_Timestamp = m_Table.getEntry("tl").getDouble(0.0);
+      m_Timestamp = m_Table.getEntry("tl").getDouble(0.0) + m_Table.getEntry("cl").getDouble(0.0);
     }
   }
 }

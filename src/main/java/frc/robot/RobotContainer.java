@@ -13,7 +13,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.command_DriveTeleop;
 import frc.robot.subsystems.subsystem_DriveTrain;
-import frc.robot.subsystems.subsystem_LimelightVision;
+import frc.robot.subsystems.subsystem_Vision;
 import edu.wpi.first.wpilibj.Joystick;
 // import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
@@ -34,7 +34,7 @@ public class RobotContainer {
   private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
   private final subsystem_DriveTrain m_DriveTrain = new subsystem_DriveTrain();
   // private final subsystem_Vision m_Vision = new subsystem_Vision();
-  private final subsystem_LimelightVision m_Vision = new subsystem_LimelightVision();
+  private final subsystem_Vision m_Vision = new subsystem_Vision();
   /* Controllers */  
   private final Joystick driver = new Joystick(ControllerConstants.xboxDriveID);
   

@@ -15,12 +15,12 @@ import java.util.function.DoubleSupplier;
 import frc.robot.Constants.ControllerConstants;
 import frc.robot.Constants.SwerveConstants;
 import frc.robot.subsystems.subsystem_DriveTrain;
-import frc.robot.subsystems.subsystem_LimelightVision;
+import frc.robot.subsystems.subsystem_Vision;
 
 public class command_DriveTeleop extends Command {
   /** Creates a new command_DriveTeleop. */
   private subsystem_DriveTrain m_DriveTrain;
-  private subsystem_LimelightVision m_Vision;
+  private subsystem_Vision m_Vision;
   private DoubleSupplier m_xSpeed;
   private DoubleSupplier m_ySpeed;
   private DoubleSupplier m_zRot;
@@ -30,7 +30,7 @@ public class command_DriveTeleop extends Command {
   private BooleanSupplier m_OpenLoop;
 
   public command_DriveTeleop(subsystem_DriveTrain driveTrain,
-                            subsystem_LimelightVision vision,
+                            subsystem_Vision vision,
                             DoubleSupplier xSpeed,
                             DoubleSupplier ySpeed,
                             DoubleSupplier zRot,

@@ -21,6 +21,7 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 // import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -57,6 +58,8 @@ public class subsystem_DriveTrain extends SubsystemBase {
   
   private int m_DPAD;
   private int m_OrientCounter;
+
+  private Field2d m_Field;
 
   private Vector<N3> vec1 = VecBuilder.fill(0.7, 0.7, 0.1);
   private Vector<N3> vec2 = VecBuilder.fill(0.3, 0.3, 0.9);
@@ -99,6 +102,8 @@ public class subsystem_DriveTrain extends SubsystemBase {
 
     m_AutoOrientPID.enableContinuousInput(-180.0, 180.0);
     m_AutoOrientPID.setTolerance(1.0);
+
+    m_Field = new Field2d();
   }
 
   public void updateModulePositions(){
@@ -141,10 +146,10 @@ public class subsystem_DriveTrain extends SubsystemBase {
     // SmartDashboard.putNumber("FR Desired Angle", frontRight.angle.getDegrees());
     // SmartDashboard.putNumber("BL Desired Angle", backLeft.angle.getDegrees());
     // SmartDashboard.putNumber("BR Desired Angle", backRight.angle.getDegrees());
-    SmartDashboard.putNumber("FL Desired Speed", frontLeft.speedMetersPerSecond);
-    SmartDashboard.putNumber("FR Desired Speed", frontRight.speedMetersPerSecond);
-    SmartDashboard.putNumber("BL Desired Speed", backLeft.speedMetersPerSecond);
-    SmartDashboard.putNumber("BR Desired Speed", backRight.speedMetersPerSecond);
+    // SmartDashboard.putNumber("FL Desired Speed", frontLeft.speedMetersPerSecond);
+    // SmartDashboard.putNumber("FR Desired Speed", frontRight.speedMetersPerSecond);
+    // SmartDashboard.putNumber("BL Desired Speed", backLeft.speedMetersPerSecond);
+    // SmartDashboard.putNumber("BR Desired Speed", backRight.speedMetersPerSecond);
     
     m_FrontLeft.setDesiredState(frontLeft, isOpenLoop);
     m_FrontRight.setDesiredState(frontRight, isOpenLoop);
@@ -291,11 +296,13 @@ public class subsystem_DriveTrain extends SubsystemBase {
     SmartDashboard.putNumber("Est Y Position", m_PoseEstimator.getEstimatedPosition().getY());
     SmartDashboard.putNumber("Est Pose Yaw", m_PoseEstimator.getEstimatedPosition().getRotation().getDegrees());
     SmartDashboard.putBoolean("SLOW MODE", m_Throttle == Throttle.LINEAR);
-    print(0);
-    print(1);
-    print(2);
-    print(3);
+    // print(0);
+    // print(1);
+    // print(2);
+    // print(3);
     m_PoseEstimator.update(m_Gyro.getRotation2d(), m_ModulePositions);
     updateModulePositions();
+    m_Field.setRobotPose(m_PoseEstimator.getEstimatedPosition());
+    SmartDashboard.putData("field", m_Field);
   }
 }
