@@ -14,7 +14,7 @@ public final class Autos {
   public static Command exampleAuto(subsystem_DriveTrain driveTrain) {
     return Commands.sequence(new command_DriveAuton(driveTrain,
                                                     () -> {return false;},
-                                                    "New Path"));
+                                                    "Straight"));
   }
 
   private Autos() {

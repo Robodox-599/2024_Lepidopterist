@@ -5,6 +5,7 @@
 package frc.robot.commands;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -28,6 +29,7 @@ public class command_DriveTeleop extends Command {
   private BooleanSupplier m_IsOrientBack;
   private BooleanSupplier m_FieldRelative;
   private BooleanSupplier m_OpenLoop;
+  private boolean m_hasInitialized = false;
 
   public command_DriveTeleop(subsystem_DriveTrain driveTrain,
                             subsystem_Vision vision,
@@ -53,7 +55,12 @@ public class command_DriveTeleop extends Command {
 
   // Called when the command is initially scheduled.
   @Override
-  public void initialize() {}
+  public void initialize() {
+    if(!m_hasInitialized){
+      m_DriveTrain.resetOdometry(new Pose2d(1.0, 5.4, Rotation2d.fromDegrees(180.0)));
+    }
+    m_hasInitialized = true;
+  }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override

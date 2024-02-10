@@ -7,6 +7,10 @@ package frc.robot.subsystems;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import com.ctre.phoenix6.hardware.Pigeon2;
+
+import java.util.Arrays;
+
+import com.choreo.lib.ChoreoTrajectory;
 import com.ctre.phoenix6.configs.Pigeon2Configuration;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
@@ -19,6 +23,9 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.math.trajectory.Trajectory;
+import edu.wpi.first.math.trajectory.TrajectoryConfig;
+import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
@@ -204,6 +211,13 @@ public class subsystem_DriveTrain extends SubsystemBase {
     return m_PoseEstimator.getEstimatedPosition().getRotation();
   }
 
+  public void setTrajectory(ChoreoTrajectory trajectory){
+    TrajectoryConfig config = new TrajectoryConfig(AutoConstants.MaxSpeedMetersPerSecond, 
+                                                  AutoConstants.MaxAccelMetersPerSecondSquared);
+    Trajectory traj = TrajectoryGenerator.generateTrajectory(Arrays.asList(trajectory.getPoses()), config);
+    m_Field.getObject("traj").setTrajectory(traj);
+  }
+
   public void resetModulesToAbsolute(){
     m_FrontLeft.resetToAbsolute();
     m_FrontRight.resetToAbsolute();
@@ -300,9 +314,9 @@ public class subsystem_DriveTrain extends SubsystemBase {
     // print(1);
     // print(2);
     // print(3);
+    m_Field.setRobotPose(m_PoseEstimator.getEstimatedPosition());
     m_PoseEstimator.update(m_Gyro.getRotation2d(), m_ModulePositions);
     updateModulePositions();
-    m_Field.setRobotPose(m_PoseEstimator.getEstimatedPosition());
     SmartDashboard.putData("field", m_Field);
   }
 }
