@@ -56,10 +56,10 @@ public class command_DriveTeleop extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    if(!m_hasInitialized){
-      m_DriveTrain.resetOdometry(new Pose2d(1.0, 5.4, Rotation2d.fromDegrees(180.0)));
-    }
-    m_hasInitialized = true;
+    // if(!m_hasInitialized){
+    //   m_DriveTrain.resetOdometry(new Pose2d(1.0, 5.4, Rotation2d.fromDegrees(180.0)));
+    // }
+    // m_hasInitialized = true;
   }
 
   // Called every time the scheduler runs while the command is scheduled.

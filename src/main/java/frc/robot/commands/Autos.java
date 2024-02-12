@@ -6,15 +6,22 @@ package frc.robot.commands;
 
 import frc.robot.subsystems.ExampleSubsystem;
 import frc.robot.subsystems.subsystem_DriveTrain;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 
 public final class Autos {
   /** Example static factory for an autonomous command. */
   public static Command exampleAuto(subsystem_DriveTrain driveTrain) {
     return Commands.sequence(new command_DriveAuton(driveTrain,
-                                                    () -> {return false;},
-                                                    "Straight"));
+                                                    () -> {return true;},
+                                                    "Angle"),
+                              
+                              Commands.waitSeconds(1.0),                      // new InstantCommand(() -> Timer.delay(1.0)),
+                              new command_DriveAuton(driveTrain, () -> {return false;},
+                                                    "Angle Pt 2")
+                                                    );
   }
 
   private Autos() {

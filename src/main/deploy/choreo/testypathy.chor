@@ -411,14 +411,14 @@
                         "first"
                     ],
                     "type": "StopPoint",
-                    "uuid": "542372d5-56ed-45d4-938c-14bba890fb34"
+                    "uuid": "71962202-d123-46f4-bcb5-4e00dc6919fb"
                 },
                 {
                     "scope": [
                         "last"
                     ],
                     "type": "StopPoint",
-                    "uuid": "90f43324-be3b-4c9e-af82-6e01e23da55e"
+                    "uuid": "b66babea-ab86-41e4-85f8-fa7b99179fab"
                 }
             ],
             "usesControlIntervalGuessing": false,
@@ -439,7 +439,7 @@
                 },
                 {
                     "x": 4.350830554962158,
-                    "y": 2.243701934814453,
+                    "y": 2.262,
                     "heading": 0,
                     "isInitialGuess": false,
                     "translationConstrained": true,
@@ -572,17 +572,17 @@
                         "first"
                     ],
                     "type": "StopPoint",
-                    "uuid": "fdc7c21f-fd69-46fd-9e38-742e1ac042d8"
+                    "uuid": "f407ad1c-2752-4e08-901a-5d4f0a07359b"
                 },
                 {
                     "scope": [
                         "last"
                     ],
                     "type": "StopPoint",
-                    "uuid": "6439c34c-7bcc-4fe7-8fdf-6b70f9f9b599"
+                    "uuid": "049c0620-1b47-4805-87ac-5e498fe25713"
                 }
             ],
-            "usesControlIntervalGuessing": true,
+            "usesControlIntervalGuessing": false,
             "defaultControlIntervalCount": 40,
             "usesDefaultFieldObstacles": true,
             "circleObstacles": []
