@@ -18,8 +18,8 @@ public final class Autos {
                                                     () -> {return true;},
                                                     "Angle"),
                               
-                              Commands.waitSeconds(1.0),                      // new InstantCommand(() -> Timer.delay(1.0)),
-                              new command_DriveAuton(driveTrain, () -> {return false;},
+                              // Commands.waitSeconds(1.0),                      // new InstantCommand(() -> Timer.delay(1.0)),
+                              new command_DriveAuton(driveTrain, () -> {return true;},
                                                     "Angle Pt 2")
                                                     );
   }
