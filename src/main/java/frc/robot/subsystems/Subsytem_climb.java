@@ -55,6 +55,7 @@ public class Subsytem_climb extends SubsystemBase {
       desired_Position -= Constants.Setpoints.step;
     } else if(state == 0){
       m_climbMotor.set(0);
+
       desired_Position = m_climbMotor.getPosition().getValueAsDouble();// delete if necessary
       VelocityVoltage m_request = new VelocityVoltage(0).withSlot(0);
       m_climbMotor.setControl(m_request.withVelocity(0).withFeedForward(0)); //Constants.PIDConstants.kinetic_friction
