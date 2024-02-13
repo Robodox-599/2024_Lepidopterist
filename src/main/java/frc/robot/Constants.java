@@ -20,7 +20,7 @@ public final class Constants {
   }
   public static class MotorID{
     public static final int climbMotorID = 0;//fix
-    public static final String CANbusID = "DriveCANivore";//fix
+    public static final String CANbusID = "rio";//fix
   }
   public static class PIDConstants{//fix
     public static final double climbP = 0.1;

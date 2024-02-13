@@ -6,6 +6,8 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VelocityVoltage;
@@ -39,7 +41,7 @@ public class Subsytem_climb extends SubsystemBase {
     // step = 5;
     climbTop = m_climbMotor.getPosition().getValueAsDouble() + Constants.Setpoints.increment1;
     climbBottom = m_climbMotor.getPosition().getValueAsDouble();
-
+    m_climbMotor.setPosition(0);
     m_climbMotor.getConfigurator().apply(m_climbConfig);
     
   }
@@ -52,12 +54,19 @@ public class Subsytem_climb extends SubsystemBase {
     else if (state == 2 && (desired_Position-Constants.Setpoints.step >climbBottom)){
       desired_Position -= Constants.Setpoints.step;
     } else if(state == 0){
+      m_climbMotor.set(0);
+      desired_Position = m_climbMotor.getPosition().getValueAsDouble();// delete if necessary
       VelocityVoltage m_request = new VelocityVoltage(0).withSlot(0);
-      m_climbMotor.setControl(m_request.withVelocity(0).withFeedForward(Constants.PIDConstants.kinetic_friction));
+      m_climbMotor.setControl(m_request.withVelocity(0).withFeedForward(0)); //Constants.PIDConstants.kinetic_friction
     }
+    SmartDashboard.putNumber("state", state);
   }
   @Override
   public void periodic() {
+SmartDashboard.putNumber("desired", desired_Position);
+SmartDashboard.putNumber("climb top", climbTop);
+SmartDashboard.putNumber("climb bottom", climbBottom);
+SmartDashboard.putNumber("encoder pos", m_climbMotor.getPosition().getValueAsDouble());
 
     if ((Math.abs(m_climbMotor.getPosition().getValueAsDouble() - desired_Position) > Constants.Setpoints.setPointDeadband)){
 
