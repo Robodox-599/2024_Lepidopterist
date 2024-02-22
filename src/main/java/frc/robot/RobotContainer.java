@@ -51,8 +51,8 @@ public class RobotContainer {
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
 
-    SmartDashboard.putBoolean("Robot container initialized", true);
-    m_Subsystem_Intake.setDefaultCommand(new command_RunIntake(m_Subsystem_Intake, m_Subsystem_Breakers));
+    //SmartDashboard.putBoolean("Robot container initialized", true);
+    //m_Subsystem_Intake.setDefaultCommand(new command_RunIntake(m_Subsystem_Intake, m_Subsystem_Breakers));
 
     // s_Wrist.setDefaultCommand();
     //  s_Wrist.setDefaultCommand(new command_MoveWrist(s_Wrist,
@@ -75,8 +75,8 @@ public class RobotContainer {
 
   private void configureBindings() {
 
-    m_driverController.x().onTrue(new command_MoveWrist(m_Subsystem_Wrist, () -> WristConstants.kWristExtendVal));
-    m_driverController.y().onTrue(new command_MoveWrist(m_Subsystem_Wrist, () -> WristConstants.kWristRetractVal));
+    //m_driverController.x().onTrue(new command_MoveWrist(m_Subsystem_Wrist, () -> WristConstants.kWristExtendVal));
+    //m_driverController.y().onTrue(new command_MoveWrist(m_Subsystem_Wrist, () -> WristConstants.kWristRetractVal));
    
     //new Trigger(m_Subsystem_Intake.isBeamBroken()).onTrue(new command_RunIntake(m_Subsystem_Intake, m_Subsystem_Breakers));
     // Schedule `ExampleCommand` when `exampleCondition` changes to `true`

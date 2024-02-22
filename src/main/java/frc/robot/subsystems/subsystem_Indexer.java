@@ -10,6 +10,7 @@ import edu.wpi.first.math.controller.PIDController;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.controls.PositionVoltage;
+import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -24,17 +25,27 @@ public class subsystem_Indexer extends SubsystemBase {
 
   private TalonFX m_indexerMotor;
   private TalonFXConfiguration m_indexerConfig;
+  private double indexerSpeed;
+
+ 
 
   public subsystem_Indexer() {
     m_indexerMotor = new TalonFX(IndexerConstants.indexerMotorID);
+    m_indexerConfig = new TalonFXConfiguration();
+    indexerSpeed = IndexerConstants.kIndexerSpeed;
+
+     m_indexerConfig.Slot0.kP = IndexerConstants.indexerP;
+    m_indexerConfig.Slot0.kI = IndexerConstants.indexerI;
+    m_indexerConfig.Slot0.kD = IndexerConstants.indexerD;
 
     m_indexerMotor.getConfigurator().apply(m_indexerConfig);
 
   }
 
   public void runIndexer(){
-    final VoltageOut m_request = new VoltageOut(12.0);
-    m_indexerMotor.setControl(m_request.withOutput(12.0));
+    // VelocityVoltage m_request = new VelocityVoltage(0).withSlot(0);
+    //   m_indexerMotor.setControl(m_request.withVelocity(0).withFeedForward(0));
+    m_indexerMotor.set(indexerSpeed);
   }
 
   public void stopIndexer(){

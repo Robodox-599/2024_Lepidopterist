@@ -19,12 +19,12 @@ import frc.robot.Constants.IndexerConstants;
 
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 
+
 public class subsystem_Wrist extends SubsystemBase {
 
   private TalonFX m_wristMotor;
-  private TalonFXConfiguration m_wristConfig;
-  //!!!Make throughbore encoder here when dummy board is here
   private DutyCycleEncoder thruEncoder;
+  private TalonFXConfiguration m_wristConfig;
 
   private double wristPosition; // where it at
   private double wristEnc; // thrubore enc val
@@ -40,10 +40,9 @@ public class subsystem_Wrist extends SubsystemBase {
   public subsystem_Wrist() {
 
     m_wristMotor = new TalonFX(WristConstants.wristMotorID, SharedConstants.canbusID);
-    m_wristConfig = new TalonFXConfiguration();
-    //!!!Make throughbore encoder here when dummy board is here
     thruEncoder = new DutyCycleEncoder(WristConstants.absEncoderChannel);
-
+    m_wristConfig = new TalonFXConfiguration();
+  
     //wrist extend PID SLOT 0
     m_wristConfig.Slot0.kP = WristConstants.kWristExtendP;
     m_wristConfig.Slot0.kI = WristConstants.kWristExtendI;
@@ -62,7 +61,16 @@ public class subsystem_Wrist extends SubsystemBase {
    
     //wristPosition = m_wristMotor.getPosition().getValueAsDouble();
 
+
+    // wana set idle mode here
+
+    m_wristMotor.set(0);
+
     m_wristMotor.getConfigurator().apply(m_wristConfig);
+  }
+
+  public void resetWristPos(){
+    thruEncoder.reset();
   }
 
   public void setDesiredWristPos(double passedInPosition){
@@ -81,20 +89,18 @@ public class subsystem_Wrist extends SubsystemBase {
   }
 
   public boolean isWristAtDesiredPosition(double passedInPosition){
-    wristEnc = thruEncoder.getAbsolutePosition();
-    return (Math.abs(passedInPosition - wristEnc) < WristConstants.kWristBufferZone);
-  }
-
-  public void resetWristPos(){
-    thruEncoder.reset();
+    wristEnc = thruEncoder.get()* WristConstants.gearRatio;
+    return (Math.abs(wristEnc - passedInPosition) < WristConstants.kWristBufferZone);
   }
 
   @Override
   public void periodic() {
 
-    SmartDashboard.putNumber("Wrist Built-in Encoder", wristEnc);
+    SmartDashboard.putNumber("Wrist Thru Bore", thruEncoder.get()*WristConstants.gearRatio);
+    SmartDashboard.putNumber("Wrist Built In", m_wristMotor.getPosition().getValueAsDouble());
     SmartDashboard.putNumber("Current Slot", desiredWristSlot);
     SmartDashboard.putBoolean("At Desired Wrist Position", isWristAtDesiredPosition(desiredWristPos));
+    SmartDashboard.putNumber("Desired wrist pos", desiredWristPos);
 
     // This method will be called once per scheduler run
 

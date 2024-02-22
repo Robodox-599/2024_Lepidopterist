@@ -18,15 +18,18 @@ public final class Constants {
   }
 
   public static class SharedConstants{
-    public static final String canbusID = "DriveCANivore";
+    public static final String canbusID = "rio";
     //DriveCANivore
   }
 
   public static class WristConstants{
 
-    public static final int absEncoderChannel = 0; 
+    public static final double gearRatio = 3.58;
+    public static final int absEncoderChannel = 2; 
     //IDs
-    public static final int wristMotorID = 0;
+    public static final int wristMotorID = 2;
+    //WRIST ID MUST BE THE MOTOR W THE THRU ENCODER
+
     //public static final int encoder ID here
     //public static final int DIO_pin1 = 0;
     //public static final int DIO_pin2 = 0;
@@ -50,13 +53,20 @@ public final class Constants {
     public static final double kWristRetractVal = -30; //Change
     //
     
-    public static final double kWristBufferZone = 0; //Change
+    public static final double kWristBufferZone = 0.5; //Change
 
   }
 
   public static class IntakeConstants{
+
+    public static final double kIntakeSpeed = 0.3;
     //IDs
     public static final int intakeMotorID = 0;
+
+    //PID
+    public static final double intakeP = 0.5;
+    public static final double intakeI = 0;
+    public static final double intakeD = 0.1;
     //
 
     //PID
@@ -73,7 +83,14 @@ public final class Constants {
   }
 
   public static class IndexerConstants{
-    public static final int indexerMotorID = 0;
+    public static final int indexerMotorID = 1;
+
+    public static final double kIndexerSpeed = 0.3;
+
+    //PID
+    public static final double indexerP = 0.5;
+    public static final double indexerI = 0;
+    public static final double indexerD = 0.1;
   }
 
   public static class ControllerConstants{
