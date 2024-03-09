@@ -1,0 +1,12 @@
+Choreo Configs:
+
+Mass: 155.0 lbs
+MOI: 258.602 lbs * ft^2 (Assume Disc w/ Uniformly Distributed Mass)
+Bumper Width: 31.0 in
+Bumper Length: 31.0 in
+Wheelbase: 20.75 in
+Trackwidth: 20.75 in
+Wheel Radius: 2.0 in
+Gearing: 5.327:1
+Motor Max Speed: 3524 RPM (1007 RPM = 1 m/s)
+Motor Max Torque: 1.162 N*m
