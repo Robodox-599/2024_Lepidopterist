@@ -1,0 +1,401 @@
+// Copyright (c) FIRST and other WPILib contributors.
+// Open Source Software; you can modify and/or share it under the terms of
+// the WPILib BSD license file in the root directory of this project.
+
+package frc.robot;
+
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Translation3d;
+// import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
+
+import com.ctre.phoenix6.signals.AbsoluteSensorRangeValue;
+import com.ctre.phoenix6.signals.SensorDirectionValue;
+
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
+
+/**
+ * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
+ * constants. This class should not be used for any other purpose. All constants should be declared
+ * globally (i.e. public static). Do not put anything functional in this class.
+ *
+ * <p>It is advised to statically import this class (or one of its inner classes) wherever the
+ * constants are needed, to reduce verbosity.
+ */
+public final class Constants {
+  
+  public static class RobotConstants {
+    public static Alliance robotColor = null;
+    public static final String CANBus = "rio";
+    // offset from robot coords to shooter entrance pt
+    public static final Translation3d shooterOffset = new Translation3d(0, 0.10640927, 0.0055); 
+  }
+  
+  public static class FieldConstants { 
+    public static final Translation3d blueSpeakerCenter = new Translation3d(0.231625, 5.55818375, 2.0705635);
+    public static final Translation3d redSpeakerCenter = new Translation3d(16.308315, 5.55818375, 2.0705635);
+  }
+  
+  public static class UnitConstants {
+    public static final double DEG_TO_RAD = Units.degreesToRadians(1.0);
+    public static final double RAD_TO_DEG = Units.radiansToDegrees(1.0);
+    public static final double METRES_TO_FEETRES = Units.metersToFeet(1.0);
+    public static final double FEETRES_TO_METRES = Units.feetToMeters(1.0);
+    public static final double DEG_TO_ROT = Units.degreesToRotations(1.0);
+    public static final double ROT_TO_DEG = Units.rotationsToDegrees(1.0);
+    public static final double kNominal = 12.0;
+  }
+  
+  public static class IntakeConstants{
+    public static final int beamBreak1Port = 1;
+    
+    public static final int throughBoreEncID = 2; 
+    
+    public static final double kWristExtendVal = 8.3;
+    public static final double kWristRetractVal = 0;
+    public static final double wristGearRatio = 3.58;
+    public static final double kWristTolerance = 0.5; //Change
+    
+    public static final double kIntakeSpeed = 0.5;
+    
+    public static class WristMotorConstants{
+      public static final int wristMotorID = 18;
+      
+      public static final int wristExtendSlot = 0;
+      public static final double wristExtendKP = 7;
+      public static final double wristExtendKI = 0;
+      public static final double wristExtendKD = 0.0;
+      public static final double wristExtendKS = 0.0;
+      public static final double kWristFeedForward = -0.3; //arb feedforward to account for gravity
+      
+      public static final int wristRetractSlot = 1;
+      public static final double wristRetractKP = 0.5;
+      public static final double wristRetractKI = 0;
+      public static final double wristRetractKD = 0.1;
+    }
+    
+    public static class RollerMotorConstants{
+      public static final int intakeRollersMotorID = 19;
+      public static final double kP = 1.0;
+      public static final double kI = 0.0;
+      public static final double kD = 0.0;
+      public static final double kS = 0.0;
+      public static final double kV = 0.0;
+      public static final double kA = 0.0;
+      /*Intake Current Limit Config*/
+      public static final boolean EnableCurrentLimit = true;
+      public static final int ContinuousCurrentLimit = 35;
+      public static final int PeakCurrentLimit = 35;
+      public static final double PeakCurrentDuration = 0.1;
+    }
+  }
+
+  public static class IndexerConstants {
+    public static final int motorID = 13;
+    public static final double indexerKP = 0.1;
+    public static final double indexerKI = 0.0;
+    public static final double indexerKD = 0.0;
+    public static final double kIndexerSpeed = 0.9;    
+    
+    public static final int beakBreak2Port = 0;
+    public static final double beamBreakDebounce = 0.1;
+  }
+  
+  public static class LEDConstants {
+    public static final int CANdle_ID = 20;// change
+    
+    public static enum LEDColor {
+      CoopLED,
+      AmplifyLED,
+      None
+    };
+    
+    public static enum LEDAnimation{
+      Intook,
+      Shooting,
+      Amping
+    };
+  }
+  
+  public static class ShooterConstants {
+    public static final int feederMotorID = 14;
+    public static final int absEncoderChannel = 4;
+    
+    public static final double wristTolerance = 3;
+    public static final double wristTestTime = 0.05;
+    public static final double manualWristRatio = 0.4;
+
+    public static final double flywheelDifferential = 0;//increase later
+
+    public static final double shootRadius = 6; //metres (ithink)
+    public static final double wristShootTolerance = 0.5; //deg
+    public static final double flywheelShootTolerance = 80; //im ngl i have no idea what units are
+    
+    public static class FlywheelSetpoints{
+      public static final double AmpSpeed = 10;
+      public static final double SourceSpeed = -5;
+      public static final double SpeakerSpeed = 30;
+      public static final double testFlywheelSetpoint = 40;
+      
+      public static final double FlywheelTolerance = 5;
+    }
+
+    public static class WristSepoints{
+      public static final double minShootAngle = 16.7377;
+      public static final double maxShootAngle = 77.5;
+      
+      public static final double ampWrist = 40; // change
+      public static final double sourceWrist = 40;
+      public static final double testSpeakerWrist = 70;
+    }
+    
+    public static class WristMotorConstants{
+      public static final int wristID = 15;
+      public static final double wristKP = 1.5;
+      public static final double wristKI = 0.0;
+      public static final double wristKD = 0.0;
+      public static final double wristKV = 0.0;
+      public static final double wristKS = 0.0;
+      public static final double wristKG = 0.25;
+      public static final double wristKA = 0.0;
+      
+      public static final double maxWristVelocity = 20;
+      public static final double maxWristAccel = 40;
+    }
+    
+    public static class LeftFlywheelMotorConstants{
+      public static final int leftFlywheelID = 16;
+      public static final double leftFlywheelKP = 0.3; //0.020192;
+      public static final double leftFlywheelKI = 0.0;
+      public static final double leftFlywheelKD = 0.0;
+      public static final double leftFlywheelKS = 0.2; //0.2211;
+      public static final double leftFlywheelKV = 0.1; //0.062267;
+      public static final double leftFlywheelKA = 0.0; //0.0030336;
+    }
+    
+    public static class RightFlywheelMotorConstants{
+      public static final int rightFlywheelID = 17;
+      public static final double rightFlywheelKP = 0.3; //0.0022001
+      public static final double rightFlywheelKI = 0.0;
+      public static final double rightFlywheelKD = 0.0;
+      public static final double rightFlywheelKS = 0.2; //0.1452;
+      public static final double rightFlywheelKV = 0.1; //0.062713;
+      public static final double rightFlywheelKA = 0.0; //0.0016119;
+    }
+
+    public static class WristMathConstants{
+      public static final double driverArmOffset = 50.0177;
+      public static final double wristGearRatio = 144.0 / 7.0;
+      
+      public static final double shooterAngleToPivotAngle = 24.7702;
+      public static final double shooterConnectionLength = 7.5068;//l1
+      public static final double linkageLength = 7.7504; // l2
+      public static final double driveArmLength = 3.5106;//l3
+    }
+    
+    public static class quinticCoefficients{
+      public static final double a = -0.00972567;
+      public static final double b = 0.154702;
+      public static final double c = -1.14705;
+      public static final double d = 6.74407;
+      public static final double e = -31.956;
+      public static final double f = 90.2914;
+    }
+    // TODO: update reg model please
+    public static class sigmoidCoefficients{
+      public static final double minNoteVelocity = 2;
+      public static final double maxNoteVelocity = 10;
+      public static final double Kstretch = 5;
+      public static final double sigmoidCenter = 2;
+    }
+  }
+  
+  public static class VisionConstants {
+    public static final double camHeight = 5;
+    public static final double targetHeight = 5;
+    public static final double camPitch = 0;
+    public static final String kCameraName = "Global_Shutter_Camera";
+    public static final double threshold = 0.3;//radians?
+    // Cam mounted facing forward, half a meter forward of center, half a meter up
+    // from center.
+    public static final Transform3d kRobotToCam = new Transform3d(Units.inchesToMeters(3.5),
+    Units.inchesToMeters(7.0),
+    Units.inchesToMeters(17.5),
+    new Rotation3d(0, 0, 0));
+    
+    public static final AprilTagFieldLayout kTagLayout = AprilTagFields.k2024Crescendo.loadAprilTagLayoutField();
+  }
+  
+  public static class SwerveConstants{
+    public static final String CANBus = "LunaDriveCANivore";
+    
+    public static final int gyroID = 12; 
+    public static final boolean invertGyro = true;
+    
+    // Drivetrain Constants
+    public static final double openLoopRamp = 0.25;
+    public static final double closedLoopRamp = 0.375;
+    
+    public static final double driveGearRatio = 75.0 / 14.0;
+    public static final double angleGearRatio = 150.0 / 7.0;
+    
+    public static final double wheelCircumference = Units.inchesToMeters(4.0 * Math.PI);
+    
+    public static final Translation2d frontLeft = new Translation2d(Units.inchesToMeters(10.375), Units.inchesToMeters(10.375));
+    public static final Translation2d frontRight = new Translation2d(Units.inchesToMeters(10.375), -Units.inchesToMeters(10.375));
+    public static final Translation2d backLeft = new Translation2d(-Units.inchesToMeters(10.375), Units.inchesToMeters(10.375));
+    public static final Translation2d backRight = new Translation2d(-Units.inchesToMeters(10.375), -Units.inchesToMeters(10.375));
+    
+    public static final SwerveDriveKinematics kinematics = new SwerveDriveKinematics(frontLeft, frontRight, backLeft, backRight);
+    
+    //Change to non-linear throttle for finer tuned movements
+    public static enum Throttle{
+      LINEAR,
+      NONLINEAR
+    };
+    
+    /*simepleMotorFeedforward gains*/
+    public static final double driveKS = 0.080108;
+    public static final double driveKV = 0.61952;
+    public static final double driveKA = 0.019975; 
+    
+    /*Angle Encoder Invert*/
+    public static final AbsoluteSensorRangeValue RANGE_VALUE = AbsoluteSensorRangeValue.Unsigned_0To1;
+    public static final SensorDirectionValue DIRECTION_VALUE = SensorDirectionValue.CounterClockwise_Positive;
+    
+    /*Swerve Angle Motor PID gains*/
+    public static final double angleKP = 5.0;
+    public static final double angleKI = 0.0;
+    public static final double angleKD = 0.0;
+    public static final double angleKF = 0.0;
+    
+    /*Swerve Angle Current Limit Config*/
+    public static final boolean angleEnableCurrentLimit = true;
+    public static final int angleContinuousCurrentLimit = 10;
+    public static final int anglePeakCurrentLimit = 20;
+    public static final double anglePeakCurrentDuration = 0.1;
+    
+    /*Swerve Drive Motor PID gains*/
+    public static final double driveKP = 0.1;
+    public static final double driveKI = 0.0;
+    public static final double driveKD = 0.0;
+    public static final double driveKF = 0.0;
+    
+    /*Swerve Drive Current Limit Config*/
+    public static final boolean driveEnableCurrentLimit = true;
+    public static final int driveContinuousCurrentLimit = 30;
+    public static final int drivePeakCurrentLimit = 35;
+    public static final double drivePeakCurrentDuration = 0.1;
+    
+    /*Motor Inverts Config*/
+    public static final boolean angleMotorInvert = true;
+    public static final boolean driveMotorInvert = false;
+    
+    /* Swerve Profiling values */
+    public static final double maxSpeed = 10.0 / 4.0; // mps
+    public static final double maxAngularVelocity = 450.0 * UnitConstants.DEG_TO_RAD / 4.0; // rad per sec
+    public static final boolean isFieldRelative = true;
+    public static final boolean isOpenLoop = false;
+    
+    public static final double readyToShootThreshold = 0.2;
+    
+    public static enum DRIVE_STATE {
+      DRIVER_CONTROL,
+      SHOOTER_PREP,
+      ALIGNING_TO_DPAD
+    };
+    public static enum DPAD{
+      UP,
+      UPRIGHT,
+      RIGHT,
+      DOWNRIGHT,
+      DOWN,
+      DOWNLEFT,
+      LEFT,
+      UPLEFT
+    };
+  }
+  
+  public static final class FrontLeftModule{
+    public static final int driveMotorID = 0;
+    public static final int angleMotorID = 1;
+    public static final int canCoderID = 2;
+    public static final double angleOffset = 0.404297 * 360.0;
+    public static final double[] constants = { driveMotorID, angleMotorID, canCoderID, angleOffset };
+  }
+  
+  public static final class FrontRightModule{
+    public static final int driveMotorID = 3;
+    public static final int angleMotorID = 4;
+    public static final int canCoderID = 5;
+    public static final double angleOffset = 0.024414 * 360.0;
+    public static final double[] constants = { driveMotorID, angleMotorID, canCoderID, angleOffset};
+  }
+  
+  public static final class BackLeftModule{
+    public static final int driveMotorID = 6;
+    public static final int angleMotorID = 7;
+    public static final int canCoderID = 8;
+    public static final double angleOffset = 0.606689 * 360.0;
+    public static final double[] constants = { driveMotorID, angleMotorID, canCoderID, angleOffset};
+  }
+  
+  public static final class BackRightModule{
+    public static final int driveMotorID = 9;
+    public static final int angleMotorID = 10;
+    public static final int canCoderID = 11;
+    public static final double angleOffset = 0.268555 * 360.0;
+    public static final double[] constants = { driveMotorID, angleMotorID, canCoderID, angleOffset};
+  }
+  
+  public static class AutoConstants{
+    public static final double MaxSpeedMetersPerSecond = 4.0;
+    public static final double MaxAccelMetersPerSecondSquared = 7.0;
+    public static final double MaxAngularSpeedRadiansPerSecond = 10.0;
+    public static final double MaxAngularAccelRadiansPerSecondSquared = 8.0;
+    
+    /*Auto Swerve Drive Motor PID gains*/
+    public static final double XDriveKP = 1.0;
+    public static final double XDriveKD = 0.0;
+    
+    public static final PIDController XPID = new PIDController(XDriveKP, 0.0, XDriveKD);
+    
+    public static final double YDriveKP = 1.0;
+    public static final double YDriveKD = 0.0;
+    
+    public static final PIDController YPID = new PIDController(YDriveKP, 0.0, YDriveKD);
+    
+    /* Auto Swerve Angle Motor PID gains*/  
+    public static final double AngleKP = 3.0;
+    public static final double AngleKD = 0.0;
+    
+    public static final PIDController ZPID = new PIDController (AngleKP, 0.0, AngleKD);
+    
+    public static final ProfiledPIDController ThetaPIDRadians = new ProfiledPIDController(
+      AngleKP, 
+      0.0, 
+      AngleKD, 
+      new TrapezoidProfile.Constraints(MaxAngularSpeedRadiansPerSecond, MaxAngularAccelRadiansPerSecondSquared));
+    
+    public static final double[] AutoWristSetpoints = {61.55,50.43,52.66,50.83,
+    66.04,50.63,65.55,58.88};
+    public static final double[] AutoFlywheelSetpoints = {8.0,8.0,8.0,8.0,
+    8.0,8.0,8.0,8.0};
+  }
+    
+    public static class ControllerConstants{
+      public static final double deadband = 0.1;
+      public static final double triggerActivate = 0.8;
+      
+      public static final int xboxDriveID = 0;
+      public static final int xboxOperatorID = 1;
+  }
+}
