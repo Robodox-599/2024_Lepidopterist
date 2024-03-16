@@ -1,0 +1,13 @@
+{
+  "NTProvider": {
+    "types": {
+      "/FMSInfo": "FMSInfo",
+      "/SmartDashboard/Robot Position": "Field2d",
+      "/SmartDashboard/Speaker Position": "Field2d",
+      "/SmartDashboard/Speaker Position Shooter": "Field2d"
+    }
+  },
+  "NetworkTables Info": {
+    "visible": true
+  }
+}
