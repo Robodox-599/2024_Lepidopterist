@@ -1,0 +1,31 @@
+{
+  "version": 1.0,
+  "startingPose": {
+    "position": {
+      "x": 1.31,
+      "y": 5.537
+    },
+    "rotation": 179.99984796050427
+  },
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 7.0
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "2 Piece Auto Mid.1"
+          }
+        }
+      ]
+    }
+  },
+  "folder": null,
+  "choreoAuto": true
+}

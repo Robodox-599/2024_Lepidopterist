@@ -1,0 +1,37 @@
+{
+  "version": 1.0,
+  "startingPose": {
+    "position": {
+      "x": 0.6889408230781555,
+      "y": 6.678065299987793
+    },
+    "rotation": -118.64752725789575
+  },
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 7.0
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "2 Piece auto Left.1"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "2 Piece auto Left.2"
+          }
+        }
+      ]
+    }
+  },
+  "folder": null,
+  "choreoAuto": true
+}
