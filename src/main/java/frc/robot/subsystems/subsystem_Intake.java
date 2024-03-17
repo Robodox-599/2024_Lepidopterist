@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 
 import java.time.Instant;
+import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
@@ -79,9 +80,15 @@ public class subsystem_Intake extends SubsystemBase {
     m_IntakeMotor.setNeutralMode(NeutralModeValue.Brake);
   }
 
-  public void runIntake(boolean isBackward){
+  public void runIntake(boolean isBackward, boolean isAmp){
     SmartDashboard.putNumber("Motor Current", m_IntakeMotor.getStatorCurrent().getValueAsDouble());
-    double sign = isBackward ? -0.7 : IntakeConstants.kIntakeSpeed;
+    double sign = 0.0;
+    if(isBackward){
+      sign = -0.9;
+    } else {
+      sign = isAmp ? IntakeConstants.kIntakeAmpSpeed : IntakeConstants.kIntakeSpeakerSpeed;
+    }
+    
     // double intake_rpm = SurfaceSpeed.intake_max_surface   / // add *60
     //                     (SurfaceSpeed.intake_rad * SurfaceSpeed.intake_GR * 2.0 * Math.PI);
     // m_intakePercent = intake_rpm / SurfaceSpeed.intake_max_rpm;
@@ -110,7 +117,7 @@ public class subsystem_Intake extends SubsystemBase {
   }
 
   public Command runIntakeuntilBeamBreak(){
-    return Commands.sequence(new InstantCommand(() -> runIntake(false), this), 
+    return Commands.sequence(new InstantCommand(() -> runIntake(false, false), this), 
                             new WaitUntilCommand(() -> m_beamBreakTimer.get() >= IndexerConstants.beamBreakDebounce),
                             new WaitUntilCommand(IntakeConstants.extraIntakeTime), 
                             new InstantCommand(() -> stopIntake(), this));
@@ -128,27 +135,30 @@ public class subsystem_Intake extends SubsystemBase {
   }
 
   public Command runIntakeBackCMD(){
-    return new StartEndCommand(() -> runIntake(true), () -> stopIntake(), this);
+    return new StartEndCommand(() -> runIntake(true, false), () -> stopIntake(), this);
+  }
+
+  public Command runIntakeFwdCMD(){
+    return new StartEndCommand(() -> runIntake(false, false), () -> stopIntake(), this);
   }
   /*
    * Runs intake until beam break 1, upon which it automatically stows
    */
-  public Command autoIntakeCommand(){
+  public Command autoIntakeCommand(BooleanSupplier isAmp){
     return Commands.sequence(
       new InstantCommand(() -> setDesiredWristPos(IntakeConstants.kWristExtendVal), this), 
-      new InstantCommand(() -> runIntake(false), this),
+      new InstantCommand(() -> runIntake(false, isAmp.getAsBoolean()), this),
       new WaitUntilCommand(() -> m_beamBreakTimer.get() >= IndexerConstants.beamBreakDebounce),
-      new WaitUntilCommand(IntakeConstants.extraIntakeTime),  
-      stowCommand());
+      // new WaitUntilCommand(IntakeConstants.extraIntakeTime),  
+      stowCommand()
+      );
   }
-
-
 
   public Command ampIntakeCommand(){
     return Commands.sequence(
       new InstantCommand(() -> setDesiredWristPos(IntakeConstants.kWristExtendVal), this),
       new WaitUntilCommand(() -> isWristAtDesiredPosition(m_DesiredWristPos)), //stop changing stuff
-      new InstantCommand(() -> runIntake(false), this),
+      new InstantCommand(() -> runIntake(false, true), this),
       //  new InstantCommand(()-> set_check_current(true), this),
       // new WaitUntilCommand(IntakeConstants.IntakeSpeedupTime), //tune this ples
       // new InstantCommand(()-> set_check_current(false), this),
@@ -168,13 +178,13 @@ public class subsystem_Intake extends SubsystemBase {
   public Command ampScoreCommand(){
     return Commands.sequence(new InstantCommand(() -> setDesiredWristPos(IntakeConstants.kWristAmpVal), this),
                             new WaitUntilCommand(() -> isWristAtDesiredPosition(IntakeConstants.kWristAmpVal)),
-                            new InstantCommand(() -> runIntake(true), this));
+                            new InstantCommand(() -> runIntake(true, true), this));
   }
 
   public Command backwardsIntakeCommand(){
     return Commands.sequence(
       new InstantCommand(() -> setDesiredWristPos(IntakeConstants.kWristExtendVal), this), 
-      new InstantCommand(() -> runIntake(true), this),
+      new InstantCommand(() -> runIntake(true, true), this),
       new WaitUntilCommand(() -> m_beamBreakTimer.get() < IndexerConstants.beamBreakDebounce),
       new WaitUntilCommand(IntakeConstants.backwardsIntakeTime),  
       new InstantCommand(() -> stopIntake(), this), 

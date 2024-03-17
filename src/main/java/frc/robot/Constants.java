@@ -80,16 +80,16 @@ public final class Constants {
     // public static final double intake_percent = 0.35;
     public static final double intake_rad = 0.0254;//must be in meters
     public static final double intake_GR = 1.0/3.13; //must be rolloer to motor
-    public static final double intake_max_rpm = 5400 * IntakeConstants.kIntakeSpeed;// TODO: test this
+    public static final double intake_max_rpm = 5400 * IntakeConstants.kIntakeSpeakerSpeed;// TODO: test this
     public static final double intake_max_surface = intake_max_rpm*intake_GR*intake_rad*2*Math.PI/60.0;
-
 
   }
   
   public static class IntakeConstants{
 
-    public static final double kIntakeSpeed = 0.5;
-    public static final double extraIntakeTime = 1.5; //seconds
+    public static final double kIntakeAmpSpeed = 0.75;
+    public static final double kIntakeSpeakerSpeed = 0.9;
+    public static final double extraIntakeTime = 2; //seconds
     public static final double backwardsIntakeTime = 0.75; //seconds
     public static final double IntakeSpeedupTime = 0.75;
     public static final double IntakeNoNoteCurrent = 30;
@@ -100,7 +100,7 @@ public final class Constants {
     
     public static final double kWristExtendVal = 8.3;
     public static final double kWristRetractVal = 0;
-    public static final double kWristAmpVal = 1;
+    public static final double kWristAmpVal = 1.25;
 
     public static final double wristGearRatio = 3.58;
     public static final double kWristTolerance = 0.2; //Change
@@ -144,8 +144,8 @@ public final class Constants {
       public static final double kA = 0.0;
       /*Intake Current Limit Config*/
       public static final boolean EnableCurrentLimit = true;
-      public static final int ContinuousCurrentLimit = 35;
-      public static final int PeakCurrentLimit = 35;
+      public static final int ContinuousCurrentLimit = 40;
+      public static final int PeakCurrentLimit = 50;
       public static final double PeakCurrentDuration = 0.1;
     }
   }
@@ -155,7 +155,7 @@ public final class Constants {
     public static final double indexerKP = 0.1;
     public static final double indexerKI = 0.0;
     public static final double indexerKD = 0.0;
-    public static final double kIndexerSpeed = 0.5;    
+    public static final double kIndexerSpeed = 0.95;    
     
     public static final int beakBreak2Port = 0;
     public static final double beamBreakDebounce = 0.1;
@@ -225,21 +225,21 @@ public final class Constants {
       
       public static final double ampWrist = 1; // change
       public static final double sourceWrist = 1;
-      public static final double testSpeakerWrist = 3.7; // 3.6288 for 70 deg; 3.29427 for 65 deg
+      public static final double testSpeakerWrist = 3.95; // 3.6288 for 70 deg; 3.29427 for 65 deg
     }
     
     public static class WristMotorConstants{
       public static final int wristID = 15;
-      public static final double wristKP = 0.7;
-      public static final double wristKI = 0.0;
-      public static final double wristKD = 0.0;
+      public static final double wristKP = 0.9;
+      public static final double wristKI = 0.8;
+      public static final double wristKD = 0.1;
       public static final double wristKV = 0.0;
       public static final double wristKS = 0.0;
-      public static final double wristKG = 0.8; // Maybe 0.25??
+      public static final double wristKG = 0.9; // Maybe 0.25??
       public static final double wristKA = 0.0;
       
-      public static final double maxWristVelocity = 70;
-      public static final double maxWristAccel = 140;
+      public static final double maxWristVelocity = 100;
+      public static final double maxWristAccel = 200;
     }
     
     public static class LeftFlywheelMotorConstants{

@@ -90,6 +90,8 @@ public class subsystem_DriveTrain extends SubsystemBase {
     m_ModulePositions = new SwerveModulePosition[4];
     updateModulePositions();
     
+    m_ToggleGyro =false;
+
     m_Field = new Field2d();
     m_AutoOrientPID = new PIDController(0.05, 0.0, 0.001);
     
@@ -139,6 +141,10 @@ public class subsystem_DriveTrain extends SubsystemBase {
 
   public void toggleGyro(){
     m_ToggleGyro = !m_ToggleGyro;
+  }
+
+  public InstantCommand toggleGyrCommand(){
+    return new InstantCommand(() -> toggleGyro(), this);
   }
 
   public boolean getGyroToggle(){

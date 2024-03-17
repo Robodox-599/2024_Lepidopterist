@@ -34,6 +34,8 @@ import frc.robot.subsystems.subsystem_Intake;
 import frc.robot.subsystems.subsystem_LED;
 import frc.robot.subsystems.subsystem_Shooter;
 
+import java.util.function.BooleanSupplier;
+
 import com.pathplanner.lib.auto.AutoBuilder;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -98,7 +100,7 @@ public class RobotContainer {
   
   private void configureBindings() {
 
-    driver.y().onTrue(new InstantCommand(() -> m_DriveTrain.toggleGyro(), m_DriveTrain));
+    driver.y().onTrue(m_DriveTrain.toggleGyrCommand());
     driver.x().onTrue(m_DriveTrain.invertGyroInstantCommand());
     driver.leftStick().onTrue(m_DriveTrain.toggleLinearThrottleCommand());
     driver.rightStick().onTrue(m_DriveTrain.toggleAngularThrottleCommand());
@@ -108,16 +110,18 @@ public class RobotContainer {
     //                                               new command_AutoSpeaker(m_DriveTrain, m_Shooter));
     
     operator.leftTrigger().and(operator.rightTrigger().negate()).whileTrue(
-                                                 new command_AutoSpeaker(m_DriveTrain, m_Shooter));
-    operator.rightTrigger().and(operator.leftTrigger().negate()).whileTrue(Commands.sequence(
-                                                  new command_ToWristAndSpeed(m_Shooter, 
+                                                 new command_ToWristAndSpeed(m_Shooter, 
                                                   () -> ShooterConstants.WristSepoints.testSpeakerWrist,
-                                                  () -> ShooterConstants.FlywheelSetpoints.SpeakerSpeed),
-                                                  new WaitCommand(1), 
-                                                  Commands.parallel(
-                                                  rumbleControllerStartEnd().withTimeout(1),
-                                                  m_Indexer.runIndexerStartEnd().withTimeout(1), 
-                                                  m_Shooter.forwardsFeederStartEnd().withTimeout(1))));
+                                                  () -> ShooterConstants.FlywheelSetpoints.SpeakerSpeed));
+    // operator.rightTrigger().and(operator.leftTrigger().negate()).whileTrue(Commands.sequence(
+    //                                               new command_ToWristAndSpeed(m_Shooter, 
+    //                                               () -> ShooterConstants.WristSepoints.testSpeakerWrist,
+    //                                               () -> ShooterConstants.FlywheelSetpoints.SpeakerSpeed),
+    //                                               new WaitCommand(1), 
+    //                                               Commands.parallel(
+    //                                               rumbleControllerStartEnd().withTimeout(1),
+    //                                               m_Indexer.runIndexerStartEnd().withTimeout(1), 
+    //                                               m_Shooter.forwardsFeederStartEnd().withTimeout(1))));
     
     //shoot when ready
     operator.leftTrigger().and(operator.rightTrigger()).whileTrue(
@@ -126,19 +130,19 @@ public class RobotContainer {
                                     m_Indexer.runIndexerStartEnd().withTimeout(1), 
                                     m_Shooter.forwardsFeederStartEnd().withTimeout(1)));
     
-    operator.leftTrigger().negate().and(operator.rightBumper()).whileTrue(m_Shooter.forwardsFeederStartEnd());                      
+    operator.leftTrigger().negate().and(operator.rightTrigger()).whileTrue(m_Shooter.forwardsFeederStartEnd());                      
 
     // TODO: Slow Shooter wrist when going to stow
-    operator.leftTrigger().negate().and(operator.rightTrigger().negate()).onTrue(m_Shooter.stowShooter());
+    operator.leftTrigger().negate().onTrue(m_Shooter.stowShooter());
     // operator.rightTrigger().onFalse(m_Shooter.stowShooter());
 
     // Intake Speaker Command
-    driver.leftBumper().whileTrue(runIntakeSequence(m_Intake, m_Indexer, m_LED));
+    driver.leftBumper().whileTrue(runIntakeSequence(m_Intake, m_Indexer, m_LED, () -> false));
     driver.leftBumper().onFalse(Commands.parallel(m_Intake.stowCommand(), 
                                                   m_Indexer.stopIndexerCommand()));
 
     // intake amp command
-    driver.rightBumper().whileTrue(m_Intake.ampIntakeCommand());
+    driver.rightBumper().whileTrue(runIntakeSequence(m_Intake, m_Indexer, m_LED, () -> true));
     driver.rightBumper().onFalse(m_Intake.stowCommand());
     
     // Amp Score
@@ -160,6 +164,7 @@ public class RobotContainer {
 
     //LEDs
     // operator.a().onTrue(m_LED.toggleAmpCoopCommand());
+    driver.a().whileTrue(m_Intake.runIntakeFwdCMD());
     
     //manual indexer
     operator.a().whileTrue(m_Indexer.runIndexerBackwardsStartEnd());
@@ -202,10 +207,12 @@ public class RobotContainer {
 
   public void addAutos(){
     m_Chooser.addOption("Taxi Auto", Autos.runAutoPath(m_DriveTrain, "Taxi Auto"));
+    m_Chooser.addOption("Taxi Auto Left", Autos.runAutoPath(m_DriveTrain, "Taxi Auto Left"));
     m_Chooser.addOption("Do Nothing Auto", Autos.runAutoPath(m_DriveTrain, "Do Nothing Auto"));
     m_Chooser.addOption("2 Note Left", Autos.runAutoPath(m_DriveTrain, "2 Note Left"));
     m_Chooser.addOption("2 Note Mid", Autos.runAutoPath(m_DriveTrain, "2 Note Mid"));
     m_Chooser.addOption("2 Note Right", Autos.runAutoPath(m_DriveTrain, "2 Note Right"));
+    m_Chooser.addOption("RIPA", Autos.runAutoPath(m_DriveTrain, "RIPA"));
     SmartDashboard.putData("Auto Chooser", m_Chooser);
   }
 
@@ -219,10 +226,11 @@ public class RobotContainer {
     // return Autos.runAutoPath(m_DriveTrain, "Taxi Auto");
   }
 
-  public static Command runIntakeSequence(subsystem_Intake intake, subsystem_Indexer indexer, subsystem_LED led){
+  public static Command runIntakeSequence(subsystem_Intake intake, subsystem_Indexer indexer, subsystem_LED led, BooleanSupplier isAmp){
     return Commands.parallel(
-      intake.autoIntakeCommand().andThen(rumbleControllerStartEnd().withTimeout(ControllerConstants.rumbleTime)),
-      indexer.runIndexerUntilBeamBreak().andThen(indexer.runIndexerStartEnd().withTimeout(IndexerConstants.extraIndexerTime))); 
+      intake.autoIntakeCommand(isAmp).andThen(rumbleControllerStartEnd().withTimeout(ControllerConstants.rumbleTime))
+      // indexer.runIndexerUntilBeamBreak().andThen(indexer.runIndexerStartEnd().withTimeout(IndexerConstants.extraIndexerTime))
+      ); 
   }
 
   public static Command rumbleControllerStartEnd(){

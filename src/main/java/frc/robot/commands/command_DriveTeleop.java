@@ -70,13 +70,14 @@ public class command_DriveTeleop extends Command {
     double transformedXSpeed = 0.0;
     double transformedYSpeed = 0.0;
     double transformedZRot = 0.0;
-    double inv = m_DriveTrain.getGyroToggle()? -1: 1;
+    double sign = m_DriveTrain.getGyroToggle() ? -1 : 1;
+
     if(Math.abs(m_xSpeed.getAsDouble()) > ControllerConstants.deadband){
-      transformedXSpeed = inv*m_DriveTrain.setLinearThrottle(2.0 * m_xSpeed.getAsDouble());
+      transformedXSpeed = m_DriveTrain.setLinearThrottle(sign * 2.0 * m_xSpeed.getAsDouble());
     }
 
     if(Math.abs(m_ySpeed.getAsDouble()) > ControllerConstants.deadband){
-      transformedYSpeed = inv*m_DriveTrain.setLinearThrottle(2.0 * m_ySpeed.getAsDouble());
+      transformedYSpeed = m_DriveTrain.setLinearThrottle(sign * 2.0 * m_ySpeed.getAsDouble());
     }
 
     if(Math.abs(m_zRot.getAsDouble()) > ControllerConstants.deadband){
