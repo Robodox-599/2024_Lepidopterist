@@ -7,11 +7,6 @@ package frc.robot.subsystems;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import com.ctre.phoenix6.hardware.Pigeon2;
-import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
-import com.pathplanner.lib.util.PIDConstants;
-import com.pathplanner.lib.util.ReplanningConfig;
-
 import com.ctre.phoenix6.configs.Pigeon2Configuration;
 
 import edu.wpi.first.math.VecBuilder;
@@ -44,6 +39,10 @@ import frc.robot.Constants.SwerveConstants;
 import frc.robot.Constants.SwerveConstants.Throttle;
 import frc.robot.Constants.SwerveConstants.DRIVE_STATE;
 import frc.robot.Constants.SwerveConstants.DPAD;
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
+import com.pathplanner.lib.util.PIDConstants;
+import com.pathplanner.lib.util.ReplanningConfig;
 
 public class subsystem_DriveTrain extends SubsystemBase {
   /** Creates a new subsystem_DriveTrain. */
@@ -61,6 +60,8 @@ public class subsystem_DriveTrain extends SubsystemBase {
   private SwerveConstants.Throttle m_AngularThrottle;
 
   private PIDController m_AutoOrientPID;
+
+  private boolean m_ToggleGyro;
   
   private double m_PreviousSetpoint = 0.0;
   private int m_OrientCounter = 0;
@@ -89,14 +90,16 @@ public class subsystem_DriveTrain extends SubsystemBase {
     m_ModulePositions = new SwerveModulePosition[4];
     updateModulePositions();
     
+    m_ToggleGyro =false;
+
     m_Field = new Field2d();
     m_AutoOrientPID = new PIDController(0.05, 0.0, 0.001);
     
     m_PoseEstimator = new SwerveDrivePoseEstimator(m_Kinematics, 
-                                                  Rotation2d.fromDegrees(180.0),
+                                                  new Rotation2d(),
                                                   m_ModulePositions,
-                                                  new Pose2d(1.5, 5.5, 
-                                                  Rotation2d.fromDegrees(0.0)
+                                                  new Pose2d(0.0, 0.0, 
+                                                  new Rotation2d()
                                                   ), vec1, vec2);
     
     m_LinearThrottle = Throttle.LINEAR;
@@ -113,7 +116,6 @@ public class subsystem_DriveTrain extends SubsystemBase {
     m_AutoOrientPID.setTolerance(1.0);
 
     currentSpeeds = new ChassisSpeeds();
-
     AutoBuilder.configureHolonomic(
       this::getPose,
       this::resetOdometry,
@@ -137,14 +139,26 @@ public class subsystem_DriveTrain extends SubsystemBase {
     m_ModulePositions[3] = m_BackRight.getPosition();
   }
 
+  public void toggleGyro(){
+    m_ToggleGyro = !m_ToggleGyro;
+  }
+
+  public InstantCommand toggleGyrCommand(){
+    return new InstantCommand(() -> toggleGyro(), this);
+  }
+
+  public boolean getGyroToggle(){
+    return m_ToggleGyro;
+  }
+
   public void swerveDrive(double xSpeedMetersPerSecond, 
                           double ySpeedMetersPerSecond, 
                           double zRotRadiansPerSecond, 
                           boolean isFieldRelative, 
                           boolean isOpenLoop){
     
-    SmartDashboard.putNumber("before transform", zRotRadiansPerSecond);
-    zRotRadiansPerSecond = transformZRot(zRotRadiansPerSecond);
+    // SmartDashboard.putNumber("before transform", zRotRadiansPerSecond);
+    // zRotRadiansPerSecond = transformZRot(zRotRadiansPerSecond);
 
     SmartDashboard.putNumber("X Speed", xSpeedMetersPerSecond);
     SmartDashboard.putNumber("Y Speed", ySpeedMetersPerSecond);
@@ -215,11 +229,20 @@ public class subsystem_DriveTrain extends SubsystemBase {
   }
 
   public void zeroGyro(){
-    m_Gyro.setYaw(0.0);
+    m_Gyro.setYaw(0);
+    m_PoseEstimator.resetPosition(m_Gyro.getRotation2d(), m_ModulePositions, getPose());
+  }
+
+  public void invertGyro(){
+    m_Gyro.setYaw(180.0);
   }
 
   public InstantCommand zeroGyroInstantCommand(){
     return new InstantCommand(() -> zeroGyro(), this);
+  }
+
+  public InstantCommand invertGyroInstantCommand(){
+    return new InstantCommand(() -> invertGyro(), this);
   }
 
   public void resetOdometry(Pose2d pose){
@@ -430,5 +453,7 @@ public class subsystem_DriveTrain extends SubsystemBase {
 
     SmartDashboard.putData("Robot Position", m_Field);
     SmartDashboard.putNumber("Distance Error", getPose().getTranslation().getDistance(m_FinalPose.getTranslation()));
+
+    SmartDashboard.putBoolean("GyroInvert", m_ToggleGyro);
   }
 }

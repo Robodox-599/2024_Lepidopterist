@@ -4,10 +4,19 @@
 
 package frc.robot.commands;
 
+import java.util.Optional;
+import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.Constants.FieldConstants;
+import frc.robot.Constants.RobotConstants;
 import frc.robot.Constants.ShooterConstants;
 import frc.robot.subsystems.subsystem_Shooter;
 
@@ -39,18 +48,20 @@ public class command_ToWristAndSpeed extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if(!m_Shooter.isWristAtDesiredPosition()){
+    if(!m_Shooter.isWristAtDesiredPosition() && m_wristTimer.get() <= 0.5){
       m_wristTimer.reset();
     }
   }
 
   // Called once the command ends or is interrupted.
   @Override
-  public void end(boolean interrupted) {}
+  public void end(boolean interrupted) {
+    
+  }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return m_wristTimer.get() <= ShooterConstants.wristTestTime;
+    return m_wristTimer.get() >= ShooterConstants.wristTestTime;
   }
 }

@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 // import com.ctre.phoenix6.controls.VoltageOut;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 
+import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
@@ -29,6 +30,8 @@ import frc.robot.Constants.IndexerConstants;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.RobotConstants;
 import frc.robot.Constants.IntakeConstants.WristMotorConstants;
+import frc.robot.Constants.ShooterConstants.FlywheelSetpoints;
+import frc.robot.Constants.SurfaceSpeed;
 
 public class subsystem_Intake extends SubsystemBase {
 
@@ -45,6 +48,7 @@ public class subsystem_Intake extends SubsystemBase {
   // private double m_WristExtend; //from in to out
   // private double m_WristRetract; //from out to in
   private double m_DesiredWristPos; //where wrist wants to go  
+  private double m_intakePercent;
   private int m_WristSlot;
   private Timer m_beamBreakTimer = new Timer();
   /** Creates a new subsystem_Intake. */
@@ -62,6 +66,7 @@ public class subsystem_Intake extends SubsystemBase {
     m_IntakeMotor.getConfigurator().apply(m_Settings.getMotorConfig(0));
     m_IntakeMotor.setInverted(true);
     m_WristMotor.getConfigurator().apply(m_Settings.getMotorConfig(1));
+    m_WristMotor.setNeutralMode(NeutralModeValue.Brake);
     
     m_DesiredIntakePos = 0.0;
     
@@ -74,10 +79,28 @@ public class subsystem_Intake extends SubsystemBase {
     m_IntakeMotor.setNeutralMode(NeutralModeValue.Brake);
   }
 
-  public void runIntake(){
-    m_IntakeMotor.set(IntakeConstants.kIntakeSpeed);
+  public void runIntake(boolean isBackward, boolean isAmp, boolean isAuto){ //i have a headache
+    SmartDashboard.putNumber("Motor Current", m_IntakeMotor.getStatorCurrent().getValueAsDouble());
+    double sign = 0.0;
+    if(isBackward){
+      sign = -0.9;
+      if (isAmp){
+        sign = -0.5;
+      }
+    } else {
+      if (isAuto){
+        sign = 0.5;
+      } else{
+      sign = isAmp ? IntakeConstants.kIntakeAmpIntakeSpeed : IntakeConstants.kIntakeSpeakerIntakeSpeed;
+    }
+    }
+    
+    // double intake_rpm = SurfaceSpeed.intake_max_surface   / // add *60
+    //                     (SurfaceSpeed.intake_rad * SurfaceSpeed.intake_GR * 2.0 * Math.PI);
+    // m_intakePercent = intake_rpm / SurfaceSpeed.intake_max_rpm;
+    m_IntakeMotor.set(sign);//IntakeConstants.kIntakeSpeed  }
   }
-
+  
   public void stopIntake(){
     m_IntakeMotor.stopMotor();
   }
@@ -100,9 +123,9 @@ public class subsystem_Intake extends SubsystemBase {
   }
 
   public Command runIntakeuntilBeamBreak(){
-    return Commands.sequence(new InstantCommand(() -> runIntake(), this), 
-                            new WaitUntilCommand(() -> {return !m_BeamBreak1.get();}),
-                            new WaitUntilCommand(0.2), 
+    return Commands.sequence(runIntakeCommand(() -> IntakeConstants.kIntakeSpeakerIntakeSpeed), 
+                            new WaitUntilCommand(() -> m_beamBreakTimer.get() >= IndexerConstants.beamBreakDebounce),
+                            new WaitUntilCommand(IntakeConstants.extraIntakeTime), 
                             new InstantCommand(() -> stopIntake(), this));
   }
 
@@ -113,38 +136,91 @@ public class subsystem_Intake extends SubsystemBase {
 
   public Command stowCommand(){
     return Commands.sequence(
-      new InstantCommand(() -> stopIntake()), 
-      new InstantCommand(()-> setDesiredWristPos(IntakeConstants.kWristRetractVal)));
+      new InstantCommand(() -> stopIntake(), this), 
+      new InstantCommand(()-> setDesiredWristPos(IntakeConstants.kWristRetractVal), this));
   }
 
   public Command runIntakeBackCMD(){
-    return new StartEndCommand(() -> m_IntakeMotor.set(-0.7), () -> stopIntake(), this);
+    return runIntakeCommand(() -> IntakeConstants.kIntakeBackfeedSpeed).finallyDo(() -> stopIntake());
+    // return new StartEndCommand(() -> runIntake(true, false, false), () -> stopIntake(), this);
   }
+
+  public Command runIntakeFwdCMD(){
+    return runIntakeCommand(() -> IntakeConstants.kIntakeSpeakerIntakeSpeed).finallyDo(() -> stopIntake());
+    // return new StartEndCommand(() -> runIntake(false, false, false), () -> stopIntake(), this);
+  }
+
+  public Command autonExtend(){
+    return runIntakeCommand(() -> IntakeConstants.kIntakeAutoSpeed).finallyDo(() -> stopIntake());
+    // return new StartEndCommand(()-> runIntake(false, false, true), ()->stopIntake(), this);
+  }
+
+  public Command runIntakeCommand(DoubleSupplier intakePercent){
+    return new InstantCommand(() -> m_IntakeMotor.set(intakePercent.getAsDouble()), this);
+  }
+
   /*
+
+  publi
    * Runs intake until beam break 1, upon which it automatically stows
    */
-  public Command autoIntakeCommand(){
+  public Command autoIntakeCommand(BooleanSupplier isAmp, BooleanSupplier isAuto){
     return Commands.sequence(
-      new InstantCommand(() -> setDesiredWristPos(IntakeConstants.kWristExtendVal)), 
-      new InstantCommand(() -> runIntake(), this),
+      new InstantCommand(() -> setDesiredWristPos(IntakeConstants.kWristExtendVal), this),
+
+      new InstantCommand(() -> runIntake(false, isAmp.getAsBoolean(), isAuto.getAsBoolean()), this),
       new WaitUntilCommand(() -> m_beamBreakTimer.get() >= IndexerConstants.beamBreakDebounce),
-      new WaitUntilCommand(1),  
+      // new WaitUntilCommand(IntakeConstants.extraIntakeTime),  
+      stowCommand()
+      );
+  }
+
+  public Command ampIntakeCommand(){
+    return Commands.sequence(
+      new InstantCommand(() -> setDesiredWristPos(IntakeConstants.kWristExtendVal), this),
+      new WaitUntilCommand(() -> isWristAtDesiredPosition(m_DesiredWristPos)),
+      runIntakeCommand(() -> IntakeConstants.kIntakeAmpIntakeSpeed), 
+      //  new InstantCommand(()-> set_check_current(true), this),
+      // new WaitUntilCommand(IntakeConstants.IntakeSpeedupTime), //tune this ples
+      // new InstantCommand(()-> set_check_current(false), this),
+      new WaitUntilCommand(() -> m_beamBreakTimer.get() >= IndexerConstants.beamBreakDebounce),
+      // new WaitUntilCommand(0.1),  
       new InstantCommand(() -> stopIntake(), this), 
-      new InstantCommand(() -> setDesiredWristPos(IntakeConstants.kWristRetractVal)));
+      new InstantCommand(() -> setDesiredWristPos(IntakeConstants.kWristRetractVal), this));
+  }
+
+
+
+  public Command ampScoreCommand(){
+    return Commands.sequence(new InstantCommand(() -> setDesiredWristPos(IntakeConstants.kWristAmpVal), this),
+                            new WaitUntilCommand(() -> isWristAtDesiredPosition(IntakeConstants.kWristAmpVal)),
+                            runIntakeCommand(() -> IntakeConstants.kIntakeAmpScoreSpeed));
+  }
+
+  public Command backwardsIntakeCommand(){
+    return Commands.sequence(
+      new InstantCommand(() -> setDesiredWristPos(IntakeConstants.kWristExtendVal), this), 
+      runIntakeCommand(() -> IntakeConstants.kIntakeBackfeedSpeed),
+      new WaitUntilCommand(() -> m_beamBreakTimer.get() < IndexerConstants.beamBreakDebounce),
+      new WaitUntilCommand(IntakeConstants.backwardsIntakeTime),  
+      new InstantCommand(() -> stopIntake(), this), 
+      new InstantCommand(() -> setDesiredWristPos(IntakeConstants.kWristRetractVal), this));
   }
 
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    if (m_BeamBreak1.get()){
+    if(m_BeamBreak1.get()){
       m_beamBreakTimer.restart();
     }
+
     if(isWristAtDesiredPosition(m_DesiredWristPos) && m_DesiredWristPos == IntakeConstants.kWristRetractVal){
       m_WristMotor.stopMotor(); //stop motor only if fully retracted
     }
+    
     SmartDashboard.putNumber("Intake Wrist Speed", m_WristMotor.getVelocity().getValueAsDouble());
     SmartDashboard.putNumber("Intake Voltage", m_WristMotor.getSupplyVoltage().getValueAsDouble());
-    SmartDashboard.putNumber("Intake Speed", m_IntakeMotor.get());
+    SmartDashboard.putNumber("Intake Velocity", m_IntakeMotor.getVelocity().getValueAsDouble());
     SmartDashboard.putNumber("Intake Wrist Thru Bore", m_AbsEncoder.getDistance() * IntakeConstants.wristGearRatio);
     SmartDashboard.putNumber("Intake Wrist Built In", m_WristMotor.getPosition().getValueAsDouble());
     SmartDashboard.putNumber("Current Slot", m_WristSlot);

@@ -24,11 +24,12 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 
-
 public class subsystem_LED extends SubsystemBase {
   /** Creates a new subsystem_LED. */
   private CANdle m_CANdle;
   private LEDColor m_LEDColor = LEDColor.None;
+
+  private Color currentColor;
 
   private LEDAnimation m_Animation = null;
   private boolean m_HasAnimationStarted = false;
@@ -39,10 +40,19 @@ public class subsystem_LED extends SubsystemBase {
     m_CANdle = new CANdle(LEDConstants.CANdle_ID, RobotConstants.CANBus);
     m_CANdle.configLEDType(LEDStripType.GRB);
     m_CANdle.configBrightnessScalar(0.5);
-    m_CANdle.configLOSBehavior(false);
-    SmartDashboard.putString("LED Color", new Color(255, 0, 0).toHexString());
+    m_CANdle.configLOSBehavior(true); //TODO: May need changing if this breaks LEDS
     m_AnimationTimer.start();
-    m_CANdle.setLEDs(255, 0, 0);
+
+    currentColor = new Color(255,255, 255);//default
+
+    if (RobotConstants.robotColor == Alliance.Blue){
+      currentColor = new Color(0, 0, 255);
+    } else if (RobotConstants.robotColor == Alliance.Red) {
+      currentColor = new Color(255, 0, 0);
+    }
+
+    SmartDashboard.putString("LED Color", currentColor.toHexString());
+    m_CANdle.setLEDs((int) currentColor.red, (int) currentColor.blue, (int) currentColor.green);
   }
 
   public void setLEDColor(LEDColor color){
@@ -69,27 +79,17 @@ public class subsystem_LED extends SubsystemBase {
     return new InstantCommand(() -> toggleAmpCoop(), this);
   }
 
-  public void setAnimation(LEDAnimation animationToSet, double seconds){
-    m_Animation = animationToSet;
-    m_AnimationDurationSeconds = seconds;
-    m_HasAnimationStarted = false;
-    m_AnimationTimer.reset();
-  }
 
-  public InstantCommand setAnimationCommand (LEDAnimation animationToSet, DoubleSupplier seconds){
-    return new InstantCommand(() -> setAnimation(animationToSet, seconds.getAsDouble()), this);
-  }
+
 
   @Override
   public void periodic() {
-    Color currentColor = new Color(0,0, 0);
     switch(m_LEDColor){
       case AmplifyLED:
         if (RobotConstants.robotColor == Alliance.Red){
           currentColor = new Color(255, 0, 0);
         } else {
           currentColor = new Color(0, 0, 255);
-          SmartDashboard.putString("LED Color", new Color(0, 0, 255).toHexString());
         }
         break;
       
@@ -97,38 +97,32 @@ public class subsystem_LED extends SubsystemBase {
         currentColor = new Color(255, 191, 0);
         break;
       
+      case Shooting:
+      currentColor = new Color(255, 0, 255);
+
+      break;
+
+      
+      case Amping:
+      currentColor = new Color(0, 191, 255);
+
+      break;
+      
+      case Intook:
+      currentColor = new Color(0, 255, 0);
+
+      break;
       default:
-        currentColor = new Color(0, 255, 0);
-        break;
+      if (RobotConstants.robotColor == Alliance.Red){
+        currentColor = new Color(255, 0, 0);
+      } else {
+        currentColor = new Color(0, 0, 255);
+      }
+              break;
     }
 
     SmartDashboard.putString("LED Color", currentColor.toHexString());
-
-    //if we are animating
-    if (m_Animation != null){
-      //if the animation has already been set, check timer and cancel if necessary
-      if (m_HasAnimationStarted){
-        if (m_AnimationTimer.get() > m_AnimationDurationSeconds){
-          m_CANdle.clearAnimation(0);
-          m_Animation = null;
-        }
-      } else { // else start animation
-        m_HasAnimationStarted = true;
-        switch(m_Animation){
-          case Intook:
-            m_CANdle.animate(new StrobeAnimation((int) currentColor.red, (int) currentColor.blue, (int) currentColor.green), 0);
-          case Shooting:
-            m_CANdle.animate(new ColorFlowAnimation((int) currentColor.red, (int) currentColor.blue, (int) currentColor.green), 0);
-          case Amping:
-            FireAnimation fireAnim = new FireAnimation();
-            fireAnim.setSpeed(0.75); 
-            fireAnim.setSparking(1); 
-            fireAnim.setCooling(0.3); 
-            m_CANdle.animate(fireAnim, 0);
-        }
-      }
-    } else { //if no animation, set LEDS manually
-      m_CANdle.setLEDs((int) currentColor.red, (int) currentColor.blue, (int) currentColor.green);
+    m_CANdle.setLEDs((int) currentColor.red, (int) currentColor.blue, (int) currentColor.green);
     }
   }
-}
+

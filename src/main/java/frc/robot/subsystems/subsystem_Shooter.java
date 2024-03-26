@@ -7,24 +7,30 @@ package frc.robot.subsystems;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
+import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.Constants.ControllerConstants;
 import frc.robot.Constants.FieldConstants;
@@ -37,6 +43,8 @@ import frc.robot.Constants.ShooterConstants.RightFlywheelMotorConstants;
 import frc.robot.Constants.ShooterConstants.WristMathConstants;
 import frc.robot.Constants.ShooterConstants.WristMotorConstants;
 import frc.robot.Constants.ShooterConstants.WristSepoints;
+import frc.robot.Constants.AutoConstants;
+import frc.robot.Constants.SurfaceSpeed;
 import frc.robot.HardwareConfig;
 
 public class subsystem_Shooter extends SubsystemBase {
@@ -47,7 +55,6 @@ public class subsystem_Shooter extends SubsystemBase {
   private TalonFX m_Wrist;
   
   // private DutyCycleEncoder m_AbsEncoder;
-  private TrapezoidProfile m_wristProfile;
   private ArmFeedforward m_WristFeedforward;
   private HardwareConfig m_Settings;
 
@@ -78,12 +85,11 @@ public class subsystem_Shooter extends SubsystemBase {
     // m_AbsEncoder = new DutyCycleEncoder(ShooterConstants.absEncoderChannel);
 
     m_WristFeedforward = new ArmFeedforward(WristMotorConstants.wristKS, 
-                                            WristMotorConstants.wristKV, 
-                                            WristMotorConstants.wristKG,
-                                            WristMotorConstants.wristKA);
-    m_wristProfile = new TrapezoidProfile(
-      new TrapezoidProfile.Constraints(WristMotorConstants.maxWristVelocity,
-                                      WristMotorConstants.maxWristAccel));
+    WristMotorConstants.wristKV, 
+    WristMotorConstants.wristKG,
+    // * Math.cos(MotorRotToShootAngle(m_Wrist.getPosition().getValueAsDouble()) * UnitConstants.DEG_TO_RAD),
+    //get max kg mult by costheta
+    WristMotorConstants.wristKA);
     
     m_Settings = new HardwareConfig();
 
@@ -94,14 +100,22 @@ public class subsystem_Shooter extends SubsystemBase {
     m_LeftFlywheel.setInverted(true);
     m_RightFlywheel.setInverted(false);
 
+    m_Wrist.setNeutralMode(NeutralModeValue.Brake);
+    m_Feeder.setNeutralMode(NeutralModeValue.Coast);
+
     m_WristStartPos = m_Wrist.getPosition().getValueAsDouble();
     m_TrapezoidTimer.start();
 
     m_Feeder.setInverted(true);
+
+    ShooterConstants.fillWristFeedForward();
+    m_Wrist.setPosition(0.0);
+    SmartDashboard.putNumber("desired shoot angle", m_DesiredShootAngle);
+
   }
 
   public void setFlywheelSpeed(double velocity){
-    m_DesiredFlywheelSpeed = velocity;
+    m_DesiredFlywheelSpeed = velocity / (SurfaceSpeed.shooter_transfer * SurfaceSpeed.shooter_rad*SurfaceSpeed.shooter_GR * 2.0 * Math.PI); //gets rpms
   }
 
   public void stopFlywheels(){
@@ -109,13 +123,13 @@ public class subsystem_Shooter extends SubsystemBase {
     m_RightFlywheel.stopMotor();
   }
 
-  public void setFlywheelsTest(){
+  public void setFlywheels(){
     m_LeftFlywheel.set(0.9);
     m_RightFlywheel.set(0.9);
   }
 
   public Command flysStartEnd(){
-    return new StartEndCommand(() -> setFlywheelsTest(), () -> stopFlywheels(), this);
+    return new StartEndCommand(() -> setFlywheels(), () -> stopFlywheels(), this);
   }
 
   public InstantCommand setFlywheelSpeedCommand(DoubleSupplier velocity){
@@ -142,17 +156,39 @@ public class subsystem_Shooter extends SubsystemBase {
       m_TrapezoidTimer.restart();
     }
   }
+
+  public void setAbsoluteShootAngle(double angle){
+    SmartDashboard.putNumber("inputAngle", angle);
+    double motorRot = shootAngletoMotorRot(angle);
+    if (motorRot <= ShooterConstants.WristSepoints.maxShootAngle){
+      m_DesiredShootAngle = motorRot;
+    }
+  }
   
   public boolean isWristAtDesiredPosition() {
-    return Math.abs(m_Wrist.getPosition().getValueAsDouble() - shootAngletoMotorRot(m_DesiredShootAngle)) <= ShooterConstants.wristTolerance;
+    return Math.abs(m_Wrist.getPosition().getValueAsDouble() - (m_DesiredShootAngle)) <= ShooterConstants.wristTolerance;
   }
   
   public void sourceFeeder(){
     m_Feeder.set(-0.5);
   }
+
+  // public InstantCommand manualWrist(DoubleSupplier wristJoystickInput, BooleanSupplier max_speed){
+  //   double m_newDesired;
+  //   if (Math.abs(wristJoystickInput.getAsDouble())>ControllerConstants.deadband){
+  //    m_newDesired = m_DesiredShootAngle + wristJoystickInput.getAsDouble() * ShooterConstants.max_manual_ratio;
+  //   if (max_speed.getAsBoolean()){
+  //           max_speed_wheel = max_speed.getAsBoolean();
+  //   }} else{
+  //      m_newDesired = m_Wrist.getPosition().getValueAsDouble();
+  //   }
+  //   return new InstantCommand(() -> setDesiredShootAngle(m_newDesired), this);
+  // }
   
   public void runFeeder(){
-    m_Feeder.set(1);//ahhhh
+    double feeder_rpm = SurfaceSpeed.feeder_max_surface * 60.0 / (SurfaceSpeed.feeder_rad*SurfaceSpeed.feeder_GR * 2.0 * Math.PI);
+    double feeder_percent_out = feeder_rpm / SurfaceSpeed.feeder_max_rpm;
+    m_Feeder.set(SurfaceSpeed.feeder_percent);
   }
   
   public void stopFeeder(){
@@ -166,113 +202,75 @@ public class subsystem_Shooter extends SubsystemBase {
   public StartEndCommand sourceFeederStartEnd(){
     return new StartEndCommand(() -> sourceFeeder(), () -> stopFeeder(), this);
   }
-  
+  public Command stowShooter(){
+    return Commands.sequence(
+    new InstantCommand(() -> setDesiredShootAngle(22.0), this),
+    new InstantCommand (() -> setFlywheelSpeed(FlywheelSetpoints.StowSpeed), this),
+    new WaitCommand(0.1), 
+    new InstantCommand(() -> setDesiredShootAngle(WristSepoints.minShootAngle), this));
+    
+  }
   public Command waitUntilReady(Pose2d drivePose){
     if(RobotConstants.robotColor == null){
       SmartDashboard.putBoolean("Alliance Color Error", true);
     }
     SmartDashboard.putBoolean("isWithinPos", speakerCenter2D.getDistance(drivePose.getTranslation()) 
                                                   <= ShooterConstants.shootRadius);
-    Field2d speakerAsField = new Field2d();
-    Pose2d speakerAsPose = new Pose2d(speakerCenter2D, Rotation2d.fromDegrees(0));
-    speakerAsField.setRobotPose(speakerAsPose);
-    SmartDashboard.putData("Speaker Position Shooter", speakerAsField);
-    if (RobotConstants.robotColor == null){
-      SmartDashboard.putString("alliance", "Eror");
-    } else if (RobotConstants.robotColor == Alliance.Blue){
-      SmartDashboard.putString("alliance", "Blue");
-    } else if (RobotConstants.robotColor == Alliance.Red){
-      SmartDashboard.putString("alliance", "Red");
-    } else {
-      SmartDashboard.putString("alliance", "Mega ERROR");
-    }
+    // Field2d speakerAsField = new Field2d();
+    // Pose2d speakerAsPose = new Pose2d(speakerCenter2D, Rotation2d.fromDegrees(0));
+    // speakerAsField.setRobotPose(speakerAsPose);
+    // SmartDashboard.putData("Speaker Position Shooter", speakerAsField);
+    // if (RobotConstants.robotColor == null){
+    //   SmartDashboard.putString("alliance", "Eror");
+    // } else if (RobotConstants.robotColor == Alliance.Blue){
+    //   SmartDashboard.putString("alliance", "Blue");
+    // } else if (RobotConstants.robotColor == Alliance.Red){
+    //   SmartDashboard.putString("alliance", "Red");
+    // } else {
+    //   SmartDashboard.putString("alliance", "Mega ERROR");
+    // }
 
-    boolean condition = (speakerCenter2D.getDistance(drivePose.getTranslation()) 
-                        <= ShooterConstants.shootRadius) 
-                        && isWristAtDesiredPosition() && flywheelsAtDesiredSpeed();
+    boolean condition = isWristAtDesiredPosition() && flywheelsAtDesiredSpeed();
     SmartDashboard.putBoolean("readyToShoot", condition);
 
     return new WaitUntilCommand(() -> condition);
   }
 
-  public InstantCommand manualWrist(DoubleSupplier wristJoystickInput, BooleanSupplier max_speed){
-    double m_newDesired;
-    if (Math.abs(wristJoystickInput.getAsDouble())>ControllerConstants.deadband){
-     m_newDesired = m_DesiredShootAngle + wristJoystickInput.getAsDouble() * ShooterConstants.manualWristRatio;
-    if (max_speed.getAsBoolean()){
-            max_speed_wheel = max_speed.getAsBoolean();
-    }} else{
-       m_newDesired = m_Wrist.getPosition().getValueAsDouble();
-    }
-    return new InstantCommand(() -> setDesiredShootAngle(m_newDesired), this);
+  public BooleanSupplier isReadyToShoot(){
+    return () -> isWristAtDesiredPosition() && flywheelsAtDesiredSpeed();
   }
 
-
-  @Override
-  public void periodic() {
-    speakerCenter3D = RobotConstants.robotColor == Alliance.Red ? 
-                                    FieldConstants.redSpeakerCenter : 
-                                    FieldConstants.blueSpeakerCenter;
-    speakerCenter2D = speakerCenter3D.toTranslation2d();
-    speakerCenter2D = speakerCenter3D.toTranslation2d();
-    SmartDashboard.putBoolean("shooter wrist ok", isWristAtDesiredPosition());
-    SmartDashboard.putNumber("shooter wrist encoder", m_Wrist.getPosition().getValueAsDouble());
-    SmartDashboard.putNumber("desired shoot angle", m_DesiredShootAngle);
-    SmartDashboard.putNumber("desired Shooter Motor Angle", shootAngletoMotorRot(m_DesiredShootAngle));
-    SmartDashboard.putNumber("abs shooter wrist Angle (exp)", MotorRotToShootAngle(m_Wrist.getPosition().getValueAsDouble()));
-    SmartDashboard.putNumber("feeder speed", m_Feeder.getVelocity().getValueAsDouble());
-    SmartDashboard.putNumber("feeder get", m_Feeder.get());
-    m_previousState = m_wristProfile.calculate(m_TrapezoidTimer.get(), m_previousState, 
-                                    new TrapezoidProfile.State(m_DesiredShootAngle, 0));
-    double wFF = m_WristFeedforward.calculate(m_DesiredShootAngle, 
-      MotorRotToShootAngle(m_Wrist.getVelocity().getValueAsDouble()));
-    SmartDashboard.putNumber("wristFeedForward", wFF / UnitConstants.kNominal);
-    SmartDashboard.putNumber("Shooter PrevStatePos", m_previousState.position);
-    SmartDashboard.putNumber("Shooter PrevStateVel", m_previousState.velocity);
-    if (m_DesiredShootAngle != ShooterConstants.WristSepoints.minShootAngle) {
-      m_Wrist.setControl(new PositionVoltage(shootAngletoMotorRot(m_DesiredShootAngle)).withSlot(0)
-      .withFeedForward(wFF / UnitConstants.kNominal));
-    } 
-      else{
-      m_Wrist.stopMotor();
-
-      }
-    
-
-    SmartDashboard.putBoolean("wheels ok", flywheelsAtDesiredSpeed());
-    SmartDashboard.putNumber("wheel desired", m_DesiredFlywheelSpeed);
-    SmartDashboard.putNumber("flywheel1", m_LeftFlywheel.getVelocity().getValueAsDouble());
-    SmartDashboard.putNumber("flywheel2", m_RightFlywheel.getVelocity().getValueAsDouble());
-    SmartDashboard.putNumber("Shooter Wrist Start", m_WristStartPos);
-
-    if (max_speed_wheel){
-      m_LeftFlywheel.set(1);
-    }else if (m_DesiredFlywheelSpeed > m_LeftFlywheel.getVelocity().getValueAsDouble()){
-      m_LeftFlywheel.setControl(new VelocityVoltage(m_DesiredFlywheelSpeed));
-    }else{
-      m_LeftFlywheel.stopMotor();
-    }
-
-     if (max_speed_wheel){
-      m_RightFlywheel.set(0.95);
-    }else if (m_DesiredFlywheelSpeed > m_RightFlywheel.getVelocity().getValueAsDouble()){
-    if (m_DesiredFlywheelSpeed >= ShooterConstants.flywheelDifferential){
-      m_RightFlywheel.setControl(new VelocityVoltage(m_DesiredFlywheelSpeed - ShooterConstants.flywheelDifferential));
-    }
-  }
-  else{
-          m_RightFlywheel.stopMotor();
-  }
-}
-
-  // Use
-  public double shootAngletoMotorRot(double shootAngle){
-    //https://www.desmos.com/calculator/znscicoddu
-    double netAngle = (shootAngle + WristMathConstants.shooterAngleToPivotAngle) * UnitConstants.DEG_TO_RAD;
-    double x1 = WristMathConstants.shooterConnectionLength * Math.cos(netAngle) - 6.75;
-    double y1 = WristMathConstants.shooterConnectionLength * Math.sin(netAngle);
+  public double MotorRotToShootAngle(double motorRot){
+    //https://replit.com/@matthewk126/rizzler#src/main/java/Main.java
+    // motorRot-=ShooterConstants.driverArmOffset;
     double r1 = WristMathConstants.linkageLength;
     double r2 = WristMathConstants.driveArmLength;
+    double theta =((180.0 + WristMathConstants.driverArmOffset) - (motorRot / WristMathConstants.wristGearRatio) * 360.0) * UnitConstants.DEG_TO_RAD;
+    double theta_deg = theta * UnitConstants.RAD_TO_DEG;
+    // (((180+50.0177)-(motorRot/20.57)*360))*(Math.PI/180.0);
+    double l1 = WristMathConstants.shooterConnectionLength;
+    double[] P4 = {-r2 * Math.cos(theta), -r2 * Math.sin(theta)};
+    double[] P1 = {6.75, 0};
+    double d_14 = Math.hypot(P1[0] - P4[0], P1[1] - P4[1]);
+    double beta = Math.acos((Math.pow(d_14,2) + Math.pow(l1,2) - Math.pow(r1,2))
+                            / (2.0 * d_14 * l1));
+    double d_45 = Math.hypot(P4[0], P4[1]);
+    double gamma = Math.acos((Math.pow(d_14,2) + Math.pow(P1[0],2) - Math.pow(d_45,2)) 
+                            / (2.0 * d_14 * P1[0]));
+    double shotAngle = ((beta - gamma) * UnitConstants.RAD_TO_DEG) - WristMathConstants.shooterAngleToPivotAngle;
+    if (theta_deg < 180.0){
+      shotAngle = ((beta + gamma) * UnitConstants.RAD_TO_DEG) - WristMathConstants.shooterAngleToPivotAngle;
+    }
+    return shotAngle;
+  }
+
+  public double shootAngletoMotorRot(double shootAngle){
+    //https://www.desmos.com/calculator/znscicoddu
+    double netAngle = (shootAngle + ShooterConstants.shooterAngleToPivotAngle) * UnitConstants.DEG_TO_RAD;
+    double x1 = ShooterConstants.shooterConnectionLength * Math.cos(netAngle) - 6.75;
+    double y1 = ShooterConstants.shooterConnectionLength * Math.sin(netAngle);
+    double r1 = ShooterConstants.linkageLength;
+    double r2 = ShooterConstants.driveArmLength;
     double D = Math.hypot(x1, y1);
     double sumSqrs = (r1 * r1 + r2 * r2) / (D * D);
     double difSqrsR2R1 = (r2 * r2 - r1 * r1) / (D * D);
@@ -287,55 +285,72 @@ public class subsystem_Shooter extends SubsystemBase {
     }; */
     double atan2Deg =  Math.atan2(BasePoint[1], BasePoint[0]) * UnitConstants.RAD_TO_DEG;
     double atan2Normalized = atan2Deg < 0 ? atan2Deg + 180 : atan2Deg - 180;
-    double linkageAngleFromStart = WristMathConstants.driverArmOffset - atan2Normalized;
-    double motorPosRotations = linkageAngleFromStart * WristMathConstants.wristGearRatio * UnitConstants.DEG_TO_ROT;
+    double linkageAngleFromStart = ShooterConstants.driverArmOffset - atan2Normalized;
+    double motorPosRotations = linkageAngleFromStart * ShooterConstants.wristGearRatio * UnitConstants.DEG_TO_ROT;
     return motorPosRotations;
   }
 
-  // Use
-  public double MotorRotToShootAngle(double motorRot){
-    //https://replit.com/@matthewk126/rizzler#src/main/java/Main.java
-    // motorRot-=ShooterConstants.driverArmOffset;
-    double r1 = WristMathConstants.linkageLength;
-    double r2 = WristMathConstants.driveArmLength;
-    double theta =((180.0 + WristMathConstants.driverArmOffset) - (motorRot / WristMathConstants.wristGearRatio) * 360.0) * UnitConstants.DEG_TO_RAD;
-    double theta_deg = theta * UnitConstants.RAD_TO_DEG;
-    // (((180+50.0177)-(motorRot/20.57)*360))*(Math.PI/180.0);
-    double l1 = WristMathConstants.shooterConnectionLength;
-    double[] P4 = {-r2 * Math.cos(theta), -r2 * Math.sin(theta)};
-    double[] P1 = {6.75, 0}; //its 6.75 right? //yes -matthew
-    double d_14 = Math.hypot(P1[0] - P4[0], P1[1] - P4[1]);
-    double beta = Math.acos((Math.pow(d_14,2) + Math.pow(l1,2) - Math.pow(r1,2))
-                            / (2.0 * d_14 * l1));
-    double d_45 = Math.hypot(P4[0], P4[1]);
-    double gamma = Math.acos((Math.pow(d_14,2) + Math.pow(P1[0],2) - Math.pow(d_45,2)) 
-                            / (2.0 * d_14 * P1[0]));
-    double shotAngle = ((beta - gamma) * UnitConstants.RAD_TO_DEG) - WristMathConstants.shooterAngleToPivotAngle;
-    if (theta_deg < 180.0){
-      shotAngle = ((beta + gamma) * UnitConstants.RAD_TO_DEG) - WristMathConstants.shooterAngleToPivotAngle;
-    }
-    return shotAngle;
-  }
+  @Override
+  public void periodic() {
+    m_DesiredShootAngle = SmartDashboard.getNumber("desired shoot angle", m_DesiredShootAngle);
+    if (m_DesiredShootAngle > ShooterConstants.WristSepoints.maxShootAngle)
+      m_DesiredShootAngle = ShooterConstants.WristSepoints.maxShootAngle;
 
-  // // Don't Use
-  // public double MotorRotToShootAngleMatthew(double motorRot){
-  //   //https://www.desmos.com/calculator/xdtyyrvaey
-  //   double motorDriveAngle = motorRot * 360 / WristMathConstants.wristGearRatio - WristMathConstants.driverArmOffset;
-  //   double[] basePoint = {
-  //     6.75 - WristMathConstants.driveArmLength * Math.cos(motorDriveAngle * UnitConstants.DEG_TO_RAD),
-  //     WristMathConstants.driveArmLength * Math.sin(motorDriveAngle * UnitConstants.DEG_TO_RAD)};
-  //   double x1 = basePoint[0];
-  //   double y1 = basePoint[1];
-  //   double r1 = WristMathConstants.linkageLength;
-  //   double r2 = WristMathConstants.shooterConnectionLength;
-  //   double D = Math.hypot(x1, y1);
-  //   double[] topPoint = {
-  //     x1 * (((r2*r2 - r1*r1) / (2*D*D)) + 0.5) 
-  //     -y1*0.5*Math.sqrt(2*((r1*r1+r2*r2)/(D*D)) - ((Math.pow((r1*r1-r2*r2), 2))/(D*D*D*D)) - 1), 
-  //     y1 * (((r2*r2 - r1*r1) / (2*D*D)) + 0.5) 
-  //     +x1*0.5*Math.sqrt(2*((r1*r1+r2*r2)/(D*D)) - ((Math.pow((r1*r1-r2*r2), 2))/(D*D*D*D)) - 1), 
-  //   };
-  //   double atan2Deg =  Math.atan2(topPoint[1], topPoint[0]) * UnitConstants.RAD_TO_DEG;
-  //   return atan2Deg - WristMathConstants.shooterAngleToPivotAngle;
-  // }
+    if (m_DesiredShootAngle < ShooterConstants.WristSepoints.minShootAngle)
+      m_DesiredShootAngle = ShooterConstants.WristSepoints.minShootAngle;
+
+    SmartDashboard.putNumber("desired shoot angle log", m_DesiredShootAngle);
+    speakerCenter3D = DriverStation.getAlliance().isPresent() ? 
+                                    DriverStation.getAlliance().get() == Alliance.Red ? 
+                                    FieldConstants.redSpeakerCenter : 
+                                    FieldConstants.blueSpeakerCenter :
+                      new Translation3d();
+    speakerCenter2D = speakerCenter3D.toTranslation2d();
+    speakerCenter2D = speakerCenter3D.toTranslation2d();
+    SmartDashboard.putBoolean("shooter wrist ok", isWristAtDesiredPosition());
+    SmartDashboard.putNumber("shooter wrist encoder", m_Wrist.getPosition().getValueAsDouble());
+    SmartDashboard.putNumber("desired Shooter motor Angle", shootAngletoMotorRot(m_DesiredShootAngle));
+    SmartDashboard.putNumber("Shooter Wrist Position", MotorRotToShootAngle(m_Wrist.getPosition().getValueAsDouble()));
+    SmartDashboard.putNumber("feeder speed", m_Feeder.getVelocity().getValueAsDouble());
+    SmartDashboard.putNumber("feeder get", m_Feeder.get());
+
+    double wFF = m_WristFeedforward.calculate(m_DesiredShootAngle*UnitConstants.DEG_TO_RAD, 
+    Units.degreesToRadians(MotorRotToShootAngle(m_Wrist.getVelocity().getValueAsDouble())));
+    // double wFF = ShooterConstants.wristFeedForward.get(shootAngletoMotorRot(m_DesiredShootAngle));
+    SmartDashboard.putNumber("wristFeedForward", wFF);
+    SmartDashboard.putNumber("Shooter PrevStatePos", m_previousState.position);
+    SmartDashboard.putNumber("Shooter PrevStateVel", m_previousState.velocity);
+
+    if (m_DesiredShootAngle != ShooterConstants.WristSepoints.minShootAngle) {
+      m_Wrist.setControl(new MotionMagicVoltage((shootAngletoMotorRot(m_DesiredShootAngle))).withSlot(0)
+      .withFeedForward(wFF));
+      
+    } else {
+      m_Wrist.stopMotor();
+    }
+    
+    SmartDashboard.putBoolean("wheels ok", flywheelsAtDesiredSpeed());
+    SmartDashboard.putNumber("wheel desired", m_DesiredFlywheelSpeed);
+    SmartDashboard.putNumber("flywheel1", m_LeftFlywheel.getVelocity().getValueAsDouble());
+    SmartDashboard.putNumber("flywheel2", m_RightFlywheel.getVelocity().getValueAsDouble());
+    SmartDashboard.putNumber("Shooter Wrist Start", m_WristStartPos);
+
+    if (max_speed_wheel){
+      m_LeftFlywheel.set(1);
+    } else if (m_DesiredFlywheelSpeed > m_LeftFlywheel.getVelocity().getValueAsDouble()){
+      m_LeftFlywheel.setControl(new VelocityVoltage(m_DesiredFlywheelSpeed));
+    } else{
+      m_LeftFlywheel.stopMotor();
+    }
+
+    if (max_speed_wheel){
+      m_RightFlywheel.set(0.95);
+    } else if(m_DesiredFlywheelSpeed > m_RightFlywheel.getVelocity().getValueAsDouble()){
+      if(m_DesiredFlywheelSpeed >= ShooterConstants.flywheelDifferential){
+        m_RightFlywheel.setControl(new VelocityVoltage(m_DesiredFlywheelSpeed - ShooterConstants.flywheelDifferential));
+      }
+    } else {
+      m_RightFlywheel.stopMotor();
+    }
+  }
 }

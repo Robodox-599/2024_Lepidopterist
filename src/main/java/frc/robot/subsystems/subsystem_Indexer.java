@@ -17,13 +17,9 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-// import edu.wpi.first.math.controller.PIDController;
-// import com.ctre.phoenix6.controls.PositionVoltage;
-// import com.ctre.phoenix6.controls.VelocityVoltage;
-// import com.ctre.phoenix6.controls.VoltageOut;
-// import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.HardwareConfig;
 import frc.robot.Constants.IndexerConstants;
+import frc.robot.Constants.SurfaceSpeed;
 
 public class subsystem_Indexer extends SubsystemBase {
   /** Creates a new subsystem_Indexer. */
@@ -46,14 +42,19 @@ public class subsystem_Indexer extends SubsystemBase {
   }
 
   public void runIndexer(){
+    // double indexer_rpm = SurfaceSpeed.indexer_max_surface //try *60
+    // /(SurfaceSpeed.indexer_rad*SurfaceSpeed.indexer_GR*2*Math.PI);
+    // double indexer_percent = indexer_rpm/SurfaceSpeed.indexer_max_rpm;
+    // m_indexerMotor.set(indexer_percent);
     m_indexerMotor.set(IndexerConstants.kIndexerSpeed);
   }
+    //indexerConstants.kindexerSpeed  }
 
   public void stopIndexer(){
     m_indexerMotor.stopMotor();
   }
 
-  public void runIndexerBackwards(){//hear me out
+  public void runIndexerBackwards(){
     m_indexerMotor.set(-IndexerConstants.kIndexerSpeed);
   }
 
@@ -74,15 +75,21 @@ public class subsystem_Indexer extends SubsystemBase {
   public Command runIndexerBackwardsStartEnd(){//hear me out!
     return new StartEndCommand(() -> runIndexerBackwards(), () -> stopIndexer(), this);
   }
-
+  public Command runIndexerBackwardsUntilBeamBreak(){
+    return Commands.sequence(new InstantCommand(() -> runIndexerBackwards(), this), 
+                            new WaitUntilCommand(() -> (m_beamBreakTimer.get() >= IndexerConstants.beamBreakDebounce)), 
+                            new InstantCommand(() -> stopIndexer(), this));
+  }
   @Override
   public void periodic() {
     if (m_BeamBreak2.get()){
       m_beamBreakTimer.restart();
     }
+
     if (m_beamBreakTimer.get() >= IndexerConstants.beamBreakDebounce){
       SmartDashboard.putBoolean("indexerBeamBreakTriggered", true);
     }
+    
     SmartDashboard.putBoolean("beambreak2", m_beamBreakTimer.get() >= IndexerConstants.beamBreakDebounce);
     SmartDashboard.putNumber("indexerSpeed", m_indexerMotor.getVelocity().getValueAsDouble());
     SmartDashboard.putNumber("indexer pos", m_indexerMotor.getPosition().getValueAsDouble());

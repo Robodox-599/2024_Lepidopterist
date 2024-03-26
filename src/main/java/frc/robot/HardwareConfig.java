@@ -69,8 +69,8 @@ public class HardwareConfig {
 
         //chat what in the fricking frickheck is he cooking
         var motionMagicConfigs = intakeWristMotorConfig.MotionMagic;
-        motionMagicConfigs.MotionMagicCruiseVelocity = 70;
-        motionMagicConfigs.MotionMagicAcceleration = 140;
+        motionMagicConfigs.MotionMagicCruiseVelocity = IntakeConstants.WristMotorConstants.maxWristVelocity;
+        motionMagicConfigs.MotionMagicAcceleration = IntakeConstants.WristMotorConstants.maxWristAccel;
 
         /* Indexer Motor Config */
         indexerMotorConfig = new TalonFXConfiguration();
@@ -103,6 +103,10 @@ public class HardwareConfig {
         shooterWristConfig.Slot0.kD = ShooterConstants.WristMotorConstants.wristKD;
         shooterWristConfig.Slot0.kV = ShooterConstants.WristMotorConstants.wristKV;
         shooterWristConfig.Slot0.kS = ShooterConstants.WristMotorConstants.wristKS;
+        var shooterWristMM = shooterWristConfig.MotionMagic;
+        shooterWristMM.MotionMagicCruiseVelocity = ShooterConstants.WristMotorConstants.maxWristVelocity;
+        shooterWristMM.MotionMagicAcceleration = ShooterConstants.WristMotorConstants.maxWristAccel;
+
 
         /* Intake Roller Config */
         intakeRollerConfig = new TalonFXConfiguration();

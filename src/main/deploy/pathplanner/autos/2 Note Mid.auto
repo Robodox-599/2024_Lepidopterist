@@ -2,7 +2,7 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 1.4,
+      "x": 1.31,
       "y": 5.537
     },
     "rotation": 179.99984796050427
@@ -12,27 +12,52 @@
     "data": {
       "commands": [
         {
-          "type": "named",
+          "type": "wait",
           "data": {
-            "name": "Preload Mid"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "2 Piece Auto Mid"
+            "waitTime": 1.0
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "Run Intake"
+            "name": "Shoot Subwoofer"
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "Extend Intake"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "2 Piece Auto Mid.1"
+                }
+              }
+            ]
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "First Row Mid"
+            "name": "Stow Intake"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 7.0
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Shoot Line"
           }
         }
       ]

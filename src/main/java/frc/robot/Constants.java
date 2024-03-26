@@ -8,10 +8,13 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
+import edu.wpi.first.math.interpolation.InterpolatingTreeMap;
 // import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import frc.robot.Constants.ShooterConstants.sigmoidCoefficients;
 
 import com.ctre.phoenix6.signals.AbsoluteSensorRangeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
@@ -53,20 +56,64 @@ public final class Constants {
     public static final double ROT_TO_DEG = Units.rotationsToDegrees(1.0);
     public static final double kNominal = 12.0;
   }
+  public static class SurfaceSpeed {
+
+    // all surface is mps
+//TODO: decide intake and indexer percent 
+    public static final double shooter_rad = 0.0381; //must be in meters
+    public static final double shooter_GR = 2; //must be rolloer to motor
+    public static final double shooter_max_rpm=60.5*60;
+    public static final double shooter_transfer = 0.7863; //0.7863
+
+    public static final double feeder_percent = 0.9;//0.9
+    public static final double feeder_max_rpm = 90*60*feeder_percent;
+    public static final double feeder_rad = 0.015875;//must be in meters
+    public static final double feeder_GR = 1.0/1.88; //must be rolloer to motor
+    public static final double feeder_max_surface = feeder_max_rpm*feeder_GR*feeder_rad*2*Math.PI/60.0;
+
+    public static final double indexer_margin = 0; //the margin that hte indexer is slower by
+    // public static final double indexer_percent = 0.5;
+    public static final double indexer_rad=0.015875;//must be in meters
+    public static final double indexer_GR = 1.0/1.88; //must be rolloer to motor
+    public static final double indexer_max_rpm=83*60*IndexerConstants.kIndexerSpeed;
+    public static final double indexer_max_surface = indexer_max_rpm*indexer_GR*indexer_rad*2*Math.PI/60.0;
+
+    public static final double intake_margin = 0; //the margin that the intake is slower by
+    // public static final double intake_percent = 0.35;
+    public static final double intake_rad = 0.0254;//must be in meters
+    public static final double intake_GR = 1.0/3.13; //must be rolloer to motor
+    public static final double intake_max_rpm = 5400 * IntakeConstants.kIntakeSpeakerIntakeSpeed;// TODO: test this
+    public static final double intake_max_surface = intake_max_rpm*intake_GR*intake_rad*2*Math.PI/60.0;
+
+  }
   
   public static class IntakeConstants{
+
+    public static final double kIntakeAmpScoreSpeed = -0.5;
+    public static final double kIntakeSpeakerIntakeSpeed = 0.9;
+    public static final double kIntakeAmpIntakeSpeed = 0.5;
+    public static final double kIntakeAutoSpeed = 0.5; //why
+    public static final double kIntakeBackfeedSpeed = -0.9;
+    public static final double extraIntakeTime = 2; //seconds
+    public static final double backwardsIntakeTime = 0.75; //seconds
+    public static final double IntakeSpeedupTime = 0.75;
+    public static final double IntakeNoNoteCurrent = 30;
+
     public static final int beamBreak1Port = 1;
     
     public static final int throughBoreEncID = 2; 
     
     public static final double kWristExtendVal = 8.3;
     public static final double kWristRetractVal = 0;
+    public static final double kWristAmpVal = 1.15;
+
     public static final double wristGearRatio = 3.58;
-    public static final double kWristTolerance = 0.5; //Change
+    public static final double kWristTolerance = 0.2; //Change
     
-    public static final double kIntakeSpeed = 0.5;
-    
+
+
     public static class WristMotorConstants{
+      // TODO: Update Motor In PHT
       public static final int wristMotorID = 18;
       
       public static final int wristExtendSlot = 0;
@@ -74,12 +121,22 @@ public final class Constants {
       public static final double wristExtendKI = 0;
       public static final double wristExtendKD = 0.0;
       public static final double wristExtendKS = 0.0;
-      public static final double kWristFeedForward = -0.3; //arb feedforward to account for gravity
+      public static final double kWristFeedForward = -0.8; //arb feedforward to account for gravity
       
+      public static final double AbsWristP = -7;
+      public static final double AbsWristI = 0;
+      public static final double AbsWristD = 0;
+      public static final double AbsWristFeedForward = -0.8; //arb feedforward to account for gravity
+
+
+
       public static final int wristRetractSlot = 1;
-      public static final double wristRetractKP = 0.5;
-      public static final double wristRetractKI = 0;
-      public static final double wristRetractKD = 0.1;
+      public static final double wristRetractKP = 8;
+      public static final double wristRetractKI = 0.0;
+      public static final double wristRetractKD = 0.2;
+
+      public static final double maxWristVelocity = 100;
+      public static final double maxWristAccel = 200;
     }
     
     public static class RollerMotorConstants{
@@ -92,8 +149,8 @@ public final class Constants {
       public static final double kA = 0.0;
       /*Intake Current Limit Config*/
       public static final boolean EnableCurrentLimit = true;
-      public static final int ContinuousCurrentLimit = 35;
-      public static final int PeakCurrentLimit = 35;
+      public static final int ContinuousCurrentLimit = 40;
+      public static final int PeakCurrentLimit = 50;
       public static final double PeakCurrentDuration = 0.1;
     }
   }
@@ -103,10 +160,13 @@ public final class Constants {
     public static final double indexerKP = 0.1;
     public static final double indexerKI = 0.0;
     public static final double indexerKD = 0.0;
-    public static final double kIndexerSpeed = 0.9;    
+    public static final double kIndexerSpeed = 0.95;    
     
     public static final int beakBreak2Port = 0;
     public static final double beamBreakDebounce = 0.1;
+
+    public static final double extraIndexerTime = 1.0; //seconds
+    public static final double backwardsIndexerTime = 1.0; //seconds
   }
   
   public static class LEDConstants {
@@ -115,6 +175,9 @@ public final class Constants {
     public static enum LEDColor {
       CoopLED,
       AmplifyLED,
+      Intook,
+      Shooting,
+      Amping,
       None
     };
     
@@ -126,49 +189,74 @@ public final class Constants {
   }
   
   public static class ShooterConstants {
+
+    public static final Translation3d shooterOffset = new Translation3d(0, 0.10640927, 0.1651);
+    public static final double driverArmOffset = 50.0177;
+    public static final double wristGearRatio = 144.0 / 7.0;
     public static final int feederMotorID = 14;
     public static final int absEncoderChannel = 4;
+
+    public static final double cycle_speed = 0.02;
+    public static final double max_manual_wrist_speed = 20;
+    public static final double max_manual_ratio = max_manual_wrist_speed / (1.0 / cycle_speed);
+
+    public static final double shooterAngleToPivotAngle = 24.7702;
+    public static final double shooterConnectionLength = 7.5068;//l1
+    public static final double linkageLength = 7.7504; // l2
+    public static final double driveArmLength = 3.5106;//l3
     
-    public static final double wristTolerance = 3;
-    public static final double wristTestTime = 0.05;
+    public static final double wristTolerance = 0.2;
+    public static final double wristTestTime = 0.5;
     public static final double manualWristRatio = 0.4;
 
-    public static final double flywheelDifferential = 0;//increase later
+    public static final double flywheelDifferential = 1;//increase later
 
     public static final double shootRadius = 6; //metres (ithink)
     public static final double wristShootTolerance = 0.5; //deg
     public static final double flywheelShootTolerance = 80; //im ngl i have no idea what units are
     
+    public static final InterpolatingDoubleTreeMap wristFeedForward = new InterpolatingDoubleTreeMap();
+
+    public static void fillWristFeedForward(){
+      wristFeedForward.put(0.0, 0.5);
+      wristFeedForward.put(0.0, 0.5);
+      wristFeedForward.put(0.0, 0.5);
+      wristFeedForward.put(0.0, 0.5);
+      wristFeedForward.put(0.0, 0.5);
+      wristFeedForward.put(0.0, 0.5);
+      wristFeedForward.put(0.0, 0.5);
+    }
+
     public static class FlywheelSetpoints{
-      public static final double AmpSpeed = 10;
+      public static final double StowSpeed = 0;
       public static final double SourceSpeed = -5;
-      public static final double SpeakerSpeed = 30;
-      public static final double testFlywheelSetpoint = 40;
+      public static final double SpeakerSpeed = 15;
+      public static final double testFlywheelSetpoint = 15;//15
       
       public static final double FlywheelTolerance = 5;
     }
 
     public static class WristSepoints{
-      public static final double minShootAngle = 16.7377;
-      public static final double maxShootAngle = 77.5;
+      public static final double minShootAngle = 1.8;
+      public static final double maxShootAngle = 60;
       
-      public static final double ampWrist = 40; // change
-      public static final double sourceWrist = 40;
-      public static final double testSpeakerWrist = 70;
+      public static final double ampWrist = 1; // change
+      public static final double sourceWrist = 1;
+      public static final double testSpeakerWrist = 50; //2.5
+      // 3.6288 for 70 deg; 3.29427 for 65 deg
     }
     
     public static class WristMotorConstants{
       public static final int wristID = 15;
-      public static final double wristKP = 1.5;
-      public static final double wristKI = 0.0;
-      public static final double wristKD = 0.0;
+      public static final double wristKP = 30.0;
+      public static final double wristKI = 0.05;
+      public static final double wristKD = 0.25;
       public static final double wristKV = 0.0;
-      public static final double wristKS = 0.0;
-      public static final double wristKG = 0.25;
+      public static final double wristKS = 0.34;
+      public static final double wristKG = 0.475; // Maybe 0.25??
       public static final double wristKA = 0.0;
-      
-      public static final double maxWristVelocity = 20;
-      public static final double maxWristAccel = 40;
+      public static final double maxWristVelocity = 10.0; //motor rps
+      public static final double maxWristAccel = 20.0;
     }
     
     public static class LeftFlywheelMotorConstants{
@@ -195,26 +283,27 @@ public final class Constants {
       public static final double driverArmOffset = 50.0177;
       public static final double wristGearRatio = 144.0 / 7.0;
       
-      public static final double shooterAngleToPivotAngle = 24.7702;
-      public static final double shooterConnectionLength = 7.5068;//l1
+      public static final double shooterAngleToPivotAngle = 39.77;
+      public static final double shooterConnectionLength = 7.5068; //l1
       public static final double linkageLength = 7.7504; // l2
-      public static final double driveArmLength = 3.5106;//l3
+      public static final double driveArmLength = 3.5106; //l3
     }
     
     public static class quinticCoefficients{
-      public static final double a = -0.00972567;
-      public static final double b = 0.154702;
-      public static final double c = -1.14705;
-      public static final double d = 6.74407;
-      public static final double e = -31.956;
-      public static final double f = 90.2914;
+      public static final double a = -0.5177;
+      public static final double b = 2.82;
+      public static final double c = -0.672;
+      public static final double d = -19.4;
+      public static final double e = 29.32;
+      public static final double f = 65.0;
     }
     // TODO: update reg model please
     public static class sigmoidCoefficients{
-      public static final double minNoteVelocity = 2;
-      public static final double maxNoteVelocity = 10;
-      public static final double Kstretch = 5;
-      public static final double sigmoidCenter = 2;
+      public static final double minNoteVelocity = SurfaceSpeed.feeder_max_surface+1;
+      public static final double maxNoteVelocity = (SurfaceSpeed.shooter_max_rpm * SurfaceSpeed.shooter_GR * SurfaceSpeed.shooter_transfer
+       * SurfaceSpeed.shooter_rad * 2.0 * Math.PI) / 60.0; //TODO: Measure this still
+      public static final double Kstretch = 1.2;
+      public static final double sigmoidCenter = 1.44;
     }
   }
   
@@ -385,10 +474,26 @@ public final class Constants {
       AngleKD, 
       new TrapezoidProfile.Constraints(MaxAngularSpeedRadiansPerSecond, MaxAngularAccelRadiansPerSecondSquared));
     
-    public static final double[] AutoWristSetpoints = {61.55,50.43,52.66,50.83,
-    66.04,50.63,65.55,58.88};
-    public static final double[] AutoFlywheelSetpoints = {8.0,8.0,8.0,8.0,
-    8.0,8.0,8.0,8.0};
+    // public static final double[] AutoWristSetpoints = {61.55,50.43,52.66,50.83,
+    // 66.04,50.63,65.55,58.88};
+    // public static final double[] AutoFlywheelSetpoints = {8.0,8.0,8.0,8.0,
+    // 8.0,8.0,8.0,8.0};
+    public static final double[] AutoWristSetpointsCalc = {74.0, 65.0, 67.0, 66.0, 75.0, 35.0, 75.0, 72.0};
+    public static final double[] AutoWristSetpoints = {65.0,65.0,65.0,65.0,
+                                            65.0,65.0,65.0,65.0};
+    public static final double[] AutoFlywheelSetpointsCalc = {12, 22,
+                                                        22, 22,
+                                                        7, 22,
+                                                        7, 18,};
+    public static final double[]AutoFlywheelSetpoints = {sigmoidCoefficients.maxNoteVelocity-4,
+    sigmoidCoefficients.maxNoteVelocity-4,
+ sigmoidCoefficients.maxNoteVelocity-4,
+ sigmoidCoefficients.maxNoteVelocity-4,
+ sigmoidCoefficients.maxNoteVelocity-4,
+ sigmoidCoefficients.maxNoteVelocity-4,
+ sigmoidCoefficients.maxNoteVelocity-4, 
+ sigmoidCoefficients.maxNoteVelocity-4,
+ };
   }
     
     public static class ControllerConstants{
@@ -397,5 +502,7 @@ public final class Constants {
       
       public static final int xboxDriveID = 0;
       public static final int xboxOperatorID = 1;
+
+      public static final double rumbleTime = 1; //seconds
   }
 }

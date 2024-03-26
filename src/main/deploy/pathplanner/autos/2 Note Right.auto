@@ -2,10 +2,10 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 0.6889408230781555,
-      "y": 6.678065299987793
+      "x": 0.6455836892127991,
+      "y": 4.427470684051514
     },
-    "rotation": -118.64752725789575
+    "rotation": 118.64237063773956
   },
   "command": {
     "type": "sequential",
@@ -26,7 +26,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "2 Piece auto Left.1"
+            "pathName": "2 Piece auto Right.1"
           }
         },
         {
@@ -34,15 +34,15 @@
           "data": {
             "commands": [
               {
-                "type": "path",
-                "data": {
-                  "pathName": "2 Piece auto Left.2"
-                }
-              },
-              {
                 "type": "named",
                 "data": {
                   "name": "Extend Intake"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "2 Piece auto Right.2"
                 }
               }
             ]

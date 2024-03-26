@@ -4,77 +4,66 @@
 
 package frc.robot.commands;
 
+import java.util.Optional;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.RobotConstants;
 import frc.robot.Constants.ShooterConstants;
-import frc.robot.Constants.ShooterConstants.sigmoidCoefficients;
+import frc.robot.Constants.ShooterConstants.FlywheelSetpoints;
+import frc.robot.Constants.ShooterConstants.WristSepoints;
 import frc.robot.Constants.SwerveConstants.DRIVE_STATE;
-import frc.robot.Constants.ShooterConstants.quinticCoefficients;
+import frc.robot.Constants.UnitConstants;
 import frc.robot.subsystems.subsystem_DriveTrain;
 import frc.robot.subsystems.subsystem_Shooter;
 
-/** Constantly aligns wrist and drivebase to speaker, never ending */
 public class command_AutoSpeaker extends Command {
-  /** Creates a new command_AutoSpeakerWrist. */
+  /** Creates a new command_AutoSpeaker. */
   private subsystem_DriveTrain m_Drive;
   private subsystem_Shooter m_Shooter;
-
-  public command_AutoSpeaker(subsystem_DriveTrain drive, subsystem_Shooter shooter) {
-    m_Drive = drive;
-    m_Shooter = shooter;
+  private Translation3d m_speakerCenter;
+  
+  public command_AutoSpeaker(subsystem_DriveTrain driveTrain, subsystem_Shooter shooter) {
     // Use addRequirements() here to declare subsystem dependencies.
+    m_Shooter = shooter;
+    m_Drive = driveTrain;
     addRequirements(m_Shooter);
   }
 
   // Called when the command is initially scheduled.
   @Override
-  public void initialize() {}
+  public void initialize() {
+    if (RobotConstants.robotColor == null){
+      SmartDashboard.putBoolean("Alliance Color Error", true);
+      m_speakerCenter = new Translation3d(0, 0, 0);
+    }
+    m_speakerCenter = (RobotConstants.robotColor == Alliance.Blue) ? 
+    FieldConstants.blueSpeakerCenter : FieldConstants.redSpeakerCenter;
+  }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    m_Drive.setDriveState(DRIVE_STATE.SHOOTER_PREP);
-    
     Pose2d robotPose = m_Drive.getPose();
-    //shooter bottom pose must be applied in a robot relative direction
-    Translation2d shooterBottomPose = robotPose.getTranslation().plus(
-                                      RobotConstants.shooterOffset.toTranslation2d()
-                                      .rotateBy(robotPose.getRotation()));
-    
-    Translation2d speakerCenter = new Translation2d();
+    Translation2d shooterBottomPose = robotPose.getTranslation().
+    plus(RobotConstants.shooterOffset.toTranslation2d().rotateBy(robotPose.getRotation())); //yeowch
 
-    if(RobotConstants.robotColor != null){
-      speakerCenter = RobotConstants.robotColor == Alliance.Blue ? 
-                        FieldConstants.blueSpeakerCenter.toTranslation2d() :
-                        FieldConstants.redSpeakerCenter.toTranslation2d();
-    } else {
-      SmartDashboard.putBoolean("Alliance Color Error", true);
-    }
-
-    double fieldDist = speakerCenter.getDistance(shooterBottomPose);
-    SmartDashboard.putNumber("fielddist", fieldDist);
-    double wristSetpoint = quinticCoefficients.a * (Math.pow(fieldDist,5)) +
-                            quinticCoefficients.b * (Math.pow(fieldDist,4)) +
-                            quinticCoefficients.c * (Math.pow(fieldDist,3)) +
-                            quinticCoefficients.d * (Math.pow(fieldDist,2)) +
-                            quinticCoefficients.e * (Math.pow(fieldDist,1)) +
-                            quinticCoefficients.f * (Math.pow(fieldDist,0));
-                            
-    SmartDashboard.putNumber("Autospeaker Wrist setpoint", wristSetpoint);
-    m_Shooter.setDesiredShootAngle(ShooterConstants.WristSepoints.testSpeakerWrist);
-
-    double exponent = -sigmoidCoefficients.Kstretch * (fieldDist - sigmoidCoefficients.sigmoidCenter);
-
-    // TODO: Make max - min instead of min - max?
-    double flywheelSetpoint = (sigmoidCoefficients.minNoteVelocity - sigmoidCoefficients.maxNoteVelocity) /
-                              (1 + Math.pow(Math.E, exponent)) + sigmoidCoefficients.minNoteVelocity;
-    SmartDashboard.putNumber("flywheel setpoint", flywheelSetpoint);
-    m_Shooter.setFlywheelSpeed(ShooterConstants.FlywheelSetpoints.testFlywheelSetpoint);
+    double fieldDist = m_speakerCenter.toTranslation2d().getDistance(shooterBottomPose);
+    double deltaZ = m_speakerCenter.getZ() - RobotConstants.shooterOffset.getZ();
+    // double atan2Deg =  Math.atan2(BasePoint[1], BasePoint[0]) * UnitConstants.RAD_TO_DEG;
+    // double atan2Normalized = atan2Deg < 0 ? atan2Deg + 180 : atan2Deg - 180;
+    SmartDashboard.putNumber("atan2", Math.atan2(deltaZ, fieldDist) * UnitConstants.RAD_TO_DEG);
+    SmartDashboard.putNumber("atan2 motor rot", m_Shooter.shootAngletoMotorRot(Math.atan2(deltaZ, fieldDist) * UnitConstants.RAD_TO_DEG));
+    m_Shooter.setDesiredShootAngle(WristSepoints.testSpeakerWrist);
+    // m_Shooter.setAbsoluteShootAngle(Math.atan2(deltaZ, fieldDist) * UnitConstants.RAD_TO_DEG);
+    m_Shooter.setFlywheelSpeed(FlywheelSetpoints.testFlywheelSetpoint);
+    m_Drive.setDriveState(DRIVE_STATE.SHOOTER_PREP);
   }
 
   // Called once the command ends or is interrupted.
