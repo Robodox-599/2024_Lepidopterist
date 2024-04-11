@@ -2,10 +2,10 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 1.31,
-      "y": 5.537
+      "x": 0.764687180519104,
+      "y": 4.498898506164551
     },
-    "rotation": 179.99984796050427
+    "rotation": 119.97736230039438
   },
   "command": {
     "type": "sequential",
@@ -16,36 +16,24 @@
           "data": {
             "commands": [
               {
-                "type": "path",
-                "data": {
-                  "pathName": "2 Piece Auto Mid No Shoot.1"
-                }
-              },
-              {
                 "type": "named",
                 "data": {
-                  "name": "Extend Intake"
+                  "name": "Shoot Subwoofer"
                 }
               },
               {
                 "type": "wait",
                 "data": {
-                  "waitTime": 4.0
+                  "waitTime": 8.0
                 }
               }
             ]
           }
         },
         {
-          "type": "named",
-          "data": {
-            "name": "Stow Intake"
-          }
-        },
-        {
           "type": "path",
           "data": {
-            "pathName": "2 Piece Auto Mid No Shoot.2"
+            "pathName": "1 Piece auto Right"
           }
         }
       ]

@@ -336,17 +336,6 @@ public class subsystem_Shooter extends SubsystemBase {
       setFlywheelSpeedCommand(() -> FlywheelSetpoints.SourceSpeed));
   }
 
-  public Command scoreAmpCommand(){
-    return Commands.sequence(
-      this.runOnce(() -> setDesiredShootAngle(WristSepoints.ampWrist)),
-      setFlywheelSpeedCommand(() -> FlywheelSetpoints.AmpSpeed),
-      waitUntilReady(), 
-      new InstantCommand(() -> runFeeder(), this),
-      Commands.waitSeconds(0.5),
-      stowShooter()
-    ); 
-  }
-
   // public Commands shooterAmpFling(){
   //   return Commands.sequence(null)
   // }
@@ -478,14 +467,25 @@ public class subsystem_Shooter extends SubsystemBase {
     if (max_speed_wheel){
       m_LeftFlywheel.set(1);
     } else {
-      m_LeftFlywheel.setControl(new VelocityVoltage(m_DesiredFlywheelSpeed));
-    }
+
+      // if (m_LeftFlywheel.getVelocity().getValueAsDouble() - ShooterConstants.FlywheelSetpoints.FlywheelCoastMargin< m_DesiredFlywheelSpeed){
+      
+        m_LeftFlywheel.setControl(new VelocityVoltage(m_DesiredFlywheelSpeed));
+      
+    // }
+    
+  }
 
     if (max_speed_wheel){
       m_RightFlywheel.set(0.95);
     } else {
       if(m_DesiredFlywheelSpeed >= ShooterConstants.flywheelDifferential){
+              // if (m_RightFlywheel.getVelocity().getValueAsDouble() - ShooterConstants.FlywheelSetpoints.FlywheelCoastMargin < m_DesiredFlywheelSpeed-ShooterConstants.flywheelDifferential){
+
         m_RightFlywheel.setControl(new VelocityVoltage(m_DesiredFlywheelSpeed - ShooterConstants.flywheelDifferential));
+              // }
+
+
       } else if (m_DesiredFlywheelSpeed == FlywheelSetpoints.SourceSpeed){
         m_RightFlywheel.setControl(new VelocityVoltage(m_DesiredFlywheelSpeed));
       }

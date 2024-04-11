@@ -117,7 +117,7 @@ blue^^
     public static final double shooter_max_rpm=60.5*60;
     public static final double shooter_transfer = 0.7863; //0.7863
 
-    public static final double feeder_percent = 0.15;//0.9
+    public static final double feeder_percent = 0.6;//0.9
     public static final double feeder_max_rpm = 90*60*feeder_percent;
     public static final double feeder_rad = 0.015875;//must be in meters
     public static final double feeder_GR = 1.0/1.88; //must be rolloer to motor
@@ -143,8 +143,8 @@ blue^^
     public static final double kIntakeBackfeedSpeed = -0.5;
 
     public static final double kIntakeAmpScoreSpeed = -0.6;
-    public static final double kSpeakerIntakeSpeed = 1;
-    public static final double kAmpIntakeSpeed = 0.6;
+    public static final double kSpeakerIntakeSpeed = 0.9;//
+    public static final double kAmpIntakeSpeed = 1.0;
     public static final double kAutoIntakeSpeed = 1; //why
     public static final double extraIntakeTime = 2; //seconds
     public static final double backwardsIntakeTime = 0.75; //seconds
@@ -156,7 +156,7 @@ blue^^
     
     public static final int throughBoreEncID = 2; 
     
-    public static final double kWristExtendVal = 7.55;
+    public static final double kWristExtendVal = 7.6;
     public static final double kWristRetractVal = 0;
     public static final double kWristAmpVal = 1.12;
 
@@ -286,20 +286,20 @@ blue^^
       public static final double StowSpeed = 10;
       public static final double SourceSpeed = -10;
       public static final double SpeakerSpeed = 45;
-      public static final double AmpSpeed = 25;
+      public static final double AmpSpeed = 22;
 
       public static final double testFlywheelSetpoint = 45;//15
-      
+      public static final double FlywheelCoastMargin = 5;
       public static final double FlywheelTolerance = 3.5;
     }
 
     public static class WristSepoints{
       public static final double minShootAngle = 8.5;
-      public static final double maxShootAngle = 65;
+      public static final double maxShootAngle = 75;
       
-      public static final double ampWrist = 51.5; // change
+      public static final double ampWrist = 64; // change
       public static final double sourceWrist = 63;
-      public static final double testSpeakerWrist = 51.5; //53 -> 51.5
+      public static final double testSpeakerWrist = 68; //53 -> 51.5
       public static final double lineSetpoint = 38.8; //maybe 50?
       public static final double ampScoringDelay = 0.2;
       public static final double[] atan_radius_list = {1.8, 1, 2, 3, 4};
@@ -448,8 +448,8 @@ blue^^
     
     /*Swerve Drive Current Limit Config*/
     public static final boolean driveEnableCurrentLimit = true;
-    public static final int driveContinuousCurrentLimit = 30;
-    public static final int drivePeakCurrentLimit = 35;
+    public static final int driveContinuousCurrentLimit = 25;
+    public static final int drivePeakCurrentLimit = 30;
     public static final double drivePeakCurrentDuration = 0.1;
     
     /*Motor Inverts Config*/

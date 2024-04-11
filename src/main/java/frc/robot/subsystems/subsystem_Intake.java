@@ -155,17 +155,6 @@ public class subsystem_Intake extends SubsystemBase {
       new WaitUntilCommand(() -> m_beamBreakTimer.get() >= IndexerConstants.beamBreakDebounce),
       // new WaitUntilCommand(IntakeConstants.extraIntakeTime),  
       stowCommand());
-    /*    return Commands.sequence(
-      new InstantCommand(() -> setDesiredWristPos(IntakeConstants.kWristExtendVal), this),
-      new WaitUntilCommand(() -> isWristAtDesiredPosition(m_DesiredWristPos)),
-      runIntakeCommand(() -> IntakeConstants.kAmpIntakeSpeed), 
-      //  new InstantCommand(()-> set_check_current(true), this),
-      // new WaitUntilCommand(IntakeConstants.IntakeSpeedupTime), //tune this ples
-      // new InstantCommand(()-> set_check_current(false), this),
-      new WaitUntilCommand(() -> m_beamBreakTimer.get() >= IndexerConstants.beamBreakDebounce),
-      // new WaitUntilCommand(0.1),  
-      new InstantCommand(() -> stopIntake(), this), 
-      new InstantCommand(() -> setDesiredWristPos(IntakeConstants.kWristRetractVal), this)); */
   }
 
   public Command autonIntake(){

@@ -8,6 +8,7 @@ import frc.robot.Constants.ControllerConstants;
 import frc.robot.Constants.ShooterConstants;
 import frc.robot.Constants.SwerveConstants;
 import frc.robot.Constants.ShooterConstants.FlywheelSetpoints;
+import frc.robot.Constants.ShooterConstants.WristSepoints;
 import frc.robot.Constants.SwerveConstants.DPAD;
 import frc.robot.commands.Autos;
 import frc.robot.commands.command_AutoSpeaker;
@@ -118,11 +119,14 @@ public class RobotContainer {
       m_Indexer.runIndexerUntilBeamBreak()));
     driver.leftBumper().onFalse(m_Intake.stowCommand().alongWith(m_Indexer.stopIndexerCommand()));
 
-    // intake to amp command
-    // driver.rightBumper().whileTrue(Commands.parallel(
-    //   m_Intake.autoAmpIntake().andThen(rumbleControllers().withTimeout(1)), m_Indexer.runIndexerBackwardsStartEnd()));
-    // driver.rightBumper().onFalse(m_Intake.stowCommand().alongWith(m_Indexer.stopIndexerCommand()));
     
+
+    // intake to amp command
+    driver.leftTrigger().whileTrue(Commands.parallel(
+      m_Intake.autoAmpIntake().andThen(rumbleControllers().withTimeout(1)),
+      m_Indexer.runIndexerUntilBeamBreak()));
+    driver.leftTrigger().onFalse(m_Intake.stowCommand().alongWith(m_Indexer.stopIndexerCommand()));
+     
     //intake source
     driver.rightBumper().whileTrue(Commands.sequence(
       m_Shooter.autoSourceShooter().alongWith(
@@ -162,8 +166,8 @@ public class RobotContainer {
     //                                               m_Shooter.waitUntilReady().andThen(
     //                                                 shootSequence(m_Indexer, m_Shooter).withTimeout(1.0)));
 
-    operator.leftTrigger().whileTrue(m_Shooter.scoreAmpCommand().andThen(rumbleControllers().withTimeout(1.0)));
-    operator.leftTrigger().onFalse(m_Shooter.stowShooter());
+    operator.leftTrigger().and(operator.rightTrigger().negate()).whileTrue(scoreAmp().withTimeout(1.0));
+    operator.leftTrigger().and(operator.rightTrigger().negate()).onFalse(m_Shooter.stowShooter());
 
     //manual shoot
     operator.leftTrigger().negate().and(operator.rightTrigger()).whileTrue(shootSequence(m_Indexer, m_Shooter));
@@ -203,7 +207,7 @@ public class RobotContainer {
 
     NamedCommands.registerCommand("Shoot Subwoofer",
     Commands.sequence(
-      // m_Shooter.initialSetWristAngle(),
+      m_Shooter.initialSetWristAngle(),
       new command_ToWristAndSpeed(m_Shooter, () -> ShooterConstants.WristSepoints.testSpeakerWrist,
                                           () -> ShooterConstants.FlywheelSetpoints.SpeakerSpeed),
       new WaitUntilCommand(m_Shooter.isReadyToShoot()), 
@@ -235,11 +239,12 @@ public class RobotContainer {
     m_Chooser.addOption("2 Note Left", Autos.runAutoPath(m_DriveTrain, "2 Note Left"));
     m_Chooser.addOption("2 Note Mid", Autos.runAutoPath(m_DriveTrain, "2 Note Mid"));
     m_Chooser.addOption("2 Note Right", Autos.runAutoPath(m_DriveTrain, "2 Note Right"));
-    m_Chooser.addOption("2 Note Right Shooter Only", Autos.runAutoPath(m_DriveTrain, "2 Note Right Shooter Only"));
-    m_Chooser.addOption("2 Note Left Shooter Only", Autos.runAutoPath(m_DriveTrain, "2 Note Left Shooter Only"));
+    m_Chooser.addOption("1 Note Left", Autos.runAutoPath(m_DriveTrain, "1 Note Left"));
+    m_Chooser.addOption("1 Note Mid", Autos.runAutoPath(m_DriveTrain, "1 Note Mid"));
+    m_Chooser.addOption("1 Note Right", Autos.runAutoPath(m_DriveTrain, "1 Note Right"));
+    // m_Chooser.addOption("2 Note Right Shooter Only", Autos.runAutoPath(m_DriveTrain, "2 Note Right Shooter Only"));
+    // m_Chooser.addOption("2 Note Left Shooter Only", Autos.runAutoPath(m_DriveTrain, "2 Note Left Shooter Only"));
     m_Chooser.addOption("RIPA", Autos.runAutoPath(m_DriveTrain, "RIPA"));
-    // m_Chooser.addOption("Do Nothing Right", 
-    //Autos.runAutoPath(m_DriveTrain, "Do Nothing Right"));
 
     SmartDashboard.putData("Auto Chooser", m_Chooser);
   }
@@ -262,6 +267,16 @@ public class RobotContainer {
       rumbleControllers())); 
   }
 
+  public Command ampShootSequence(subsystem_Indexer indexer, subsystem_Shooter shooter){
+    return Commands.parallel(
+      m_Indexer.runIndexerShootStartEnd(), 
+      m_Shooter.forwardsFeederStartEnd().withTimeout(0.1)
+      .andThen(
+        new InstantCommand(() -> m_Shooter.stopFeeder(), m_Shooter).andThen(Commands.waitSeconds(0.1))
+        .andThen(m_Shooter.forwardsFeederStartEnd().withTimeout(2.5))),
+      rumbleControllers()); 
+  }
+
   public Command rumbleControllers(){
     //wtf
     return new StartEndCommand(
@@ -270,5 +285,13 @@ public class RobotContainer {
     .alongWith(new StartEndCommand(
               () -> operator.getHID().setRumble(RumbleType.kBothRumble, 1),
               () -> operator.getHID().setRumble(RumbleType.kBothRumble, 0)));
+  }
+
+  public Command scoreAmp(){
+    return Commands.sequence(
+      new InstantCommand(() -> m_Shooter.setDesiredShootAngle(WristSepoints.ampWrist), m_Shooter),
+      m_Shooter.setFlywheelSpeedCommand(() -> FlywheelSetpoints.AmpSpeed),
+      m_Shooter.waitUntilReady(), 
+      ampShootSequence(m_Indexer, m_Shooter));
   }
 }

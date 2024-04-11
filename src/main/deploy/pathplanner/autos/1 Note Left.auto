@@ -3,9 +3,9 @@
   "startingPose": {
     "position": {
       "x": 0.765,
-      "y": 4.499
+      "y": 6.625
     },
-    "rotation": 119.97736230039438
+    "rotation": -119.97736230039438
   },
   "command": {
     "type": "sequential",
@@ -18,7 +18,7 @@
               {
                 "type": "wait",
                 "data": {
-                  "waitTime": 7.0
+                  "waitTime": 8.0
                 }
               },
               {
@@ -33,7 +33,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Do Nothing Right.1"
+            "pathName": "1 Piece auto Left"
           }
         }
       ]
