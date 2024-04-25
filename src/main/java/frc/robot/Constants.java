@@ -358,6 +358,7 @@ blue^^
     }
     
     public static class quinticCoefficients{
+      //https://www.desmos.com/calculator/mhspzayw3n
       public static final double a = -0.0125052;
       public static final double b = 0.213676;
       public static final double c = -1.63102;
@@ -367,6 +368,7 @@ blue^^
     }
     // TODO: update reg model please
     public static class sigmoidCoefficients{
+      //https://www.desmos.com/calculator/q1noao8nzq
       public static final double minNoteVelocity = SurfaceSpeed.feeder_max_surface+1;
       public static final double maxNoteVelocity = (SurfaceSpeed.shooter_max_rpm * SurfaceSpeed.shooter_GR * SurfaceSpeed.shooter_transfer
        * SurfaceSpeed.shooter_rad * 2.0 * Math.PI) / 60.0; //TODO: Measure this still

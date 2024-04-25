@@ -342,6 +342,7 @@ public class subsystem_Shooter extends SubsystemBase {
 
   public double MotorRotToShootAngle(double motorRot){
     //https://replit.com/@matthewk126/rizzler#src/main/java/Main.java
+    //https://www.desmos.com/calculator/jkcizlqiia
     // motorRot-=ShooterConstants.driverArmOffset;
     double r1 = WristMathConstants.linkageLength;
     double r2 = WristMathConstants.driveArmLength;
