@@ -4,20 +4,18 @@
 
 package frc.robot.commands;
 
-import java.util.function.BooleanSupplier;
-import java.util.function.DoubleSupplier;
-
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.ControllerConstants;
 import frc.robot.Constants.ShooterConstants;
-import frc.robot.Constants.ShooterConstants.FlywheelSetpoints;
 import frc.robot.Constants.ShooterConstants.WristSepoints;
 import frc.robot.subsystems.subsystem_Shooter;
+import java.util.function.DoubleSupplier;
 
 public class command_ManualShooter extends Command {
   /** Creates a new command_ManualShooter. */
   subsystem_Shooter m_Shooter;
+
   DoubleSupplier m_Input;
 
   public command_ManualShooter(subsystem_Shooter shooter, DoubleSupplier input) {
@@ -36,10 +34,10 @@ public class command_ManualShooter extends Command {
   public void execute() {
     double m_ShootRot = m_Shooter.getWristPos();
     SmartDashboard.putNumber("Shooter Manual Input", m_Input.getAsDouble());
-    if (Math.abs(m_Input.getAsDouble()) > ControllerConstants.deadband){
+    if (Math.abs(m_Input.getAsDouble()) > ControllerConstants.deadband) {
       m_ShootRot += m_Input.getAsDouble() * ShooterConstants.max_manual_ratio;
       double m_ShootAngle = m_Shooter.MotorRotToShootAngle(m_ShootRot);
-      if(m_ShootAngle <= WristSepoints.maxShootAngle){
+      if (m_ShootAngle <= WristSepoints.maxShootAngle) {
         m_Shooter.setDesiredShootAngle(m_ShootAngle);
       }
     }

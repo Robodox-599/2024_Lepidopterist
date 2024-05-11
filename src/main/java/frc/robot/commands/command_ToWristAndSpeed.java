@@ -4,31 +4,23 @@
 
 package frc.robot.commands;
 
-import java.util.Optional;
-import java.util.function.BooleanSupplier;
-import java.util.function.DoubleSupplier;
-
-import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.geometry.Translation3d;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.Constants.FieldConstants;
-import frc.robot.Constants.RobotConstants;
 import frc.robot.Constants.ShooterConstants;
 import frc.robot.subsystems.subsystem_Shooter;
+import java.util.function.DoubleSupplier;
 
 public class command_ToWristAndSpeed extends Command {
   /** Creates a new command_ToAmpWrist. */
   private final subsystem_Shooter m_Shooter;
+
   private final DoubleSupplier m_wristSetpoint;
   private final DoubleSupplier m_flywheelSetpoint;
   private final Timer m_wristTimer = new Timer();
   private final Timer m_shooterTimer = new Timer();
 
-  public command_ToWristAndSpeed(subsystem_Shooter shooter, DoubleSupplier wristSetpoint, DoubleSupplier flywheelSetpoint) {
+  public command_ToWristAndSpeed(
+      subsystem_Shooter shooter, DoubleSupplier wristSetpoint, DoubleSupplier flywheelSetpoint) {
     m_Shooter = shooter;
     m_wristSetpoint = wristSetpoint;
     m_flywheelSetpoint = flywheelSetpoint;
@@ -48,7 +40,7 @@ public class command_ToWristAndSpeed extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if(!m_Shooter.isWristAtDesiredPosition() && m_wristTimer.get() <= 0.5){
+    if (!m_Shooter.isWristAtDesiredPosition() && m_wristTimer.get() <= 0.5) {
       m_wristTimer.reset();
     }
   }
@@ -60,6 +52,7 @@ public class command_ToWristAndSpeed extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return m_wristTimer.get() >= ShooterConstants.wristTestTime && m_Shooter.flywheelsAtDesiredSpeed();
+    return m_wristTimer.get() >= ShooterConstants.wristTestTime
+        && m_Shooter.flywheelsAtDesiredSpeed();
   }
 }

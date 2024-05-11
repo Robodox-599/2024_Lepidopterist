@@ -4,27 +4,24 @@
 
 package frc.robot.subsystems;
 
+import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.NeutralModeValue;
+import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
-
-import com.ctre.phoenix6.controls.VelocityVoltage;
-import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.signals.NeutralModeValue;
-
-import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.HardwareConfig;
 import frc.robot.Constants.IndexerConstants;
+import frc.robot.HardwareConfig;
 
 public class subsystem_Indexer extends SubsystemBase {
   /** Creates a new subsystem_Indexer. */
-
   private TalonFX m_indexerMotor;
+
   private DigitalInput m_BeamBreak2;
   private HardwareConfig m_Settings;
 
@@ -41,74 +38,80 @@ public class subsystem_Indexer extends SubsystemBase {
     SmartDashboard.putBoolean("indexerBeamBreakTriggered", false);
   }
 
-  public void runIndexer(){
+  public void runIndexer() {
     m_indexerMotor.set(IndexerConstants.kIndexerSpeed);
     // m_indexerMotor.setControl(new VelocityVoltage(IndexerConstants.intakeRPS));
   }
 
-  public void runIndexerShooter(){
+  public void runIndexerShooter() {
     m_indexerMotor.set(0.4);
     // m_indexerMotor.setControl(new VelocityVoltage(IndexerConstants.shootRPS));
   }
 
-  public void stopIndexer(){
+  public void stopIndexer() {
     m_indexerMotor.stopMotor();
   }
 
-  public void runIndexerBackwards(){
+  public void runIndexerBackwards() {
     m_indexerMotor.set(IndexerConstants.kIndexerBackSpeed);
   }
 
-  public void runIndexerSource(){
+  public void runIndexerSource() {
     m_indexerMotor.set(IndexerConstants.kIndexerSourceSpeed);
   }
 
-  public Command stopIndexerCommand(){
+  public Command stopIndexerCommand() {
     return new InstantCommand(() -> stopIndexer(), this);
   }
-  
-  public Command runIndexerUntilBeamBreak(){
-    return Commands.sequence(new InstantCommand(() -> runIndexer(), this), 
-                            new WaitUntilCommand(() -> (m_beamBreakTimer.get() >= IndexerConstants.beamBreakDebounce)),
-                            Commands.waitSeconds(IndexerConstants.extraIndexerTime),
-                            new InstantCommand(() -> stopIndexer(), this));
+
+  public Command runIndexerUntilBeamBreak() {
+    return Commands.sequence(
+        new InstantCommand(() -> runIndexer(), this),
+        new WaitUntilCommand(() -> (m_beamBreakTimer.get() >= IndexerConstants.beamBreakDebounce)),
+        Commands.waitSeconds(IndexerConstants.extraIndexerTime),
+        new InstantCommand(() -> stopIndexer(), this));
   }
 
-  public Command runIndexerStartEnd(){
+  public Command runIndexerStartEnd() {
     return new StartEndCommand(() -> runIndexer(), () -> stopIndexer(), this);
   }
 
-  public Command runIndexerShootStartEnd(){
+  public Command runIndexerShootStartEnd() {
     return new StartEndCommand(() -> runIndexerShooter(), () -> stopIndexer(), this);
   }
 
-  public Command runIndexerBackwardsStartEnd(){//hear me out!
+  public Command runIndexerBackwardsStartEnd() { // hear me out!
     return new StartEndCommand(() -> runIndexerBackwards(), () -> stopIndexer(), this);
   }
-  public Command backfeedIndexerBeamBreak(){
-    return Commands.sequence(new InstantCommand(() -> runIndexerBackwards(), this), 
-                            new WaitUntilCommand(() -> (m_beamBreakTimer.get() <= IndexerConstants.beamBreakDebounce)),
-                            Commands.waitSeconds(IndexerConstants.extraIndexerTime),
-                            new InstantCommand(() -> stopIndexer(), this));
+
+  public Command backfeedIndexerBeamBreak() {
+    return Commands.sequence(
+        new InstantCommand(() -> runIndexerBackwards(), this),
+        new WaitUntilCommand(() -> (m_beamBreakTimer.get() <= IndexerConstants.beamBreakDebounce)),
+        Commands.waitSeconds(IndexerConstants.extraIndexerTime),
+        new InstantCommand(() -> stopIndexer(), this));
   }
 
-  public Command sourceIndexer(){
-    return Commands.sequence(new InstantCommand(() -> runIndexerSource(), this), 
-                            new WaitUntilCommand(() -> (m_beamBreakTimer.get() >= IndexerConstants.beamBreakDebounce)),
-                            Commands.waitSeconds(IndexerConstants.extraSourceIndexerTime),
-                            new InstantCommand(() -> stopIndexer(), this));
+  public Command sourceIndexer() {
+    return Commands.sequence(
+        new InstantCommand(() -> runIndexerSource(), this),
+        new WaitUntilCommand(() -> (m_beamBreakTimer.get() >= IndexerConstants.beamBreakDebounce)),
+        Commands.waitSeconds(IndexerConstants.extraSourceIndexerTime),
+        new InstantCommand(() -> stopIndexer(), this));
   }
+
   @Override
   public void periodic() {
-    if (m_BeamBreak2.get()){
+    if (m_BeamBreak2.get()) {
       m_beamBreakTimer.restart();
     }
 
-    if (m_beamBreakTimer.get() >= IndexerConstants.beamBreakDebounce){
+    if (m_beamBreakTimer.get() >= IndexerConstants.beamBreakDebounce) {
       SmartDashboard.putBoolean("indexerBeamBreakTriggered", true);
     }
-    
-    SmartDashboard.putBoolean("beambreak2", m_beamBreakTimer.get() >= IndexerConstants.beamBreakDebounce);
+
+    SmartDashboard.putBoolean(
+        "beambreak2", m_beamBreakTimer.get() >= IndexerConstants.beamBreakDebounce);
     SmartDashboard.putNumber("indexerSpeed", m_indexerMotor.getVelocity().getValueAsDouble());
     SmartDashboard.putNumber("indexer pos", m_indexerMotor.getPosition().getValueAsDouble());
   }

@@ -15,8 +15,8 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.LimelightHelpers;
 import frc.robot.Constants.RobotConstants;
+import frc.robot.LimelightHelpers;
 
 public class subsystem_Vision extends SubsystemBase {
   /** Creates a new subsystem_Vision. */
@@ -32,7 +32,8 @@ public class subsystem_Vision extends SubsystemBase {
   private double m_Timestamp;
   // private double m_Pipeline;
   // private double m_LEDMode;
-  // private AprilTagFieldLayout m_AprilTagField = AprilTagFields.k2024Crescendo.loadAprilTagLayoutField();;
+  // private AprilTagFieldLayout m_AprilTagField =
+  // AprilTagFields.k2024Crescendo.loadAprilTagLayoutField();;
 
   public subsystem_Vision() {
     m_Table = NetworkTableInstance.getDefault().getTable("limelight");
@@ -43,49 +44,49 @@ public class subsystem_Vision extends SubsystemBase {
     m_Timestamp = 0.0;
   }
 
-  public double[] getBotToTagVector(){
+  public double[] getBotToTagVector() {
     return m_Table.getEntry("botpose").getDoubleArray(new double[1]);
   }
 
-  public void setPipelineIndex(double index){
+  public void setPipelineIndex(double index) {
     m_Table.getEntry("pipeline").setDouble(index);
   }
 
-  public double getPipelineIndex(){
+  public double getPipelineIndex() {
     return m_Table.getEntry("getpipe").getDouble(0.0);
   }
 
-  public void setLEDMode(double mode){
+  public void setLEDMode(double mode) {
     m_Table.getEntry("ledMode").setDouble(mode);
   }
 
-  public double getLEDMode(){
+  public double getLEDMode() {
     return m_Table.getEntry("ledMode").getDouble(3.0);
   }
 
-  public boolean hasTargets(){
+  public boolean hasTargets() {
     return m_HasTargets;
   }
 
-  public LimelightHelpers getHelpers(){
+  public LimelightHelpers getHelpers() {
     return m_Helpers;
   }
 
-  public double getTimestampMS(){
+  public double getTimestampMS() {
     return m_Timestamp;
   }
 
-  public Pose2d getEstimatedPose(){
-    return RobotConstants.robotColor == Alliance.Blue ? 
-            LimelightHelpers.getBotPose2d_wpiBlue("limelight") : 
-            LimelightHelpers.getBotPose2d_wpiRed("limelight");
+  public Pose2d getEstimatedPose() {
+    return RobotConstants.robotColor == Alliance.Blue
+        ? LimelightHelpers.getBotPose2d_wpiBlue("limelight")
+        : LimelightHelpers.getBotPose2d_wpiRed("limelight");
   }
 
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
     m_HasTargets = m_Table.getEntry("tv").getDouble(0.0) == 1.0;
-    if(m_HasTargets){
+    if (m_HasTargets) {
       m_Timestamp = m_Table.getEntry("tl").getDouble(0.0) + m_Table.getEntry("cl").getDouble(0.0);
     }
   }

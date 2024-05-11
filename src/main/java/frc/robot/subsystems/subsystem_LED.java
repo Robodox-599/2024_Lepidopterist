@@ -4,29 +4,23 @@
 
 package frc.robot.subsystems;
 
+import com.ctre.phoenix.led.CANdle;
+import com.ctre.phoenix.led.CANdle.LEDStripType;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.LEDConstants;
-import frc.robot.Constants.RobotConstants;
 import frc.robot.Constants.LEDConstants.LEDAnimation;
 import frc.robot.Constants.LEDConstants.LEDColor;
-
-import java.util.function.DoubleSupplier;
-
-import com.ctre.phoenix.led.CANdle;
-import com.ctre.phoenix.led.ColorFlowAnimation;
-import com.ctre.phoenix.led.FireAnimation;
-import com.ctre.phoenix.led.StrobeAnimation;
-import com.ctre.phoenix.led.CANdle.LEDStripType;
-
-import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj.util.Color;
+import frc.robot.Constants.RobotConstants;
 
 public class subsystem_LED extends SubsystemBase {
   /** Creates a new subsystem_LED. */
   private CANdle m_CANdle;
+
   private LEDColor m_LEDColor = LEDColor.None;
 
   private Color currentColor;
@@ -40,12 +34,12 @@ public class subsystem_LED extends SubsystemBase {
     m_CANdle = new CANdle(LEDConstants.CANdle_ID, RobotConstants.CANBus);
     m_CANdle.configLEDType(LEDStripType.GRB);
     m_CANdle.configBrightnessScalar(0.5);
-    m_CANdle.configLOSBehavior(true); //TODO: May need changing if this breaks LEDS
+    m_CANdle.configLOSBehavior(true); // TODO: May need changing if this breaks LEDS
     m_AnimationTimer.start();
 
-    currentColor = new Color(255,255, 255);//default
+    currentColor = new Color(255, 255, 255); // default
 
-    if (RobotConstants.robotColor == Alliance.Blue){
+    if (RobotConstants.robotColor == Alliance.Blue) {
       currentColor = new Color(0, 0, 255);
     } else if (RobotConstants.robotColor == Alliance.Red) {
       currentColor = new Color(255, 0, 0);
@@ -55,74 +49,69 @@ public class subsystem_LED extends SubsystemBase {
     m_CANdle.setLEDs((int) currentColor.red, (int) currentColor.blue, (int) currentColor.green);
   }
 
-  public void setLEDColor(LEDColor color){
+  public void setLEDColor(LEDColor color) {
     m_LEDColor = color;
   }
 
-  public InstantCommand setLEDStateCommand(LEDColor color){
+  public InstantCommand setLEDStateCommand(LEDColor color) {
     return new InstantCommand(() -> setLEDColor(color), this);
   }
 
-  public LEDColor getLEDState(){
+  public LEDColor getLEDState() {
     return m_LEDColor;
   }
 
-  public void toggleAmpCoop(){
-    if (m_LEDColor == LEDColor.AmplifyLED){
+  public void toggleAmpCoop() {
+    if (m_LEDColor == LEDColor.AmplifyLED) {
       m_LEDColor = LEDColor.CoopLED;
     } else {
       m_LEDColor = LEDColor.AmplifyLED;
     }
   }
 
-  public InstantCommand toggleAmpCoopCommand(){
+  public InstantCommand toggleAmpCoopCommand() {
     return new InstantCommand(() -> toggleAmpCoop(), this);
   }
 
-
-
-
   @Override
   public void periodic() {
-    switch(m_LEDColor){
+    switch (m_LEDColor) {
       case AmplifyLED:
-        if (RobotConstants.robotColor == Alliance.Red){
+        if (RobotConstants.robotColor == Alliance.Red) {
           currentColor = new Color(255, 0, 0);
         } else {
           currentColor = new Color(0, 0, 255);
         }
         break;
-      
+
       case CoopLED:
         currentColor = new Color(255, 191, 0);
         break;
-      
+
       case Shooting:
-      currentColor = new Color(255, 0, 255);
+        currentColor = new Color(255, 0, 255);
 
-      break;
+        break;
 
-      
       case Amping:
-      currentColor = new Color(0, 191, 255);
+        currentColor = new Color(0, 191, 255);
 
-      break;
-      
+        break;
+
       case Intook:
-      currentColor = new Color(0, 255, 0);
+        currentColor = new Color(0, 255, 0);
 
-      break;
+        break;
       default:
-      if (RobotConstants.robotColor == Alliance.Red){
-        currentColor = new Color(255, 0, 0);
-      } else {
-        currentColor = new Color(0, 0, 255);
-      }
-              break;
+        if (RobotConstants.robotColor == Alliance.Red) {
+          currentColor = new Color(255, 0, 0);
+        } else {
+          currentColor = new Color(0, 0, 255);
+        }
+        break;
     }
 
     SmartDashboard.putString("LED Color", currentColor.toHexString());
     m_CANdle.setLEDs((int) currentColor.red, (int) currentColor.blue, (int) currentColor.green);
-    }
   }
-
+}
