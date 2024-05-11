@@ -2,18 +2,24 @@ package frc.robot;
 
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.PositionVoltage;
+import com.ctre.phoenix6.controls.VelocityVoltage;
+import com.ctre.phoenix6.controls.compound.Diff_VelocityVoltage_Velocity;
 import com.ctre.phoenix6.hardware.CANcoder;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.units.Velocity;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.MathUtil;
 import frc.robot.Constants.SwerveConstants;
 // import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.UnitConstants;
+
 
 public class SwerveModule {
     private TalonFX m_DriveMotor;
@@ -57,6 +63,7 @@ public class SwerveModule {
         m_DriveMotor.setNeutralMode(NeutralModeValue.Brake);
         m_DriveMotor.setPosition(0.0);
         m_LastAngle = getState().angle.getDegrees();
+    
     }
 
     public double getTurnCounts(){
@@ -64,11 +71,17 @@ public class SwerveModule {
     }
 
     public void setDesiredState(SwerveModuleState desiredState, boolean isOpenLoop){
+        // Optimize the state to possibly reverse the wheel direction if it results in less rotation of the wheel.
         desiredState = optimize(desiredState, getState().angle);
-        
-        double velocity = mpsToFalcon(desiredState.speedMetersPerSecond);
-        double voltageFeedforward = m_Feedforward.calculate(velocity) / UnitConstants.kNominal;
-        m_DriveMotor.setVoltage(voltageFeedforward);
+
+        // Convert the desired linear speed to encoder units per 100 ms.
+        double velocitySetpoint = mpsToFalcon(desiredState.speedMetersPerSecond);
+
+        // Set the drive motor to the velocity setpoint using closed-loop control.
+
+        m_DriveMotor.setControl(new VelocityVoltage(desiredState.speedMetersPerSecond).withVelocity(velocitySetpoint));
+
+        // Set the angle motor to reach the desired angle using closed-loop control.
 
         double minSpeed = SwerveConstants.maxSpeed * 4.0 * 0.01;
         double angle = Math.abs(desiredState.speedMetersPerSecond) <= minSpeed ? m_LastAngle : desiredState.angle.getDegrees();
@@ -160,7 +173,8 @@ public class SwerveModule {
 
     public double mpsToFalcon(double mps){
         double wheelRPM = (mps * 60.0) / SwerveConstants.wheelCircumference;
-        return rpmToFalcon(wheelRPM);
+        double falconVelocityUnits = rpmToFalcon(wheelRPM);
+        return falconVelocityUnits;
     }
 
     public double getValFalc(){
