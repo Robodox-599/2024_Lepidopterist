@@ -8,8 +8,6 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -21,19 +19,21 @@ import frc.robot.Constants.ControllerConstants;
 import frc.robot.Constants.ShooterConstants;
 import frc.robot.Constants.ShooterConstants.FlywheelSetpoints;
 import frc.robot.Constants.ShooterConstants.WristSepoints;
-import frc.robot.Constants.SwerveConstants;
-import frc.robot.Constants.SwerveConstants.DPAD;
-import frc.robot.commands.Autos;
-// import frc.robot.commands.cGroup_Shooter;
-import frc.robot.commands.command_DriveTeleop;
+import frc.robot.commands.DriveCommands;
 import frc.robot.commands.command_ManualShooter;
 import frc.robot.commands.command_ToWristAndSpeed;
-import frc.robot.subsystems.subsystem_DriveTrain;
+import frc.robot.subsystems.drive.Drive;
+import frc.robot.subsystems.drive.GyroIO;
+import frc.robot.subsystems.drive.GyroIOPigeon2;
+import frc.robot.subsystems.drive.ModuleIO;
+import frc.robot.subsystems.drive.ModuleIOSim;
+import frc.robot.subsystems.drive.ModuleIOSparkMax;
 import frc.robot.subsystems.subsystem_Indexer;
 import frc.robot.subsystems.subsystem_Intake;
 import frc.robot.subsystems.subsystem_LED;
 import frc.robot.subsystems.subsystem_Shooter;
 import frc.robot.subsystems.subsystem_Vision;
+import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -45,7 +45,7 @@ public class RobotContainer {
   // The robot's subsystems and commands are defined here...
 
   /* Subsystems */
-  public final subsystem_DriveTrain m_DriveTrain = new subsystem_DriveTrain();
+  public final Drive drive;
   private final subsystem_Vision m_Vision = new subsystem_Vision();
   private final subsystem_Shooter m_Shooter = new subsystem_Shooter();
   private final subsystem_Indexer m_Indexer = new subsystem_Indexer();
@@ -59,21 +59,57 @@ public class RobotContainer {
       new CommandXboxController(ControllerConstants.xboxOperatorID);
 
   /* Sendable Chooser */
-  private final SendableChooser<Command> m_Chooser = AutoBuilder.buildAutoChooser();
+  private final LoggedDashboardChooser<Command> m_Chooser =
+      new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
+  //   private final SendableChooser<Command> m_Chooser = AutoBuilder.buildAutoChooser();
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     CameraServer.startAutomaticCapture(0);
     addAutos();
+    switch (Constants.currentMode) {
+      case REAL:
+        // Real robot, instantiate hardware IO implementations
+        drive =
+            new Drive(
+                new GyroIOPigeon2(false),
+                new ModuleIOSparkMax(0),
+                new ModuleIOSparkMax(1),
+                new ModuleIOSparkMax(2),
+                new ModuleIOSparkMax(3));
+
+        break;
+
+      case SIM:
+        drive =
+            new Drive(
+                new GyroIO() {},
+                new ModuleIOSim(),
+                new ModuleIOSim(),
+                new ModuleIOSim(),
+                new ModuleIOSim());
+        break;
+
+      default:
+        // Replayed robot, disable IO implementations
+        drive =
+            new Drive(
+                new GyroIO() {},
+                new ModuleIO() {},
+                new ModuleIO() {},
+                new ModuleIO() {},
+                new ModuleIO() {});
+        break;
+    }
     // Configure the trigger bindings
-    m_DriveTrain.setDefaultCommand(
-        new command_DriveTeleop(
-            m_DriveTrain,
-            m_Vision,
-            () -> -driver.getLeftY(),
-            () -> -driver.getLeftX(),
-            () -> -driver.getRightX(),
-            () -> SwerveConstants.isFieldRelative,
-            () -> SwerveConstants.isOpenLoop));
+    // m_DriveTrain.setDefaultCommand(
+    //     new command_DriveTeleop(
+    //         m_DriveTrain,
+    //         m_Vision,
+    //         () -> -driver.getLeftY(),
+    //         () -> -driver.getLeftX(),
+    //         () -> -driver.getRightX(),
+    //         () -> SwerveConstants.isFieldRelative,
+    //         () -> SwerveConstants.isOpenLoop));
 
     // m_Intake.setDefaultCommand(new command_ManualIntakeWrist(m_Intake, () ->
     // -operator.getRightY()));
@@ -95,22 +131,25 @@ public class RobotContainer {
     /*  -------------------
       Driver Controls
     -------------------  */
-    driver.a().onTrue(m_DriveTrain.parkCommand());
-    driver.x().onTrue(m_DriveTrain.invertGyroInstantCommand());
-    driver.y().onTrue(m_DriveTrain.toggleGyroCommand());
+    drive.setDefaultCommand(
+        DriveCommands.joystickDrive(
+            drive, () -> -driver.getLeftY(), () -> -driver.getLeftX(), () -> -driver.getRightX()));
+    // driver.a().onTrue(m_DriveTrain.parkCommand());
+    // driver.x().onTrue(m_DriveTrain.invertGyroInstantCommand());
+    // driver.y().onTrue(m_DriveTrain.toggleGyroCommand());
 
-    driver.leftStick().onTrue(m_DriveTrain.toggleLinearThrottleCommand());
-    driver.rightStick().onTrue(m_DriveTrain.toggleAngularThrottleCommand());
+    // driver.leftStick().onTrue(m_DriveTrain.toggleLinearThrottleCommand());
+    // driver.rightStick().onTrue(m_DriveTrain.toggleAngularThrottleCommand());
 
-    // DPAD
-    driver.povUp().onTrue(m_DriveTrain.DPADCommand(DPAD.UP));
-    driver.povUpRight().onTrue(m_DriveTrain.DPADCommand(DPAD.UPRIGHT));
-    driver.povRight().onTrue(m_DriveTrain.DPADCommand(DPAD.RIGHT));
-    driver.povDownRight().onTrue(m_DriveTrain.DPADCommand(DPAD.DOWNRIGHT));
-    driver.povDown().onTrue(m_DriveTrain.DPADCommand(DPAD.DOWN));
-    driver.povDownLeft().onTrue(m_DriveTrain.DPADCommand(DPAD.DOWNLEFT));
-    driver.povLeft().onTrue(m_DriveTrain.DPADCommand(DPAD.LEFT));
-    driver.povUpLeft().onTrue(m_DriveTrain.DPADCommand(DPAD.UP));
+    // // DPAD
+    // driver.povUp().onTrue(m_DriveTrain.DPADCommand(DPAD.UP));
+    // driver.povUpRight().onTrue(m_DriveTrain.DPADCommand(DPAD.UPRIGHT));
+    // driver.povRight().onTrue(m_DriveTrain.DPADCommand(DPAD.RIGHT));
+    // driver.povDownRight().onTrue(m_DriveTrain.DPADCommand(DPAD.DOWNRIGHT));
+    // driver.povDown().onTrue(m_DriveTrain.DPADCommand(DPAD.DOWN));
+    // driver.povDownLeft().onTrue(m_DriveTrain.DPADCommand(DPAD.DOWNLEFT));
+    // driver.povLeft().onTrue(m_DriveTrain.DPADCommand(DPAD.LEFT));
+    // driver.povUpLeft().onTrue(m_DriveTrain.DPADCommand(DPAD.UP));
 
     // Intake Command
     driver
@@ -162,9 +201,9 @@ public class RobotContainer {
     operator.x().whileTrue(m_Intake.runIntakeFwdCMD());
     operator.y().whileTrue(m_Intake.runIntakeBackCMD());
 
-    operator.povLeft().onTrue(m_DriveTrain.resetSubwoofer(() -> 0.0));
-    operator.povUp().onTrue(m_DriveTrain.resetSubwoofer(() -> 1.0));
-    operator.povRight().onTrue(m_DriveTrain.resetSubwoofer(() -> 2.0));
+    // operator.povLeft().onTrue(m_DriveTrain.resetSubwoofer(() -> 0.0));
+    // operator.povUp().onTrue(m_DriveTrain.resetSubwoofer(() -> 1.0));
+    // operator.povRight().onTrue(m_DriveTrain.resetSubwoofer(() -> 2.0));
     // operator.povLeft().onTrue(m_DriveTrain.resetSubwoofer(subwooferSide.LEFT));
     // operator.povUp().onTrue(m_DriveTrain.resetSubwoofer(subwooferSide.CENTER);
     // operator.povRight().onTrue(m_DriveTrain.resetSubwoofer(subwooferSide.RIGHT);
@@ -206,7 +245,7 @@ public class RobotContainer {
     // operator.leftBumper().whileTrue(m_Intake.ampScoreCommand());
     // operator.leftBumper().onFalse(m_Intake.stowCommand());
     // operator.povDownRight().whileTrue(m_Intake.ampFling());
-    operator.povDown().onTrue(m_DriveTrain.flipBotCommand());
+    // operator.povDown().onTrue(m_DriveTrain.flipBotCommand());
 
     // subwoofer setpoint
     operator
@@ -281,27 +320,28 @@ public class RobotContainer {
                 m_Shooter.forwardsFeederStartEnd().withTimeout(2.0),
                 m_Indexer.runIndexerShootStartEnd().withTimeout(2.0)),
             m_Shooter.stowShooter()));
+    // m_ = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
+    // m_Chooser.addOption("Taxi Auto", Autos.runAutoPath(m_DriveTrain, "Taxi Auto"));
+    // m_Chooser.addOption("2 Note Crack", Autos.runAutoPath(m_DriveTrain, "2 Note Crack"));
+    // m_Chooser.addOption("Taxi Auto Left", Autos.runAutoPath(m_DriveTrain, "Taxi Auto Left"));
+    // m_Chooser.addOption("Do Nothing Auto", Autos.runAutoPath(m_DriveTrain, "Do Nothing Auto"));
+    // m_Chooser.addOption("Preload Left", Autos.runAutoPath(m_DriveTrain, "Preload Left"));
+    // m_Chooser.addOption("Preload Mid", Autos.runAutoPath(m_DriveTrain, "Preload Mid"));
+    // m_Chooser.addOption("Preload Right", Autos.runAutoPath(m_DriveTrain, "Preload Right"));
+    // m_Chooser.addOption("2 Note Left", Autos.runAutoPath(m_DriveTrain, "2 Note Left"));
+    // m_Chooser.addOption("2 Note Mid", Autos.runAutoPath(m_DriveTrain, "2 Note Mid"));
+    // m_Chooser.addOption("2 Note Right", Autos.runAutoPath(m_DriveTrain, "2 Note Right"));
+    // m_Chooser.addOption("1 Note Left", Autos.runAutoPath(m_DriveTrain, "1 Note Left"));
+    // m_Chooser.addOption("1 Note Mid", Autos.runAutoPath(m_DriveTrain, "1 Note Mid"));
+    // m_Chooser.addOption("1 Note Right", Autos.runAutoPath(m_DriveTrain, "1 Note Right"));
+    // // m_Chooser.addOption("2 Note Right Shooter Only", Autos.runAutoPath(m_DriveTrain, "2 Note
+    // // Right Shooter Only"));
+    // // m_Chooser.addOption("2 Note Left Shooter Only", Autos.runAutoPath(m_DriveTrain, "2 Note
+    // Left
+    // // Shooter Only"));
+    // m_Chooser.addOption("RIPA", Autos.runAutoPath(m_DriveTrain, "RIPA"));
 
-    m_Chooser.addOption("Taxi Auto", Autos.runAutoPath(m_DriveTrain, "Taxi Auto"));
-    m_Chooser.addOption("2 Note Crack", Autos.runAutoPath(m_DriveTrain, "2 Note Crack"));
-    m_Chooser.addOption("Taxi Auto Left", Autos.runAutoPath(m_DriveTrain, "Taxi Auto Left"));
-    m_Chooser.addOption("Do Nothing Auto", Autos.runAutoPath(m_DriveTrain, "Do Nothing Auto"));
-    m_Chooser.addOption("Preload Left", Autos.runAutoPath(m_DriveTrain, "Preload Left"));
-    m_Chooser.addOption("Preload Mid", Autos.runAutoPath(m_DriveTrain, "Preload Mid"));
-    m_Chooser.addOption("Preload Right", Autos.runAutoPath(m_DriveTrain, "Preload Right"));
-    m_Chooser.addOption("2 Note Left", Autos.runAutoPath(m_DriveTrain, "2 Note Left"));
-    m_Chooser.addOption("2 Note Mid", Autos.runAutoPath(m_DriveTrain, "2 Note Mid"));
-    m_Chooser.addOption("2 Note Right", Autos.runAutoPath(m_DriveTrain, "2 Note Right"));
-    m_Chooser.addOption("1 Note Left", Autos.runAutoPath(m_DriveTrain, "1 Note Left"));
-    m_Chooser.addOption("1 Note Mid", Autos.runAutoPath(m_DriveTrain, "1 Note Mid"));
-    m_Chooser.addOption("1 Note Right", Autos.runAutoPath(m_DriveTrain, "1 Note Right"));
-    // m_Chooser.addOption("2 Note Right Shooter Only", Autos.runAutoPath(m_DriveTrain, "2 Note
-    // Right Shooter Only"));
-    // m_Chooser.addOption("2 Note Left Shooter Only", Autos.runAutoPath(m_DriveTrain, "2 Note Left
-    // Shooter Only"));
-    m_Chooser.addOption("RIPA", Autos.runAutoPath(m_DriveTrain, "RIPA"));
-
-    SmartDashboard.putData("Auto Chooser", m_Chooser);
+    // SmartDashboard.putData("Auto Chooser", m_Chooser);
   }
 
   /**
@@ -310,7 +350,7 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    return m_Chooser.getSelected();
+    return m_Chooser.get();
   }
 
   public Command shootSequence(subsystem_Indexer indexer, subsystem_Shooter shooter) {
