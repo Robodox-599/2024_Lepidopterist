@@ -4,7 +4,6 @@
 
 package frc.robot;
 
-import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
@@ -59,9 +58,10 @@ public class RobotContainer {
       new CommandXboxController(ControllerConstants.xboxOperatorID);
 
   /* Sendable Chooser */
+  // private final LoggedDashboardChooser<Command> m_Chooser;
   private final LoggedDashboardChooser<Command> m_Chooser =
-      new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
-  //   private final SendableChooser<Command> m_Chooser = AutoBuilder.buildAutoChooser();
+      new LoggedDashboardChooser<>("Auto Choices");
+  // private final SendableChooser<Command> m_Chooser = AutoBuilder.buildAutoChooser();
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     CameraServer.startAutomaticCapture(0);
