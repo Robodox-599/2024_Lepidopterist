@@ -9,6 +9,7 @@
   "NTProvider": {
     "types": {
       "/FMSInfo": "FMSInfo",
+      "/SmartDashboard/Auto Chooser": "String Chooser",
       "/SmartDashboard/Robot Position": "Field2d",
       "/SmartDashboard/Speaker Position": "Field2d",
       "/SmartDashboard/Speaker Position Shooter": "Field2d",
