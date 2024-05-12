@@ -7,6 +7,7 @@ package frc.robot;
 import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -44,7 +45,7 @@ public class RobotContainer {
   // The robot's subsystems and commands are defined here...
 
   /* Subsystems */
-  public final Drive drive;
+  public Drive drive;
   private final subsystem_Vision m_Vision = new subsystem_Vision();
   private final subsystem_Shooter m_Shooter = new subsystem_Shooter();
   private final subsystem_Indexer m_Indexer = new subsystem_Indexer();
@@ -66,39 +67,34 @@ public class RobotContainer {
   public RobotContainer() {
     CameraServer.startAutomaticCapture(0);
     addAutos();
-    switch (Constants.currentMode) {
-      case REAL:
-        // Real robot, instantiate hardware IO implementations
-        drive =
-            new Drive(
-                new GyroIOPigeon2(false),
-                new ModuleIOSparkMax(0),
-                new ModuleIOSparkMax(1),
-                new ModuleIOSparkMax(2),
-                new ModuleIOSparkMax(3));
-
-        break;
-
-      case SIM:
-        drive =
-            new Drive(
-                new GyroIO() {},
-                new ModuleIOSim(),
-                new ModuleIOSim(),
-                new ModuleIOSim(),
-                new ModuleIOSim());
-        break;
-
-      default:
-        // Replayed robot, disable IO implementations
-        drive =
-            new Drive(
-                new GyroIO() {},
-                new ModuleIO() {},
-                new ModuleIO() {},
-                new ModuleIO() {},
-                new ModuleIO() {});
-        break;
+    if (RobotBase.isReal()) {
+      // Real robot, instantiate hardware IO implementations
+      drive =
+          new Drive(
+              new GyroIOPigeon2(false),
+              new ModuleIOSparkMax(0),
+              new ModuleIOSparkMax(1),
+              new ModuleIOSparkMax(2),
+              new ModuleIOSparkMax(3));
+    }
+    if (RobotBase.isSimulation()) {
+      drive =
+          new Drive(
+              new GyroIO() {},
+              new ModuleIOSim(),
+              new ModuleIOSim(),
+              new ModuleIOSim(),
+              new ModuleIOSim());
+    }
+    if (Constants.kIsReplay = true) {
+      // Replayed robot, disable IO implementations
+      drive =
+          new Drive(
+              new GyroIO() {},
+              new ModuleIO() {},
+              new ModuleIO() {},
+              new ModuleIO() {},
+              new ModuleIO() {});
     }
     // Configure the trigger bindings
     // m_DriveTrain.setDefaultCommand(

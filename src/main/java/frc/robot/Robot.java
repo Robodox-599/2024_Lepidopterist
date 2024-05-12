@@ -7,6 +7,7 @@ package frc.robot;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.Constants.RobotConstants;
@@ -36,6 +37,8 @@ public class Robot extends LoggedRobot {
   @Override
   public void robotInit() {
 
+    System.out.println(RobotBase.isSimulation());
+
     Logger.recordMetadata("ProjectName", BuildConstants.MAVEN_NAME);
     Logger.recordMetadata("BuildDate", BuildConstants.BUILD_DATE);
     Logger.recordMetadata("GitSHA", BuildConstants.GIT_SHA);
@@ -54,26 +57,26 @@ public class Robot extends LoggedRobot {
     }
 
     // Set up data receivers & replay source
-    switch (Constants.currentMode) {
-      case REAL:
-        // Running on a real robot, log to a USB stick ("/U/logs")
-        Logger.addDataReceiver(new WPILOGWriter());
-        Logger.addDataReceiver(new NT4Publisher());
-        break;
 
-      case SIM:
-        // Running a physics simulator, log to NT
-        Logger.addDataReceiver(new NT4Publisher());
-        break;
-
-      case REPLAY:
-        // Replaying a log, set up replay source
-        setUseTiming(false); // Run as fast as possible
-        String logPath = LogFileUtil.findReplayLog();
-        Logger.setReplaySource(new WPILOGReader(logPath));
-        Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim")));
-        break;
+    // always log to usb for now
+    Logger.addDataReceiver(new WPILOGWriter());
+    if (DriverStation.isFMSAttached()) {
+      // Only turn on logs if we are attached to FMS, but disable NTtables.
+      // Logger.addDataReceiver(new WPILOGWriter());
+    } else {
+      // Otherwise, enable NT tables.
+      Logger.addDataReceiver(new NT4Publisher());
     }
+
+    if (Constants.kIsReplay) {
+      String replayLogPath = LogFileUtil.findReplayLog();
+
+      Logger.setReplaySource(new WPILOGReader(replayLogPath));
+    }
+    if (Constants.kIsReplay) {
+      setUseTiming(true);
+    }
+    Logger.disableDeterministicTimestamps();
 
     // See http://bit.ly/3YIzFZ6 for more information on timestamps in AdvantageKit.
     // Logger.disableDeterministicTimestamps()
