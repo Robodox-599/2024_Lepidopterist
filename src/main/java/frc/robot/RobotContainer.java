@@ -25,7 +25,6 @@ import frc.robot.commands.command_ToWristAndSpeed;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIOPigeon2;
-import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOSparkMax;
 import frc.robot.subsystems.subsystem_Indexer;
@@ -86,16 +85,16 @@ public class RobotContainer {
               new ModuleIOSim(),
               new ModuleIOSim());
     }
-    if (Constants.SwerveConstants.kIsReplay == true) {
-      // Replayed robot, disable IO implementations
-      drive =
-          new Drive(
-              new GyroIO() {},
-              new ModuleIO() {},
-              new ModuleIO() {},
-              new ModuleIO() {},
-              new ModuleIO() {});
-    }
+    // if (Constants.SwerveConstants.kIsReplay == true) {
+    //   // Replayed robot, disable IO implementations
+    //   drive =
+    //       new Drive(
+    //           new GyroIO() {},
+    //           new ModuleIO() {},
+    //           new ModuleIO() {},
+    //           new ModuleIO() {},
+    //           new ModuleIO() {});
+    // }
     // Configure the trigger bindings
     // m_DriveTrain.setDefaultCommand(
     //     new command_DriveTeleop(
