@@ -33,11 +33,10 @@ import frc.robot.Constants.ShooterConstants.sigmoidCoefficients;
  * <p>It is advised to statically import this class (or one of its inner classes) wherever the
  * constants are needed, to reduce verbosity.
  */
-public final class Constants {
-
-  public static boolean kIsReplay = false;
+public class Constants {
 
   public static class RobotConstants {
+
     public static Alliance robotColor = null;
     public static final String CANBus = "rio";
     // offset from robot coords to shooter entrance pt
@@ -419,6 +418,8 @@ public final class Constants {
   }
 
   public static class SwerveConstants {
+
+    public static boolean kIsReplay = false;
     public static final String CANBus = "LunaDriveCANivore";
 
     public static final int gyroID = 12;

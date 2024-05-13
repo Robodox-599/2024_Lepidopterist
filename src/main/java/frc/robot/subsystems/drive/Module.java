@@ -45,11 +45,12 @@ public class Module {
 
     // Switch constants based on mode (the physics simulator is treated as a
     // separate robot with different tuning)
+
     if (RobotBase.isReal()) {
-      driveFeedforward = new SimpleMotorFeedforward(0.0, 0.0);
-      driveFeedback = new PIDController(0.0, 0.0, 0.0);
-      turnFeedback = new PIDController(0.0, 0.0, 0.0);
-    } else if (Constants.kIsReplay = true) {
+      driveFeedforward = new SimpleMotorFeedforward(0.1, 0.13);
+      driveFeedback = new PIDController(0.05, 0.0, 0.0);
+      turnFeedback = new PIDController(7.0, 0.0, 0.0);
+    } else if (Constants.SwerveConstants.kIsReplay = true) {
       driveFeedforward = new SimpleMotorFeedforward(0.1, 0.13);
       driveFeedback = new PIDController(0.05, 0.0, 0.0);
       turnFeedback = new PIDController(7.0, 0.0, 0.0);

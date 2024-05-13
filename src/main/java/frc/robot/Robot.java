@@ -7,7 +7,6 @@ package frc.robot;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.Constants.RobotConstants;
@@ -36,8 +35,6 @@ public class Robot extends LoggedRobot {
    */
   @Override
   public void robotInit() {
-
-    System.out.println(RobotBase.isSimulation());
 
     Logger.recordMetadata("ProjectName", BuildConstants.MAVEN_NAME);
     Logger.recordMetadata("BuildDate", BuildConstants.BUILD_DATE);
@@ -68,12 +65,12 @@ public class Robot extends LoggedRobot {
       Logger.addDataReceiver(new NT4Publisher());
     }
 
-    if (Constants.kIsReplay) {
+    if (Constants.SwerveConstants.kIsReplay == true) {
       String replayLogPath = LogFileUtil.findReplayLog();
 
       Logger.setReplaySource(new WPILOGReader(replayLogPath));
     }
-    if (Constants.kIsReplay) {
+    if (Constants.SwerveConstants.kIsReplay == true) {
       setUseTiming(true);
     }
     Logger.disableDeterministicTimestamps();

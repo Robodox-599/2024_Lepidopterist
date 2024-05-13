@@ -86,7 +86,7 @@ public class RobotContainer {
               new ModuleIOSim(),
               new ModuleIOSim());
     }
-    if (Constants.kIsReplay = true) {
+    if (Constants.SwerveConstants.kIsReplay == true) {
       // Replayed robot, disable IO implementations
       drive =
           new Drive(

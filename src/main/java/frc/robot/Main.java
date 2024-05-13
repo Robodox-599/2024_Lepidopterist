@@ -21,8 +21,8 @@ public final class Main {
    * <p>If you change your main robot class, change the parameter type.
    */
   public static void main(String... args) {
-    Constants.kIsReplay = Arrays.asList(args).contains("--replay");
-    if (Constants.kIsReplay) {
+    Constants.SwerveConstants.kIsReplay = Arrays.asList(args).contains("--replay");
+    if (Constants.SwerveConstants.kIsReplay) {
       System.out.println("Starting Replay mode!");
     }
 
