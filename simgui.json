@@ -18,6 +18,19 @@
       "/SmartDashboard/zero shooter wrist": "Command"
     }
   },
+  "NetworkTables": {
+    "transitory": {
+      "AdvantageKit": {
+        "RealOutputs": {
+          "Odometry": {
+            "open": true
+          },
+          "open": true
+        },
+        "open": true
+      }
+    }
+  },
   "NetworkTables Info": {
     "visible": true
   }

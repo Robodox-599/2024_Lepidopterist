@@ -23,7 +23,13 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.RobotBase;
 import frc.robot.Constants.ShooterConstants.sigmoidCoefficients;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Scanner;
+import org.littletonrobotics.junction.AutoLogOutput;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
@@ -36,12 +42,41 @@ import frc.robot.Constants.ShooterConstants.sigmoidCoefficients;
 public class Constants {
 
   public static class RobotConstants {
-
     public static Alliance robotColor = null;
     public static final String CANBus = "rio";
     // offset from robot coords to shooter entrance pt
     public static final Translation3d shooterOffset = new Translation3d(0, 0.46, 0.23);
     // public static final Translation3d shooterOffset = new Translation3d(0, 0.41, 0.09);
+    public static enum Mode {
+      REAL,
+      SIM,
+      REPLAY
+    };
+
+    @AutoLogOutput
+    public static Mode getMode() {
+      if (RobotBase.isReal()) return Mode.REAL;
+      return isReplay() ? Mode.REPLAY : Mode.SIM;
+    }
+
+    public static boolean isReplay() {
+      // Read environment variables
+      if (System.getenv("AKIT_LOG_PATH") != null) {
+        return true;
+      }
+      // Read file from AdvantageScope
+      Path advantageScopeTempPath =
+          Paths.get(System.getProperty("java.io.tmpdir"), "akit-log-path.txt");
+      String advantageScopeLogPath = null;
+      try (Scanner fileScanner = new Scanner(advantageScopeTempPath)) {
+        advantageScopeLogPath = fileScanner.nextLine();
+      } catch (IOException e) {
+      }
+      if (advantageScopeLogPath != null) {
+        return true;
+      }
+      return false;
+    }
   }
 
   public static class FieldConstants {
@@ -419,7 +454,6 @@ public class Constants {
 
   public static class SwerveConstants {
 
-    public static boolean kIsReplay = false;
     public static final String CANBus = "LunaDriveCANivore";
 
     public static final int gyroID = 12;

@@ -11,9 +11,11 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.Constants.RobotConstants;
 import java.util.Optional;
+import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
+import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
 /**
@@ -51,30 +53,47 @@ public class Robot extends LoggedRobot {
         break;
     }
 
-    // Set up data receivers & replay source
+    switch (RobotConstants.getMode()) {
+      case REAL:
+        // Running on a real robot, log to a USB stick ("/U/logs")
+        Logger.addDataReceiver(new WPILOGWriter());
+        Logger.addDataReceiver(new NT4Publisher());
+        break;
 
-    // always log to usb for now
-    Logger.addDataReceiver(new WPILOGWriter());
-    if (DriverStation.isFMSAttached()) {
-      // Only turn on logs if we are attached to FMS, but disable NTtables.
-      // Logger.addDataReceiver(new WPILOGWriter());
-    } else {
-      // Otherwise, enable NT tables.
-      Logger.addDataReceiver(new NT4Publisher());
+      case SIM:
+        // Running a physics simulator, log to NT
+        Logger.addDataReceiver(new NT4Publisher());
+        break;
+
+      case REPLAY:
+        // Replaying a log, set up replay source
+        setUseTiming(false); // Run as fast as possible
+        String logPath = LogFileUtil.findReplayLog();
+        Logger.setReplaySource(new WPILOGReader(logPath));
+        Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim")));
+        break;
     }
 
-    // if (Constants.SwerveConstants.kIsReplay == true) {
-    //   String replayLogPath = LogFileUtil.findReplayLog();
+    // Logger.disableDeterministicTimestamps();
 
-    //   Logger.setReplaySource(new WPILOGReader(replayLogPath));
+    // // See http://bit.ly/3YIzFZ6 for more information on timestamps in AdvantageKit.
+    // // Logger.disableDeterministicTimestamps()
+    // String filename =
+    //
+    // "C:\\Users\\matth\\Documents\\2024_Lepidoperist-BestBranchname\\2024_Lepidopterist\\logs\\FRC_20240513_075227.wpilog";
+    // try {
+    //   DataLogReader reader = new DataLogReader(filename);
+    //   // Check validity
+    //   String extraHeader = reader.getExtraHeader();
+    //   DriverStation.reportError("Extra Header: " + extraHeader, true);
+    //   if (!reader.isValid()) {
+    //     DriverStation.reportError("The replay log is not a valid WPILOG file.", false);
+    //   } else if (extraHeader.equals("AdvantageKit")) {
+    //     DriverStation.reportError("Extra Header: " + extraHeader, true);
+    //   }
+    // } catch (IOException e) {
+    //   DriverStation.reportError("Failed to open replay log file.", true);
     // }
-    // if (Constants.SwerveConstants.kIsReplay == true) {
-    //   setUseTiming(true);
-    // }
-    Logger.disableDeterministicTimestamps();
-
-    // See http://bit.ly/3YIzFZ6 for more information on timestamps in AdvantageKit.
-    // Logger.disableDeterministicTimestamps()
 
     // Start AdvantageKit logger
     Logger.start();

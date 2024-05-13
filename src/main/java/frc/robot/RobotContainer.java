@@ -7,7 +7,6 @@ package frc.robot;
 import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
-import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -16,6 +15,7 @@ import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.ControllerConstants;
+import frc.robot.Constants.RobotConstants;
 import frc.robot.Constants.ShooterConstants;
 import frc.robot.Constants.ShooterConstants.FlywheelSetpoints;
 import frc.robot.Constants.ShooterConstants.WristSepoints;
@@ -25,6 +25,7 @@ import frc.robot.commands.command_ToWristAndSpeed;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIOPigeon2;
+import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOSparkMax;
 import frc.robot.subsystems.subsystem_Indexer;
@@ -66,35 +67,36 @@ public class RobotContainer {
   public RobotContainer() {
     CameraServer.startAutomaticCapture(0);
     addAutos();
-    if (RobotBase.isReal()) {
-      // Real robot, instantiate hardware IO implementations
-      drive =
-          new Drive(
-              new GyroIOPigeon2(false),
-              new ModuleIOSparkMax(0),
-              new ModuleIOSparkMax(1),
-              new ModuleIOSparkMax(2),
-              new ModuleIOSparkMax(3));
+
+    switch (RobotConstants.getMode()) {
+      case SIM:
+        drive =
+            new Drive(
+                new GyroIO() {},
+                new ModuleIOSim(),
+                new ModuleIOSim(),
+                new ModuleIOSim(),
+                new ModuleIOSim());
+        break;
+      case REPLAY:
+        drive =
+            new Drive(
+                new GyroIO() {},
+                new ModuleIO() {},
+                new ModuleIO() {},
+                new ModuleIO() {},
+                new ModuleIO() {});
+        break;
+      default:
+        drive =
+            new Drive(
+                new GyroIOPigeon2(false),
+                new ModuleIOSparkMax(0),
+                new ModuleIOSparkMax(1),
+                new ModuleIOSparkMax(2),
+                new ModuleIOSparkMax(3));
     }
-    if (RobotBase.isSimulation()) {
-      drive =
-          new Drive(
-              new GyroIO() {},
-              new ModuleIOSim(),
-              new ModuleIOSim(),
-              new ModuleIOSim(),
-              new ModuleIOSim());
-    }
-    // if (Constants.SwerveConstants.kIsReplay == true) {
-    //   // Replayed robot, disable IO implementations
-    //   drive =
-    //       new Drive(
-    //           new GyroIO() {},
-    //           new ModuleIO() {},
-    //           new ModuleIO() {},
-    //           new ModuleIO() {},
-    //           new ModuleIO() {});
-    // }
+
     // Configure the trigger bindings
     // m_DriveTrain.setDefaultCommand(
     //     new command_DriveTeleop(
