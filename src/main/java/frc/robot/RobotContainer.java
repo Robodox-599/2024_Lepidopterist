@@ -31,7 +31,7 @@ import frc.robot.subsystems.subsystem_Indexer;
 import frc.robot.subsystems.subsystem_Intake;
 import frc.robot.subsystems.subsystem_LED;
 import frc.robot.subsystems.subsystem_Shooter;
-import frc.robot.subsystems.subsystem_Vision;
+import frc.robot.subsystems.vision.subsystem_Vision;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
