@@ -83,38 +83,38 @@ public class ModuleIOTalonFX implements ModuleIO {
     switch (index) {
         // MODULE 0 HARDWARE IDENTIFIERS
       case 0:
-        driveTalon = new TalonFX(0, "LunaDriveCANivore"); // MEER OR MATTHEW CONFIGURE THIS
-        turnTalon = new TalonFX(1, "LunaDriveCANivore"); // MEER OR MATTHEW CONFIGURE THIS
-        cancoder = new CANcoder(2, "LunaDriveCANivore"); // MEER OR MATTHEW CONFIGURE THIS
+        driveTalon = new TalonFX(0, "LunaDriveCANivore"); // MEER AND MATTHEW CONFIGURE THIS
+        turnTalon = new TalonFX(1, "LunaDriveCANivore"); // MEER AND MATTHEW CONFIGURE THIS
+        cancoder = new CANcoder(2, "LunaDriveCANivore"); // MEER AND MATTHEW CONFIGURE THIS
         absoluteEncoderOffset =
-            new Rotation2d(0.0); // MUST BE CALIBRATED // MEER OR MATTHEW CONFIGURE THIS
+            new Rotation2d(0.0); // MUST BE CALIBRATED // MEER AND MATTHEW CONFIGURE THIS
         break;
 
         // MODULE 1 HARDWARE IDENTIFIERS
       case 1:
-        driveTalon = new TalonFX(3, "LunaDriveCANivore"); // MEER OR MATTHEW CONFIGURE THIS
-        turnTalon = new TalonFX(4, "LunaDriveCANivore"); // MEER OR MATTHEW CONFIGURE THIS
-        cancoder = new CANcoder(5, "LunaDriveCANivore"); // MEER OR MATTHEW CONFIGURE THIS
+        driveTalon = new TalonFX(3, "LunaDriveCANivore"); // MEER AND MATTHEW CONFIGURE THIS
+        turnTalon = new TalonFX(4, "LunaDriveCANivore"); // MEER AND MATTHEW CONFIGURE THIS
+        cancoder = new CANcoder(5, "LunaDriveCANivore"); // MEER AND MATTHEW CONFIGURE THIS
         absoluteEncoderOffset =
-            new Rotation2d(0.0); // MUST BE CALIBRATED // MEER OR MATTHEW CONFIGURE THIS
+            new Rotation2d(0.0); // MUST BE CALIBRATED // MEER AND MATTHEW CONFIGURE THIS
         break;
 
         // MODULE 2 HARDWARE IDENTIFIERS
       case 2:
-        driveTalon = new TalonFX(6, "LunaDriveCANivore"); // MEER OR MATTHEW CONFIGURE THIS
-        turnTalon = new TalonFX(7, "LunaDriveCANivore"); // MEER OR MATTHEW CONFIGURE THIS
-        cancoder = new CANcoder(8, "LunaDriveCANivore"); // MEER OR MATTHEW CONFIGURE THIS
+        driveTalon = new TalonFX(6, "LunaDriveCANivore"); // MEER AND MATTHEW CONFIGURE THIS
+        turnTalon = new TalonFX(7, "LunaDriveCANivore"); // MEER AND MATTHEW CONFIGURE THIS
+        cancoder = new CANcoder(8, "LunaDriveCANivore"); // MEER AND MATTHEW CONFIGURE THIS
         absoluteEncoderOffset =
-            new Rotation2d(0.0); // MUST BE CALIBRATED // MEER OR MATTHEW CONFIGURE THIS
+            new Rotation2d(0.0); // MUST BE CALIBRATED // MEER AND MATTHEW CONFIGURE THIS
         break;
 
         // MODULE 3 HARDWARE IDENTIFIERS
       case 3:
-        driveTalon = new TalonFX(9, "LunaDriveCANivore"); // MEER OR MATTHEW CONFIGURE THIS
-        turnTalon = new TalonFX(10, "LunaDriveCANivore"); // MEER OR MATTHEW CONFIGURE THIS
-        cancoder = new CANcoder(11, "LunaDriveCANivore"); // MEER OR MATTHEW CONFIGURE THIS
+        driveTalon = new TalonFX(9, "LunaDriveCANivore"); // MEER AND MATTHEW CONFIGURE THIS
+        turnTalon = new TalonFX(10, "LunaDriveCANivore"); // MEER AND MATTHEW CONFIGURE THIS
+        cancoder = new CANcoder(11, "LunaDriveCANivore"); // MEER AND MATTHEW CONFIGURE THIS
         absoluteEncoderOffset =
-            new Rotation2d(0.0); // MUST BE CALIBRATED // MEER OR MATTHEW CONFIGURE THIS
+            new Rotation2d(0.0); // MUST BE CALIBRATED // MEER AND MATTHEW CONFIGURE THIS
         break;
       default:
         throw new RuntimeException("Invalid module index");
