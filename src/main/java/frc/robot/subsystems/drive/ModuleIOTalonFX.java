@@ -69,28 +69,28 @@ public class ModuleIOTalonFX implements ModuleIO {
   public ModuleIOTalonFX(int index) {
     switch (index) {
       case 0:
-        driveTalon = new TalonFX(0);
-        turnTalon = new TalonFX(1);
-        cancoder = new CANcoder(2);
-        absoluteEncoderOffset = new Rotation2d(0.0); // MUST BE CALIBRATED
+        driveTalon = new TalonFX(0); // MEER OR MATTHEW CONFIGURE THIS
+        turnTalon = new TalonFX(1); // MEER OR MATTHEW CONFIGURE THIS
+        cancoder = new CANcoder(2); // MEER OR MATTHEW CONFIGURE THIS
+        absoluteEncoderOffset = new Rotation2d(0.0); // MUST BE CALIBRATED // MEER OR MATTHEW CONFIGURE THIS
         break;
       case 1:
-        driveTalon = new TalonFX(3);
-        turnTalon = new TalonFX(4);
-        cancoder = new CANcoder(5);
-        absoluteEncoderOffset = new Rotation2d(0.0); // MUST BE CALIBRATED
+        driveTalon = new TalonFX(3); // MEER OR MATTHEW CONFIGURE THIS
+        turnTalon = new TalonFX(4); // MEER OR MATTHEW CONFIGURE THIS
+        cancoder = new CANcoder(5); // MEER OR MATTHEW CONFIGURE THIS
+        absoluteEncoderOffset = new Rotation2d(0.0); // MUST BE CALIBRATED // MEER OR MATTHEW CONFIGURE THIS
         break;
       case 2:
-        driveTalon = new TalonFX(6);
-        turnTalon = new TalonFX(7);
-        cancoder = new CANcoder(8);
-        absoluteEncoderOffset = new Rotation2d(0.0); // MUST BE CALIBRATED
+        driveTalon = new TalonFX(6); // MEER OR MATTHEW CONFIGURE THIS
+        turnTalon = new TalonFX(7); // MEER OR MATTHEW CONFIGURE THIS
+        cancoder = new CANcoder(8); // MEER OR MATTHEW CONFIGURE THIS
+        absoluteEncoderOffset = new Rotation2d(0.0); // MUST BE CALIBRATED // MEER OR MATTHEW CONFIGURE THIS
         break;
       case 3:
-        driveTalon = new TalonFX(9);
-        turnTalon = new TalonFX(10);
-        cancoder = new CANcoder(11);
-        absoluteEncoderOffset = new Rotation2d(0.0); // MUST BE CALIBRATED
+        driveTalon = new TalonFX(9); // MEER OR MATTHEW CONFIGURE THIS
+        turnTalon = new TalonFX(10); // MEER OR MATTHEW CONFIGURE THIS
+        cancoder = new CANcoder(11); // MEER OR MATTHEW CONFIGURE THIS
+        absoluteEncoderOffset = new Rotation2d(0.0); // MUST BE CALIBRATED // MEER OR MATTHEW CONFIGURE THIS
         break;
       default:
         throw new RuntimeException("Invalid module index");
