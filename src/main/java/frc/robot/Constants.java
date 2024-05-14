@@ -23,6 +23,7 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.RobotBase;
 import frc.robot.Constants.ShooterConstants.sigmoidCoefficients;
 
 /**
@@ -33,7 +34,46 @@ import frc.robot.Constants.ShooterConstants.sigmoidCoefficients;
  * <p>It is advised to statically import this class (or one of its inner classes) wherever the
  * constants are needed, to reduce verbosity.
  */
-public class Constants {
+public final class Constants {
+
+  private static final boolean isReplayMode = false;
+
+  private static RobotType robotType =
+      isReplayMode
+          ? RobotType.REPLAYBOT
+          : RobotBase.isReal() ? RobotType.REALBOT : RobotType.SIMBOT;
+
+  public static RobotType getRobot() {
+    if (RobotBase.isReal() && robotType == RobotType.SIMBOT) {
+
+      robotType = RobotType.REALBOT;
+    }
+    return robotType;
+  }
+
+  public static Mode getMode() {
+    return switch (robotType) {
+      case REALBOT -> Mode.REAL;
+      case SIMBOT -> Mode.SIM;
+      case REPLAYBOT -> Mode.REPLAY;
+    };
+  }
+
+  public enum Mode {
+    REAL,
+
+    SIM,
+
+    REPLAY
+  }
+
+  public enum RobotType {
+    SIMBOT,
+
+    REPLAYBOT,
+
+    REALBOT
+  }
 
   public static class RobotConstants {
 
@@ -419,7 +459,6 @@ public class Constants {
 
   public static class SwerveConstants {
 
-    public static boolean kIsReplay = false;
     public static final String CANBus = "LunaDriveCANivore";
 
     public static final int gyroID = 12;

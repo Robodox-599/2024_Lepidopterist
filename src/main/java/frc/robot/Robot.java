@@ -11,9 +11,11 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.Constants.RobotConstants;
 import java.util.Optional;
+import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
+import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
 /**
@@ -53,7 +55,6 @@ public class Robot extends LoggedRobot {
 
     // Set up data receivers & replay source
 
-    // always log to usb for now
     Logger.addDataReceiver(new WPILOGWriter());
     if (DriverStation.isFMSAttached()) {
       // Only turn on logs if we are attached to FMS, but disable NTtables.
@@ -63,14 +64,16 @@ public class Robot extends LoggedRobot {
       Logger.addDataReceiver(new NT4Publisher());
     }
 
-    // if (Constants.SwerveConstants.kIsReplay == true) {
-    //   String replayLogPath = LogFileUtil.findReplayLog();
+    if (Constants.getMode() == Constants.Mode.REPLAY) {
+      String replayLogPath = LogFileUtil.findReplayLog();
 
-    //   Logger.setReplaySource(new WPILOGReader(replayLogPath));
-    // }
-    // if (Constants.SwerveConstants.kIsReplay == true) {
-    //   setUseTiming(true);
-    // }
+      Logger.setReplaySource(new WPILOGReader(replayLogPath));
+    }
+
+    if (Constants.getMode() == Constants.Mode.REPLAY) {
+      setUseTiming(true);
+    }
+
     Logger.disableDeterministicTimestamps();
 
     // See http://bit.ly/3YIzFZ6 for more information on timestamps in AdvantageKit.
@@ -85,6 +88,7 @@ public class Robot extends LoggedRobot {
     checkDSUpdate();
     // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.
+
     m_robotContainer = new RobotContainer();
   }
 

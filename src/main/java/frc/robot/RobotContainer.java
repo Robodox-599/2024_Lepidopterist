@@ -7,7 +7,6 @@ package frc.robot;
 import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
-import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -25,8 +24,9 @@ import frc.robot.commands.command_ToWristAndSpeed;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIOPigeon2;
+import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
-import frc.robot.subsystems.drive.ModuleIOSparkMax;
+import frc.robot.subsystems.drive.ModuleIOTalonFX;
 import frc.robot.subsystems.subsystem_Indexer;
 import frc.robot.subsystems.subsystem_Intake;
 import frc.robot.subsystems.subsystem_LED;
@@ -66,35 +66,41 @@ public class RobotContainer {
   public RobotContainer() {
     CameraServer.startAutomaticCapture(0);
     addAutos();
-    if (RobotBase.isReal()) {
-      // Real robot, instantiate hardware IO implementations
-      drive =
-          new Drive(
-              new GyroIOPigeon2(false),
-              new ModuleIOSparkMax(0),
-              new ModuleIOSparkMax(1),
-              new ModuleIOSparkMax(2),
-              new ModuleIOSparkMax(3));
+    if (Constants.getMode() != Constants.Mode.REPLAY) {
+      switch (Constants.getRobot()) {
+        case REALBOT -> {
+          drive =
+              new Drive(
+                  new GyroIOPigeon2(true),
+                  new ModuleIOTalonFX(0),
+                  new ModuleIOTalonFX(1),
+                  new ModuleIOTalonFX(2),
+                  new ModuleIOTalonFX(3));
+        }
+
+        case SIMBOT -> {
+          drive =
+              new Drive(
+                  new GyroIO() {},
+                  new ModuleIOSim(),
+                  new ModuleIOSim(),
+                  new ModuleIOSim(),
+                  new ModuleIOSim());
+        }
+      }
     }
-    if (RobotBase.isSimulation()) {
+
+    if (drive == null) {
+      // Replayed robot, disable IO implementations
       drive =
           new Drive(
               new GyroIO() {},
-              new ModuleIOSim(),
-              new ModuleIOSim(),
-              new ModuleIOSim(),
-              new ModuleIOSim());
+              new ModuleIO() {},
+              new ModuleIO() {},
+              new ModuleIO() {},
+              new ModuleIO() {});
     }
-    // if (Constants.SwerveConstants.kIsReplay == true) {
-    //   // Replayed robot, disable IO implementations
-    //   drive =
-    //       new Drive(
-    //           new GyroIO() {},
-    //           new ModuleIO() {},
-    //           new ModuleIO() {},
-    //           new ModuleIO() {},
-    //           new ModuleIO() {});
-    // }
+
     // Configure the trigger bindings
     // m_DriveTrain.setDefaultCommand(
     //     new command_DriveTeleop(

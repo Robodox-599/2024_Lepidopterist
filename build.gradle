@@ -102,13 +102,6 @@ test {
     systemProperty 'junit.jupiter.extensions.autodetection.enabled', 'true'
 }
 
-simulateJavaRelease {
-    project.logger.lifecycle('Checking if replay mode...')
-    if (frc.project.hasProperty("replay")) {
-        project.logger.lifecycle('Replay mode activated!')
-        args '--replay'
-    }
-}
 
 // Simulation configuration (e.g. environment variables).
 wpi.sim.addGui().defaultEnabled = true

@@ -36,7 +36,6 @@ import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import frc.robot.Constants;
 import frc.robot.util.LocalADStarAK;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -206,7 +205,6 @@ public class Drive extends SubsystemBase {
     Logger.recordOutput("SwerveStates/SetpointsOptimized", optimizedSetpointStates);
     Logger.recordOutput("SwerveStates/SimCheck", RobotBase.isSimulation());
     Logger.recordOutput("SwerveStates/SimCheckReal", RobotBase.isReal());
-    Logger.recordOutput("SwerveStates/ReplayCheckReal", Constants.SwerveConstants.kIsReplay);
   }
 
   /** Stops the drive. */
