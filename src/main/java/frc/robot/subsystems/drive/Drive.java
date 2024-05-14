@@ -42,7 +42,6 @@ import java.util.concurrent.locks.ReentrantLock;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
-
 // Initializing Drive Class extending SubsystemBase to make use of WPILib's command-based structure
 public class Drive extends SubsystemBase {
 
@@ -55,21 +54,21 @@ public class Drive extends SubsystemBase {
       Math.hypot(TRACK_WIDTH_X / 2.0, TRACK_WIDTH_Y / 2.0);
   private static final double MAX_ANGULAR_SPEED = MAX_LINEAR_SPEED / DRIVE_BASE_RADIUS;
 
-
   // Odometry lock for sychronized odometry updates
 
-  //You lock here because odometry calculations often involve reading from and- 
-  //writing to shared variables that represent the state of the robot, such as its- 
-  //position, orientation, and velocity. These variables are updated based on sensor inputs, 
-  //which may be collected in different threads or subsystems. Using a lock prevents multiple threads from- 
-  //modifying these shared variables simultaneously, which can lead to corrupted data and inaccurate odometry.
+  // You lock here because odometry calculations often involve reading from and-
+  // writing to shared variables that represent the state of the robot, such as its-
+  // position, orientation, and velocity. These variables are updated based on sensor inputs,
+  // which may be collected in different threads or subsystems. Using a lock prevents multiple
+  // threads from-
+  // modifying these shared variables simultaneously, which can lead to corrupted data and
+  // inaccurate odometry.
 
   static final Lock odometryLock = new ReentrantLock();
   private final GyroIO gyroIO;
   private final GyroIOInputsAutoLogged gyroInputs = new GyroIOInputsAutoLogged();
   private final Module[] modules = new Module[4]; // FL, FR, BL, BR
   private final SysIdRoutine sysId;
-
 
   // Drive kinematics and pose estimator for position tracking
   private SwerveDriveKinematics kinematics = new SwerveDriveKinematics(getModuleTranslations());
@@ -84,8 +83,7 @@ public class Drive extends SubsystemBase {
   private SwerveDrivePoseEstimator poseEstimator =
       new SwerveDrivePoseEstimator(kinematics, rawGyroRotation, lastModulePositions, new Pose2d());
 
-
-// Constructor for initalizing modules and subsystems
+  // Constructor for initalizing modules and subsystems
   public Drive(
       GyroIO gyroIO,
       ModuleIO flModuleIO,
@@ -98,7 +96,8 @@ public class Drive extends SubsystemBase {
     modules[2] = new Module(blModuleIO, 2);
     modules[3] = new Module(brModuleIO, 3);
 
-    // Start threads (no-op for each if no signals have been created) // Starting threads for hardware interface odometry
+    // Start threads (no-op for each if no signals have been created) // Starting threads for
+    // hardware interface odometry
     PhoenixOdometryThread.getInstance().start();
     SparkMaxOdometryThread.getInstance().start();
 
@@ -142,7 +141,6 @@ public class Drive extends SubsystemBase {
                 null,
                 this));
   }
-
 
   // Regularly called method to update subsystem state
 

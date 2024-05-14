@@ -40,13 +40,12 @@ import java.util.Queue;
  * "/Drive/ModuleX/TurnAbsolutePositionRad"
  */
 
-
 // Class for interfacing with Talon FX motor controllers and CANcoders
 // Each instance corresponds to one swerve module
 
 public class ModuleIOTalonFX implements ModuleIO {
 
-  // Drive and turn motor controllers also absolute encoder 
+  // Drive and turn motor controllers also absolute encoder
   private final TalonFX driveTalon;
   private final TalonFX turnTalon;
   private final CANcoder cancoder;
@@ -78,12 +77,11 @@ public class ModuleIOTalonFX implements ModuleIO {
   // Offset angle for the CANcoder to calibrate to zero
   private final Rotation2d absoluteEncoderOffset;
 
-
   // Constructor initalizes motor controllers, encoders, and status signals
   public ModuleIOTalonFX(int index) {
     // Configuration of drive and turn Talon FX motors and CANcoder on module index
     switch (index) {
-      // MODULE 0 HARDWARE IDENTIFIERS
+        // MODULE 0 HARDWARE IDENTIFIERS
       case 0:
         driveTalon = new TalonFX(0); // MEER OR MATTHEW CONFIGURE THIS
         turnTalon = new TalonFX(1); // MEER OR MATTHEW CONFIGURE THIS
@@ -92,7 +90,7 @@ public class ModuleIOTalonFX implements ModuleIO {
             new Rotation2d(0.0); // MUST BE CALIBRATED // MEER OR MATTHEW CONFIGURE THIS
         break;
 
-      // MODULE 1 HARDWARE IDENTIFIERS
+        // MODULE 1 HARDWARE IDENTIFIERS
       case 1:
         driveTalon = new TalonFX(3); // MEER OR MATTHEW CONFIGURE THIS
         turnTalon = new TalonFX(4); // MEER OR MATTHEW CONFIGURE THIS
@@ -101,8 +99,7 @@ public class ModuleIOTalonFX implements ModuleIO {
             new Rotation2d(0.0); // MUST BE CALIBRATED // MEER OR MATTHEW CONFIGURE THIS
         break;
 
-
-      // MODULE 2 HARDWARE IDENTIFIERS
+        // MODULE 2 HARDWARE IDENTIFIERS
       case 2:
         driveTalon = new TalonFX(6); // MEER OR MATTHEW CONFIGURE THIS
         turnTalon = new TalonFX(7); // MEER OR MATTHEW CONFIGURE THIS
@@ -111,8 +108,7 @@ public class ModuleIOTalonFX implements ModuleIO {
             new Rotation2d(0.0); // MUST BE CALIBRATED // MEER OR MATTHEW CONFIGURE THIS
         break;
 
-
-      // MODULE 3 HARDWARE IDENTIFIERS
+        // MODULE 3 HARDWARE IDENTIFIERS
       case 3:
         driveTalon = new TalonFX(9); // MEER OR MATTHEW CONFIGURE THIS
         turnTalon = new TalonFX(10); // MEER OR MATTHEW CONFIGURE THIS
@@ -124,28 +120,24 @@ public class ModuleIOTalonFX implements ModuleIO {
         throw new RuntimeException("Invalid module index");
     }
 
-
-    // Configuration settings & current limits for drive motor 
+    // Configuration settings & current limits for drive motor
     var driveConfig = new TalonFXConfiguration();
     driveConfig.CurrentLimits.SupplyCurrentLimit = 40.0;
     driveConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
     driveTalon.getConfigurator().apply(driveConfig);
     setDriveBrakeMode(true);
 
-
-    // Configuration settings & current limits for turn motor 
+    // Configuration settings & current limits for turn motor
     var turnConfig = new TalonFXConfiguration();
     turnConfig.CurrentLimits.SupplyCurrentLimit = 30.0;
     turnConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
     turnTalon.getConfigurator().apply(turnConfig);
     setTurnBrakeMode(true);
 
-
     // Apply default config to CANcoder
     cancoder.getConfigurator().apply(new CANcoderConfiguration());
 
-
-    //Initialize timestamp and position queues from odometry
+    // Initialize timestamp and position queues from odometry
     timestampQueue = PhoenixOdometryThread.getInstance().makeTimestampQueue();
 
     drivePosition = driveTalon.getPosition();
@@ -162,7 +154,6 @@ public class ModuleIOTalonFX implements ModuleIO {
     turnVelocity = turnTalon.getVelocity();
     turnAppliedVolts = turnTalon.getMotorVoltage();
     turnCurrent = turnTalon.getSupplyCurrent();
-
 
     // Set update frequencies for status signals
     BaseStatusSignal.setUpdateFrequencyForAll(
