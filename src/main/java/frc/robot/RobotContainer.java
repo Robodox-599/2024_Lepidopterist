@@ -88,16 +88,15 @@ public class RobotContainer {
                   new ModuleIOSim());
         }
 
-
-        // Replayed robot, disable IO implementations
+          // Replayed robot, disable IO implementations
         case REPLAYBOT -> {
           drive =
               new Drive(
-              new GyroIO() {},
-              new ModuleIO() {},
-              new ModuleIO() {},
-              new ModuleIO() {},
-              new ModuleIO() {});
+                  new GyroIO() {},
+                  new ModuleIO() {},
+                  new ModuleIO() {},
+                  new ModuleIO() {},
+                  new ModuleIO() {});
         }
       }
     }
