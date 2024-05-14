@@ -9,7 +9,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.ControllerConstants;
 import frc.robot.Constants.ShooterConstants;
 import frc.robot.Constants.ShooterConstants.WristSepoints;
-import frc.robot.subsystems.subsystem_Shooter;
+import frc.robot.subsystems.shooter.subsystem_Shooter;
 import java.util.function.DoubleSupplier;
 
 public class command_ManualShooter extends Command {

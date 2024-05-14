@@ -7,7 +7,7 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.ShooterConstants;
-import frc.robot.subsystems.subsystem_Shooter;
+import frc.robot.subsystems.shooter.subsystem_Shooter;
 import java.util.function.DoubleSupplier;
 
 public class command_ToWristAndSpeed extends Command {
