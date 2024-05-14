@@ -87,20 +87,20 @@ public class RobotContainer {
                   new ModuleIOSim(),
                   new ModuleIOSim());
         }
-      }
-    }
 
-    if (drive == null) {
-      // Replayed robot, disable IO implementations
-      drive =
-          new Drive(
+
+        // Replayed robot, disable IO implementations
+        case REPLAYBOT -> {
+          drive =
+              new Drive(
               new GyroIO() {},
               new ModuleIO() {},
               new ModuleIO() {},
               new ModuleIO() {},
               new ModuleIO() {});
+        }
+      }
     }
-
     // Configure the trigger bindings
     // m_DriveTrain.setDefaultCommand(
     //     new command_DriveTeleop(
