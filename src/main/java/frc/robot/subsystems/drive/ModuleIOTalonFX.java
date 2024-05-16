@@ -87,7 +87,7 @@ public class ModuleIOTalonFX implements ModuleIO {
         turnTalon = new TalonFX(1, "LunaDriveCANivore"); // MEER AND MATTHEW CONFIGURE THIS
         cancoder = new CANcoder(2, "LunaDriveCANivore"); // MEER AND MATTHEW CONFIGURE THIS
         absoluteEncoderOffset =
-            new Rotation2d(0.0); // MUST BE CALIBRATED // MEER AND MATTHEW CONFIGURE THIS
+            new Rotation2d(0.404297 * 360.0); // MUST BE CALIBRATED // MEER AND MATTHEW CONFIGURE THIS
         break;
 
         // MODULE 1 HARDWARE IDENTIFIERS
@@ -96,7 +96,7 @@ public class ModuleIOTalonFX implements ModuleIO {
         turnTalon = new TalonFX(4, "LunaDriveCANivore"); // MEER AND MATTHEW CONFIGURE THIS
         cancoder = new CANcoder(5, "LunaDriveCANivore"); // MEER AND MATTHEW CONFIGURE THIS
         absoluteEncoderOffset =
-            new Rotation2d(0.0); // MUST BE CALIBRATED // MEER AND MATTHEW CONFIGURE THIS
+            new Rotation2d(0.024414 * 360.0); // MUST BE CALIBRATED // MEER AND MATTHEW CONFIGURE THIS
         break;
 
         // MODULE 2 HARDWARE IDENTIFIERS
@@ -105,7 +105,7 @@ public class ModuleIOTalonFX implements ModuleIO {
         turnTalon = new TalonFX(7, "LunaDriveCANivore"); // MEER AND MATTHEW CONFIGURE THIS
         cancoder = new CANcoder(8, "LunaDriveCANivore"); // MEER AND MATTHEW CONFIGURE THIS
         absoluteEncoderOffset =
-            new Rotation2d(0.0); // MUST BE CALIBRATED // MEER AND MATTHEW CONFIGURE THIS
+            new Rotation2d(0.606689 * 360.0); // MUST BE CALIBRATED // MEER AND MATTHEW CONFIGURE THIS
         break;
 
         // MODULE 3 HARDWARE IDENTIFIERS
@@ -114,7 +114,7 @@ public class ModuleIOTalonFX implements ModuleIO {
         turnTalon = new TalonFX(10, "LunaDriveCANivore"); // MEER AND MATTHEW CONFIGURE THIS
         cancoder = new CANcoder(11, "LunaDriveCANivore"); // MEER AND MATTHEW CONFIGURE THIS
         absoluteEncoderOffset =
-            new Rotation2d(0.0); // MUST BE CALIBRATED // MEER AND MATTHEW CONFIGURE THIS
+            new Rotation2d(0.268555 * 360.0); // MUST BE CALIBRATED // MEER AND MATTHEW CONFIGURE THIS
         break;
       default:
         throw new RuntimeException("Invalid module index");
