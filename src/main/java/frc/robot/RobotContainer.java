@@ -66,38 +66,37 @@ public class RobotContainer {
   public RobotContainer() {
     CameraServer.startAutomaticCapture(0);
     addAutos();
-    if (Constants.getMode() != Constants.Mode.REPLAY) {
-      switch (Constants.getRobot()) {
-        case REALBOT -> {
-          drive =
-              new Drive(
-                  new GyroIOPigeon2(true),
-                  new ModuleIOTalonFX(0),
-                  new ModuleIOTalonFX(1),
-                  new ModuleIOTalonFX(2),
-                  new ModuleIOTalonFX(3));
-        }
 
-        case SIMBOT -> {
-          drive =
-              new Drive(
-                  new GyroIO() {},
-                  new ModuleIOSim(),
-                  new ModuleIOSim(),
-                  new ModuleIOSim(),
-                  new ModuleIOSim());
-        }
+    switch (Constants.getRobot()) {
+      case REALBOT -> {
+        drive =
+            new Drive(
+                new GyroIOPigeon2(true),
+                new ModuleIOTalonFX(0),
+                new ModuleIOTalonFX(1),
+                new ModuleIOTalonFX(2),
+                new ModuleIOTalonFX(3));
+      }
 
-          // Replayed robot, disable IO implementations
-        case REPLAYBOT -> {
-          drive =
-              new Drive(
-                  new GyroIO() {},
-                  new ModuleIO() {},
-                  new ModuleIO() {},
-                  new ModuleIO() {},
-                  new ModuleIO() {});
-        }
+      case SIMBOT -> {
+        drive =
+            new Drive(
+                new GyroIO() {},
+                new ModuleIOSim(),
+                new ModuleIOSim(),
+                new ModuleIOSim(),
+                new ModuleIOSim());
+      }
+
+        // Replayed robot, disable IO implementations
+      case REPLAYBOT -> {
+        drive =
+            new Drive(
+                new GyroIO() {},
+                new ModuleIO() {},
+                new ModuleIO() {},
+                new ModuleIO() {},
+                new ModuleIO() {});
       }
     }
     // Configure the trigger bindings

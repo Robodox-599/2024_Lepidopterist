@@ -47,12 +47,14 @@ public class Drive extends SubsystemBase {
 
   // Constants for Maximum linear speed, track width, and drive base radius
 
-
-  private static final double MAX_LINEAR_SPEED = Units.feetToMeters(14.5);  // MATTHEW AND MEER PLEASE SET
-  private static final double TRACK_WIDTH_X = Units.inchesToMeters(25.0);  // MATTHEW AND MEER PLEASE SET
-  private static final double TRACK_WIDTH_Y = Units.inchesToMeters(25.0);  // MATTHEW AND MEER PLEASE SET
+  private static final double MAX_LINEAR_SPEED =
+      Units.feetToMeters(14.5); // MATTHEW AND MEER PLEASE SET
+  private static final double TRACK_WIDTH_X =
+      Units.inchesToMeters(25.0); // MATTHEW AND MEER PLEASE SET
+  private static final double TRACK_WIDTH_Y =
+      Units.inchesToMeters(25.0); // MATTHEW AND MEER PLEASE SET
   private static final double DRIVE_BASE_RADIUS =
-      Math.hypot(TRACK_WIDTH_X / 2.0, TRACK_WIDTH_Y / 2.0);  // MATTHEW AND MEER PLEASE SET
+      Math.hypot(TRACK_WIDTH_X / 2.0, TRACK_WIDTH_Y / 2.0); // MATTHEW AND MEER PLEASE SET
   private static final double MAX_ANGULAR_SPEED = MAX_LINEAR_SPEED / DRIVE_BASE_RADIUS;
 
   // Odometry lock for sychronized odometry updates
