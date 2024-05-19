@@ -36,7 +36,7 @@ import frc.robot.Constants.ShooterConstants.sigmoidCoefficients;
  */
 public final class Constants {
 
-  private static final boolean isReplayMode = true; // MAKE TRUE IF REPLAY MODE IS DESIRED
+  private static final boolean isReplayMode = false; // MAKE TRUE IF REPLAY MODE IS DESIRED
 
   private static RobotType robotType =
       isReplayMode
@@ -75,12 +75,12 @@ public final class Constants {
     REALBOT
   }
 
-
   public static boolean disableHAL = false;
 
   public static void disableHAL() {
     disableHAL = true;
   }
+
   public static class RobotConstants {
 
     public static Alliance robotColor = null;

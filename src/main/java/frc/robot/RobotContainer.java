@@ -7,6 +7,8 @@ package frc.robot;
 import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -14,6 +16,7 @@ import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.ControllerConstants;
 import frc.robot.Constants.ShooterConstants;
 import frc.robot.Constants.ShooterConstants.FlywheelSetpoints;
@@ -32,7 +35,6 @@ import frc.robot.subsystems.intake.subsystem_Intake;
 import frc.robot.subsystems.led.subsystem_LED;
 import frc.robot.subsystems.shooter.subsystem_Shooter;
 import frc.robot.subsystems.vision.subsystem_Vision;
-import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -59,13 +61,13 @@ public class RobotContainer {
 
   /* Sendable Chooser */
   // private final LoggedDashboardChooser<Command> m_Chooser;
-  private final LoggedDashboardChooser<Command> m_Chooser =
-      new LoggedDashboardChooser<>("Auto Choices");
+  private final SendableChooser<Command> m_Chooser = new SendableChooser<>();
+  // new LoggedDashboardChooser<>("Auto Choices");
   // private final SendableChooser<Command> m_Chooser = AutoBuilder.buildAutoChooser();
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     CameraServer.startAutomaticCapture(0);
-    addAutos();
+    // m_Chooser = new LoggedDashboardChooser<>("Auto Choices");
 
     switch (Constants.getRobot()) {
       case REALBOT -> {
@@ -114,6 +116,8 @@ public class RobotContainer {
     // -operator.getRightY()));
 
     m_Shooter.setDefaultCommand(new command_ManualShooter(m_Shooter, () -> -operator.getLeftY()));
+
+    addAutos();
     configureBindings();
   }
 
@@ -281,16 +285,13 @@ public class RobotContainer {
   }
 
   public void addAutos() {
-    NamedCommands.registerCommand(
-        "Extend Intake",
-        Commands.parallel(m_Intake.autonIntake(), m_Indexer.runIndexerUntilBeamBreak())
-            .withTimeout(2.5));
-    NamedCommands.registerCommand("Stow Intake", m_Intake.stowCommand());
 
     NamedCommands.registerCommand(
         "Shoot Subwoofer",
         Commands.sequence(
+            // Autos.runAutoPath(drive, "Taxi Auto"),
             m_Shooter.initialSetWristAngle(),
+            drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward),
             new command_ToWristAndSpeed(
                 m_Shooter,
                 () -> ShooterConstants.WristSepoints.testSpeakerWrist,
@@ -307,20 +308,18 @@ public class RobotContainer {
     // .andThen(shootSequence(m_Indexer,
     // m_Shooter)).withTimeout(3.0).andThen(m_Shooter.stowShooter()));
 
-    NamedCommands.registerCommand(
-        "Shoot Line",
-        Commands.sequence(
-            new command_ToWristAndSpeed(
-                m_Shooter,
-                () -> ShooterConstants.WristSepoints.testSpeakerWrist,
-                () -> ShooterConstants.FlywheelSetpoints.SpeakerSpeed),
-            new WaitUntilCommand(m_Shooter.isReadyToShoot()),
-            Commands.parallel(
-                m_Shooter.forwardsFeederStartEnd().withTimeout(2.0),
-                m_Indexer.runIndexerShootStartEnd().withTimeout(2.0)),
-            m_Shooter.stowShooter()));
+    m_Chooser.setDefaultOption("Shoot Subwoofer", NamedCommands.getCommand("Shoot Subwoofer"));
+    SmartDashboard.putData("Auto Chooser", m_Chooser);
+    ;
+
+    m_Chooser.addOption(
+        "Drive SysId (Quasistatic Forward)",
+        drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+    m_Chooser.addOption(
+        "Drive SysId (Quasistatic Reverse)",
+        drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
     // m_ = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
-    // m_Chooser.addOption("Taxi Auto", Autos.runAutoPath(m_DriveTrain, "Taxi Auto"));
+    // m_Chooser.addOption("Taxi Auto", Autos.runAutoPath(DriveTrain, "Taxi Auto"));
     // m_Chooser.addOption("2 Note Crack", Autos.runAutoPath(m_DriveTrain, "2 Note Crack"));
     // m_Chooser.addOption("Taxi Auto Left", Autos.runAutoPath(m_DriveTrain, "Taxi Auto Left"));
     // m_Chooser.addOption("Do Nothing Auto", Autos.runAutoPath(m_DriveTrain, "Do Nothing Auto"));
@@ -349,7 +348,7 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    return m_Chooser.get();
+    return m_Chooser.getSelected();
   }
 
   public Command shootSequence(subsystem_Indexer indexer, subsystem_Shooter shooter) {

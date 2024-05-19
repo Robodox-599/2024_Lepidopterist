@@ -22,7 +22,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import java.util.OptionalDouble;
 import java.util.Queue;
-//import frc.robot.subsystems.drive.DriveConstants;
+// import frc.robot.subsystems.drive.DriveConstants;
 
 /** IO implementation for Pigeon2 */
 public class GyroIOPigeon2 implements GyroIO {

@@ -16,26 +16,25 @@ import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
-import lombok.Builder;
 import frc.robot.Constants;
 import frc.robot.subsystems.drive.limits.ModuleLimits;
+import lombok.Builder;
 
 /** All Constants Measured in Meters and Radians (m/s, m/s^2, rad/s, rad/s^2) */
 public final class DriveConstants {
   public static final DriveConfig driveConfig =
       switch (Constants.getRobot()) {
-        case SIMBOT, REALBOT, REPLAYBOT ->
-            DriveConfig.builder()
-                .wheelRadius(Units.inchesToMeters(1.942))
-                .trackWidthX(Units.inchesToMeters(20.75))
-                .trackWidthY(Units.inchesToMeters(20.75))
-                .bumperWidthX(Units.inchesToMeters(37))
-                .bumperWidthY(Units.inchesToMeters(33))
-                .maxLinearVelocity(Units.feetToMeters(15.0))
-                .maxLinearAcceleration(Units.feetToMeters(75.0))
-                .maxAngularVelocity(12.0)
-                .maxAngularAcceleration(6.0)
-                .build();
+        case SIMBOT, REALBOT, REPLAYBOT -> DriveConfig.builder()
+            .wheelRadius(Units.inchesToMeters(1.942))
+            .trackWidthX(Units.inchesToMeters(20.75))
+            .trackWidthY(Units.inchesToMeters(20.75))
+            .bumperWidthX(Units.inchesToMeters(37))
+            .bumperWidthY(Units.inchesToMeters(33))
+            .maxLinearVelocity(Units.feetToMeters(15.0))
+            .maxLinearAcceleration(Units.feetToMeters(75.0))
+            .maxAngularVelocity(12.0)
+            .maxAngularAcceleration(6.0)
+            .build();
       };
   public static final Translation2d[] moduleTranslations =
       new Translation2d[] {
@@ -63,13 +62,12 @@ public final class DriveConstants {
   // Module Constants
   public static final ModuleConfig[] moduleConfigs =
       switch (Constants.getRobot()) {
-        case REALBOT, REPLAYBOT ->
-            new ModuleConfig[] {
-              new ModuleConfig(16, 12, 0, new Rotation2d(-0.81761), true),
-              new ModuleConfig(19, 14, 1, new Rotation2d(1.80875), true),
-              new ModuleConfig(17, 13, 2, new Rotation2d(-0.48936), true),
-              new ModuleConfig(18, 15, 3, new Rotation2d(-1.52578), true)
-            };
+        case REALBOT, REPLAYBOT -> new ModuleConfig[] {
+          new ModuleConfig(16, 12, 0, new Rotation2d(-0.81761), true),
+          new ModuleConfig(19, 14, 1, new Rotation2d(1.80875), true),
+          new ModuleConfig(17, 13, 2, new Rotation2d(-0.48936), true),
+          new ModuleConfig(18, 15, 3, new Rotation2d(-1.52578), true)
+        };
         case SIMBOT -> {
           ModuleConfig[] configs = new ModuleConfig[4];
           for (int i = 0; i < configs.length; i++)
@@ -80,28 +78,26 @@ public final class DriveConstants {
 
   public static final ModuleConstants moduleConstants =
       switch (Constants.getRobot()) {
-        case REALBOT, REPLAYBOT ->
-            new ModuleConstants(
-                5.0,
-                0.0,
-                1.0 / DCMotor.getKrakenX60Foc(1).KtNMPerAmp, // A/(N*m)
-                35.0,
-                0.0,
-                4000.0,
-                50.0,
-                Mk4iReductions.L3.reduction,
-                Mk4iReductions.TURN.reduction);
-        case SIMBOT ->
-            new ModuleConstants(
-                0.014,
-                0.134,
-                0.0,
-                0.1,
-                0.0,
-                10.0,
-                0.0,
-                Mk4iReductions.L3.reduction,
-                Mk4iReductions.TURN.reduction);
+        case REALBOT, REPLAYBOT -> new ModuleConstants(
+            5.0,
+            0.0,
+            1.0 / DCMotor.getKrakenX60Foc(1).KtNMPerAmp, // A/(N*m)
+            35.0,
+            0.0,
+            4000.0,
+            50.0,
+            Mk4iReductions.L3.reduction,
+            Mk4iReductions.TURN.reduction);
+        case SIMBOT -> new ModuleConstants(
+            0.014,
+            0.134,
+            0.0,
+            0.1,
+            0.0,
+            10.0,
+            0.0,
+            Mk4iReductions.L3.reduction,
+            Mk4iReductions.TURN.reduction);
       };
 
   public static final ModuleLimits moduleLimitsFree =
@@ -120,18 +116,17 @@ public final class DriveConstants {
   public static final TrajectoryConstants trajectoryConstants =
       switch (Constants.getRobot()) {
         case REALBOT, REPLAYBOT -> TrajectoryConstants.builder().linearkP(8.0).thetakP(4.0).build();
-        case SIMBOT ->
-            new TrajectoryConstants(
-                4.0,
-                0.0,
-                4.0,
-                0.0,
-                Units.inchesToMeters(4.0),
-                Units.degreesToRadians(5.0),
-                Units.inchesToMeters(5.0),
-                Units.degreesToRadians(7.0),
-                driveConfig.maxLinearVelocity() / 2.0,
-                driveConfig.maxAngularVelocity() / 2.0);
+        case SIMBOT -> new TrajectoryConstants(
+            4.0,
+            0.0,
+            4.0,
+            0.0,
+            Units.inchesToMeters(4.0),
+            Units.degreesToRadians(5.0),
+            Units.inchesToMeters(5.0),
+            Units.degreesToRadians(7.0),
+            driveConfig.maxLinearVelocity() / 2.0,
+            driveConfig.maxAngularVelocity() / 2.0);
       };
 
   // Swerve Heading Control
