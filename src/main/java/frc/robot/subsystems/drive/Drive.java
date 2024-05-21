@@ -34,6 +34,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.util.LocalADStarAK;
@@ -245,6 +246,30 @@ public class Drive extends SubsystemBase {
     }
     kinematics.resetHeadings(headings);
     stop();
+  }
+
+  public void resetOdometry(Pose2d pose) {
+    setPose(pose);
+  }
+
+  /** Overrides the gyro angle with the specified angle in degrees. */
+  public void overrideGyroAngle(double angleDegrees) {
+    rawGyroRotation = Rotation2d.fromDegrees(angleDegrees);
+    setPose(new Pose2d(getPose().getTranslation(), rawGyroRotation));
+  }
+
+  /** Sets the final pose for the autonomous path. */
+  public void setFinalPose(Pose2d finalPose) {
+    // You can implement this if you have specific actions to take with the final pose
+  }
+
+  /** Returns a command to toggle the gyro. */
+  public Command toggleGyroCommand() {
+    // Implement the logic to toggle the gyro if needed
+    return new InstantCommand(
+        () -> {
+          // Logic to toggle the gyro
+        });
   }
 
   /** Returns a command to run a quasistatic test in the specified direction. */
