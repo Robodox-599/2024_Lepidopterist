@@ -87,8 +87,7 @@ public class ModuleIOTalonFX implements ModuleIO {
         turnTalon = new TalonFX(1, "LunaDriveCANivore"); // MEER AND MATTHEW CONFIGURE THIS
         cancoder = new CANcoder(2, "LunaDriveCANivore"); // MEER AND MATTHEW CONFIGURE THIS
         absoluteEncoderOffset =
-            new Rotation2d(
-                0.404297 * 360.0); // MUST BE CALIBRATED // MEER AND MATTHEW CONFIGURE THIS
+            new Rotation2d(-0.655); // 3.084 MUST BE CALIBRATED // MEER AND MATTHEW CONFIGURE THIS
         break;
 
         // MODULE 1 HARDWARE IDENTIFIERS
@@ -97,8 +96,7 @@ public class ModuleIOTalonFX implements ModuleIO {
         turnTalon = new TalonFX(4, "LunaDriveCANivore"); // MEER AND MATTHEW CONFIGURE THIS
         cancoder = new CANcoder(5, "LunaDriveCANivore"); // MEER AND MATTHEW CONFIGURE THIS
         absoluteEncoderOffset =
-            new Rotation2d(
-                0.024414 * 360.0); // MUST BE CALIBRATED // MEER AND MATTHEW CONFIGURE THIS
+            new Rotation2d(-2.984); // -3.135 MUST BE CALIBRATED // MEER AND MATTHEW CONFIGURE THIS
         break;
 
         // MODULE 2 HARDWARE IDENTIFIERS
@@ -107,8 +105,7 @@ public class ModuleIOTalonFX implements ModuleIO {
         turnTalon = new TalonFX(7, "LunaDriveCANivore"); // MEER AND MATTHEW CONFIGURE THIS
         cancoder = new CANcoder(8, "LunaDriveCANivore"); // MEER AND MATTHEW CONFIGURE THIS
         absoluteEncoderOffset =
-            new Rotation2d(
-                0.606689 * 360.0); // MUST BE CALIBRATED // MEER AND MATTHEW CONFIGURE THIS
+            new Rotation2d(0.690); // -3.114 MUST BE CALIBRATED // MEER AND MATTHEW CONFIGURE THIS
         break;
 
         // MODULE 3 HARDWARE IDENTIFIERS
@@ -118,7 +115,7 @@ public class ModuleIOTalonFX implements ModuleIO {
         cancoder = new CANcoder(11, "LunaDriveCANivore"); // MEER AND MATTHEW CONFIGURE THIS
         absoluteEncoderOffset =
             new Rotation2d(
-                0.268555 * 360.0); // MUST BE CALIBRATED // MEER AND MATTHEW CONFIGURE THIS
+                -1.457); // 0.003 []\ MUST BE CALIBRATED // MEER AND MATTHEW CONFIGURE THIS
         break;
       default:
         throw new RuntimeException("Invalid module index");
@@ -247,7 +244,7 @@ public class ModuleIOTalonFX implements ModuleIO {
         isTurnMotorInverted
             ? InvertedValue.Clockwise_Positive
             : InvertedValue.CounterClockwise_Positive;
-    config.NeutralMode = enable ? NeutralModeValue.Brake : NeutralModeValue.Coast;
+    config.NeutralMode = enable ? NeutralModeValue.Coast : NeutralModeValue.Coast;
     turnTalon.getConfigurator().apply(config);
   }
 }
