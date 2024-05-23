@@ -119,8 +119,8 @@ public class RobotContainer {
 
     m_Shooter.setDefaultCommand(new command_ManualShooter(m_Shooter, () -> -operator.getLeftY()));
 
-
-    // LOGGED DASHBOARD NOW CALLS THE AUTOS IN AUTOBUILDER. THAT THEN LOOKS FOR THE AUTOS AND SENDS THEM TO THE LOGGED DASHBOARD. :) 
+    // LOGGED DASHBOARD NOW CALLS THE AUTOS IN AUTOBUILDER. THAT THEN LOOKS FOR THE AUTOS AND SENDS
+    // THEM TO THE LOGGED DASHBOARD. :)
 
     NamedCommands.registerCommand(
         "Shoot Subwoofer",

@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import com.ctre.phoenix.sensors.PigeonIMU;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -28,6 +29,9 @@ public class Robot extends LoggedRobot {
   private Command m_autonomousCommand;
 
   private RobotContainer m_robotContainer;
+
+  private PigeonIMU pigeonIMU;
+  private Boolean autonomousInitRan;
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -90,6 +94,7 @@ public class Robot extends LoggedRobot {
     // autonomous chooser on the dashboard.
 
     m_robotContainer = new RobotContainer();
+    pigeonIMU = new PigeonIMU(12);
   }
 
   /**
@@ -121,6 +126,8 @@ public class Robot extends LoggedRobot {
   @Override
   public void autonomousInit() {
     checkDSUpdate();
+    autonomousInitRan = true;
+    pigeonIMU.setFusedHeading(0);
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
     // schedule the autonomous command (example)
@@ -138,6 +145,9 @@ public class Robot extends LoggedRobot {
   @Override
   public void teleopInit() {
     checkDSUpdate();
+    if (!autonomousInitRan) {
+      pigeonIMU.setFusedHeading(0);
+    }
     // if (RobotConstants.robotColor == Alliance.Red){
     //   m_robotContainer.m_DriveTrain.SertGyro();
     // }
