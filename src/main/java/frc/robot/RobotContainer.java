@@ -136,61 +136,6 @@ public class RobotContainer {
             m_Shooter.stowShooter()) // TODO: Set timeout to 0.75 after indexer re-attached
         );
     m_Chooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
-
-    // NamedCommands.registerCommand("Shoot Line", new command_AutoSpeaker(m_DriveTrain, m_Shooter,
-    // () -> true).until(m_Shooter.isReadyToShoot())
-    // .andThen(shootSequence(m_Indexer,
-    // m_Shooter)).withTimeout(3.0).andThen(m_Shooter.stowShooter()));
-
-    m_Chooser.addOption(
-        "Drive SysId (Quasistatic Forward)",
-        drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-    m_Chooser.addOption(
-        "Drive SysId (Quasistatic Reverse)",
-        drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-    m_Chooser.addOption(
-        "Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
-    m_Chooser.addOption(
-        "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
-
-    // m_Chooser.addOption("2 Note Crack", Autos.runAutoPath(drive, "2 Note Crack"));
-    // m_Chooser.addOption("Taxi Auto Left", Autos.runAutoPath(drive, "Taxi Auto Left"));
-    // m_Chooser.addOption("Do Nothing Auto", Autos.runAutoPath(drive, "Do Nothing Auto"));
-    // m_Chooser.addOption("Preload Left", Autos.runAutoPath(drive, "Preload Left"));
-    // m_Chooser.addOption("Preload Mid", Autos.runAutoPath(drive, "Preload Mid"));
-    // m_Chooser.addOption("Preload Right", Autos.runAutoPath(drive, "Preload Right"));
-    // m_Chooser.addOption("2 Note Left", Autos.runAutoPath(drive, "2 Note Left"));
-    // m_Chooser.addOption("2 Note Mid", Autos.runAutoPath(drive, "2 Note Mid"));
-    // m_Chooser.addOption("2 Note Right", Autos.runAutoPath(drive, "2 Note Right"));
-    // m_Chooser.addOption("1 Note Left", Autos.runAutoPath(drive, "1 Note Left"));
-    // m_Chooser.addOption("1 Note Mid", Autos.runAutoPath(drive, "1 Note Mid"));
-    // // m_Chooser.addOption("2 Note Right Shooter Only", Autos.runAutoPath(m_DriveTrain, "2 Note
-    // // Right Shooter Only"));
-    // // m_Chooser.addOption("2 Note Left Shooter Only", Autos.runAutoPath(m_DriveTrain, "2 Note
-    // Left
-
-    // m_ = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
-    // m_Chooser.addOption("Taxi Auto", Autos.runAutoPath(DriveTrain, "Taxi Auto"));
-    // m_Chooser.addOption("2 Note Crack", Autos.runAutoPath(m_DriveTrain, "2 Note Crack"));
-    // m_Chooser.addOption("Taxi Auto Left", Autos.runAutoPath(m_DriveTrain, "Taxi Auto Left"));
-    // m_Chooser.addOption("Do Nothing Auto", Autos.runAutoPath(m_DriveTrain, "Do Nothing Auto"));
-    // m_Chooser.addOption("Preload Left", Autos.runAutoPath(m_DriveTrain, "Preload Left"));
-    // m_Chooser.addOption("Preload Mid", Autos.runAutoPath(m_DriveTrain, "Preload Mid"));
-    // m_Chooser.addOption("Preload Right", Autos.runAutoPath(m_DriveTrain, "Preload Right"));
-    // m_Chooser.addOption("2 Note Left", Autos.runAutoPath(m_DriveTrain, "2 Note Left"));
-    // m_Chooser.addOption("2 Note Mid", Autos.runAutoPath(m_DriveTrain, "2 Note Mid"));
-    // m_Chooser.addOption("2 Note Right", Autos.runAutoPath(m_DriveTrain, "2 Note Right"));
-    // m_Chooser.addOption("1 Note Left", Autos.runAutoPath(m_DriveTrain, "1 Note Left"));
-    // m_Chooser.addOption("1 Note Mid", Autos.runAutoPath(m_DriveTrain, "1 Note Mid"));
-    // m_Chooser.addOption("1 Note Right", Autos.runAutoPath(m_DriveTrain, "1 Note Right"));
-    // // m_Chooser.addOption("2 Note Right Shooter Only", Autos.runAutoPath(m_DriveTrain, "2 Note
-    // // Right Shooter Only"));
-    // // m_Chooser.addOption("2 Note Left Shooter Only", Autos.runAutoPath(m_DriveTrain, "2 Note
-    // Left
-    // // Shooter Only"));
-    // m_Chooser.addOption("RIPA", Autos.runAutoPath(m_DriveTrain, "RIPA"));
-
-    // SmartDashboard.putData("Auto Chooser", m_Chooser);
     configureBindings();
   }
 
