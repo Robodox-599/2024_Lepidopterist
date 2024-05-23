@@ -37,6 +37,7 @@ import frc.robot.Constants.ShooterConstants.sigmoidCoefficients;
 public final class Constants {
 
   private static final boolean isReplayMode = false; // MAKE TRUE IF REPLAY MODE IS DESIRED
+  public static final boolean tuningMode = true;
 
   private static RobotType robotType =
       isReplayMode
