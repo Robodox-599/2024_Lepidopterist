@@ -153,9 +153,6 @@ public class RobotContainer {
     m_Chooser.addOption(
         "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
 
-    m_Chooser.addOption("Taxi Auto", AutoBuilder.buildAuto("Taxi Auto"));
-
-    m_Chooser.addOption("Taxi Auto", AutoBuilder.buildAuto("Taxi Auto"));
     // m_Chooser.addOption("2 Note Crack", Autos.runAutoPath(drive, "2 Note Crack"));
     // m_Chooser.addOption("Taxi Auto Left", Autos.runAutoPath(drive, "Taxi Auto Left"));
     // m_Chooser.addOption("Do Nothing Auto", Autos.runAutoPath(drive, "Do Nothing Auto"));
@@ -167,7 +164,6 @@ public class RobotContainer {
     // m_Chooser.addOption("2 Note Right", Autos.runAutoPath(drive, "2 Note Right"));
     // m_Chooser.addOption("1 Note Left", Autos.runAutoPath(drive, "1 Note Left"));
     // m_Chooser.addOption("1 Note Mid", Autos.runAutoPath(drive, "1 Note Mid"));
-    m_Chooser.addOption("1 Note Right", AutoBuilder.buildAuto("1 Note Right"));
     // // m_Chooser.addOption("2 Note Right Shooter Only", Autos.runAutoPath(m_DriveTrain, "2 Note
     // // Right Shooter Only"));
     // // m_Chooser.addOption("2 Note Left Shooter Only", Autos.runAutoPath(m_DriveTrain, "2 Note

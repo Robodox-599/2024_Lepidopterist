@@ -2,10 +2,10 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 1.31,
-      "y": 5.5
+      "x": 0.7431496977806091,
+      "y": 4.309924602508545
     },
-    "rotation": 179.99984796050427
+    "rotation": -46.57656568752167
   },
   "command": {
     "type": "sequential",
@@ -14,7 +14,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Do Nothing.1"
+            "pathName": "TESTINGPATH"
           }
         }
       ]
