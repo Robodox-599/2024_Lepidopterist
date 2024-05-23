@@ -31,7 +31,7 @@ public class Robot extends LoggedRobot {
   private RobotContainer m_robotContainer;
 
   private PigeonIMU pigeonIMU;
-  private Boolean autonomousInitRan;
+  private Boolean autonomousInitRan = false;
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -146,6 +146,7 @@ public class Robot extends LoggedRobot {
   public void teleopInit() {
     checkDSUpdate();
     if (!autonomousInitRan) {
+      System.out.println("Autonomous Init didn't before Teleop Init");
       pigeonIMU.setFusedHeading(0);
     }
     // if (RobotConstants.robotColor == Alliance.Red){
