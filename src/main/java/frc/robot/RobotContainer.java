@@ -119,6 +119,9 @@ public class RobotContainer {
 
     m_Shooter.setDefaultCommand(new command_ManualShooter(m_Shooter, () -> -operator.getLeftY()));
 
+
+    // LOGGED DASHBOARD NOW CALLS THE AUTOS IN AUTOBUILDER. THAT THEN LOOKS FOR THE AUTOS AND SENDS THEM TO THE LOGGED DASHBOARD. :) 
+
     NamedCommands.registerCommand(
         "Shoot Subwoofer",
         Commands.sequence(
@@ -136,6 +139,7 @@ public class RobotContainer {
             m_Shooter.stowShooter()) // TODO: Set timeout to 0.75 after indexer re-attached
         );
     m_Chooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
+
     configureBindings();
   }
 

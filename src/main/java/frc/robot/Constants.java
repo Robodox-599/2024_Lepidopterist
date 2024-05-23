@@ -36,6 +36,8 @@ import frc.robot.Constants.ShooterConstants.sigmoidCoefficients;
  */
 public final class Constants {
 
+  // public static final boolean isblue = DriverStation.getAlliance().get() == Alliance.Blue;
+  // public static final boolean isred = DriverStation.getAlliance().get() == Alliance.Red;
   private static final boolean isReplayMode = false; // MAKE TRUE IF REPLAY MODE IS DESIRED
   public static final boolean tuningMode = true;
 

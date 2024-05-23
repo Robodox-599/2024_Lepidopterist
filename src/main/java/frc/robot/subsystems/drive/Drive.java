@@ -254,6 +254,8 @@ public class Drive extends SubsystemBase {
     Logger.recordOutput("SwerveStates/SetpointsOptimized", optimizedSetpointStates);
     Logger.recordOutput("SwerveStates/SimCheck", RobotBase.isSimulation());
     Logger.recordOutput("SwerveStates/SimCheckReal", RobotBase.isReal());
+    // Logger.recordOutput("SwerveStates/RED", Constants.isred);
+    // Logger.recordOutput("SwerveStates/Blue", Constants.isblue);
   }
 
   /** Stops the drive. */
