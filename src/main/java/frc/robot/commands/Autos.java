@@ -7,7 +7,6 @@ package frc.robot.commands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.subsystems.drive.Drive;
 // import java.util.Optional;
 // import edu.wpi.first.wpilibj.DriverStation;
@@ -28,7 +27,7 @@ public final class Autos {
     var finalPath = paths.get(paths.size() - 1).getPathPoses();
     Pose2d finalPose = finalPath.get(finalPath.size() - 1);
     drive.setFinalPose(finalPose);
-    return Commands.sequence(new PathPlannerAuto(autoFilePath), drive.toggleGyroCommand());
+    return new PathPlannerAuto(autoFilePath);
 
     // if (RobotConstants.robotColor == Alliance.Red) {
     //   return Commands.sequence(new PathPlannerAuto(autoFilePath), drive.toggleGyroCommand());

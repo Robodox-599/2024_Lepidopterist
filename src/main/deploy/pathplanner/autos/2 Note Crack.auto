@@ -31,68 +31,6 @@
           }
         },
         {
-          "type": "path",
-          "data": {
-            "pathName": "2 Piece auto Right Yoinky Sploinky.1"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "2 Piece auto Right Yoinky Sploinky.2"
-          }
-        },
-        {
-          "type": "parallel",
-          "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "2 Piece auto Right Yoinky Sploinky.3"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "Extend Intake"
-                }
-              },
-              {
-                "type": "wait",
-                "data": {
-                  "waitTime": 2.5
-                }
-              }
-            ]
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Stow Intake"
-          }
-        },
-        {
-          "type": "parallel",
-          "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "2 Piece auto Right Yoinky Sploinky.4"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "2 Piece auto Right Yoinky Sploinky.5"
-          }
-        },
-        {
           "type": "parallel",
           "data": {
             "commands": [

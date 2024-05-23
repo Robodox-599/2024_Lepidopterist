@@ -4,11 +4,10 @@
 
 package frc.robot;
 
+import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -21,7 +20,6 @@ import frc.robot.Constants.ControllerConstants;
 import frc.robot.Constants.ShooterConstants;
 import frc.robot.Constants.ShooterConstants.FlywheelSetpoints;
 import frc.robot.Constants.ShooterConstants.WristSepoints;
-import frc.robot.commands.Autos;
 import frc.robot.commands.DriveCommands;
 import frc.robot.commands.command_ManualShooter;
 import frc.robot.commands.command_ToWristAndSpeed;
@@ -36,6 +34,7 @@ import frc.robot.subsystems.intake.subsystem_Intake;
 import frc.robot.subsystems.led.subsystem_LED;
 import frc.robot.subsystems.shooter.subsystem_Shooter;
 import frc.robot.subsystems.vision.subsystem_Vision;
+import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -62,11 +61,13 @@ public class RobotContainer {
 
   /* Sendable Chooser */
   // private final LoggedDashboardChooser<Command> m_Chooser;
-  private final SendableChooser<Command> m_Chooser = new SendableChooser<>();
+  // private final SendableChooser<Command> m_Chooser = new SendableChooser<>();
   // new LoggedDashboardChooser<>("Auto Choices");
-  // private final SendableChooser<Command> m_Chooser = AutoBuilder.buildAutoChooser();
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
+  private final LoggedDashboardChooser<Command> m_Chooser;
+
   public RobotContainer() {
+
     CameraServer.startAutomaticCapture(0);
     // m_Chooser = new LoggedDashboardChooser<>("Auto Choices");
 
@@ -118,10 +119,86 @@ public class RobotContainer {
 
     m_Shooter.setDefaultCommand(new command_ManualShooter(m_Shooter, () -> -operator.getLeftY()));
 
-    addAutos();
+    NamedCommands.registerCommand(
+        "Shoot Subwoofer",
+        Commands.sequence(
+            // Autos.runAutoPath(drive, "Taxi Auto"),
+            m_Shooter.initialSetWristAngle(),
+            drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward),
+            new command_ToWristAndSpeed(
+                m_Shooter,
+                () -> ShooterConstants.WristSepoints.testSpeakerWrist,
+                () -> ShooterConstants.FlywheelSetpoints.SpeakerSpeed),
+            new WaitUntilCommand(m_Shooter.isReadyToShoot()),
+            Commands.parallel(
+                m_Shooter.forwardsFeederStartEnd().withTimeout(2.0),
+                m_Indexer.runIndexerShootStartEnd().withTimeout(2.0)),
+            m_Shooter.stowShooter()) // TODO: Set timeout to 0.75 after indexer re-attached
+        );
+    m_Chooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
+
+    // NamedCommands.registerCommand("Shoot Line", new command_AutoSpeaker(m_DriveTrain, m_Shooter,
+    // () -> true).until(m_Shooter.isReadyToShoot())
+    // .andThen(shootSequence(m_Indexer,
+    // m_Shooter)).withTimeout(3.0).andThen(m_Shooter.stowShooter()));
+
+    m_Chooser.addOption(
+        "Drive SysId (Quasistatic Forward)",
+        drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+    m_Chooser.addOption(
+        "Drive SysId (Quasistatic Reverse)",
+        drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+    m_Chooser.addOption(
+        "Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
+    m_Chooser.addOption(
+        "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+
+    m_Chooser.addOption("Taxi Auto", AutoBuilder.buildAuto("Taxi Auto"));
+
+    m_Chooser.addOption("Taxi Auto", AutoBuilder.buildAuto("Taxi Auto"));
+    // m_Chooser.addOption("2 Note Crack", Autos.runAutoPath(drive, "2 Note Crack"));
+    // m_Chooser.addOption("Taxi Auto Left", Autos.runAutoPath(drive, "Taxi Auto Left"));
+    // m_Chooser.addOption("Do Nothing Auto", Autos.runAutoPath(drive, "Do Nothing Auto"));
+    // m_Chooser.addOption("Preload Left", Autos.runAutoPath(drive, "Preload Left"));
+    // m_Chooser.addOption("Preload Mid", Autos.runAutoPath(drive, "Preload Mid"));
+    // m_Chooser.addOption("Preload Right", Autos.runAutoPath(drive, "Preload Right"));
+    // m_Chooser.addOption("2 Note Left", Autos.runAutoPath(drive, "2 Note Left"));
+    // m_Chooser.addOption("2 Note Mid", Autos.runAutoPath(drive, "2 Note Mid"));
+    // m_Chooser.addOption("2 Note Right", Autos.runAutoPath(drive, "2 Note Right"));
+    // m_Chooser.addOption("1 Note Left", Autos.runAutoPath(drive, "1 Note Left"));
+    // m_Chooser.addOption("1 Note Mid", Autos.runAutoPath(drive, "1 Note Mid"));
+    m_Chooser.addOption("1 Note Right", AutoBuilder.buildAuto("1 Note Right"));
+    // // m_Chooser.addOption("2 Note Right Shooter Only", Autos.runAutoPath(m_DriveTrain, "2 Note
+    // // Right Shooter Only"));
+    // // m_Chooser.addOption("2 Note Left Shooter Only", Autos.runAutoPath(m_DriveTrain, "2 Note
+    // Left
+
+    // m_ = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
+    // m_Chooser.addOption("Taxi Auto", Autos.runAutoPath(DriveTrain, "Taxi Auto"));
+    // m_Chooser.addOption("2 Note Crack", Autos.runAutoPath(m_DriveTrain, "2 Note Crack"));
+    // m_Chooser.addOption("Taxi Auto Left", Autos.runAutoPath(m_DriveTrain, "Taxi Auto Left"));
+    // m_Chooser.addOption("Do Nothing Auto", Autos.runAutoPath(m_DriveTrain, "Do Nothing Auto"));
+    // m_Chooser.addOption("Preload Left", Autos.runAutoPath(m_DriveTrain, "Preload Left"));
+    // m_Chooser.addOption("Preload Mid", Autos.runAutoPath(m_DriveTrain, "Preload Mid"));
+    // m_Chooser.addOption("Preload Right", Autos.runAutoPath(m_DriveTrain, "Preload Right"));
+    // m_Chooser.addOption("2 Note Left", Autos.runAutoPath(m_DriveTrain, "2 Note Left"));
+    // m_Chooser.addOption("2 Note Mid", Autos.runAutoPath(m_DriveTrain, "2 Note Mid"));
+    // m_Chooser.addOption("2 Note Right", Autos.runAutoPath(m_DriveTrain, "2 Note Right"));
+    // m_Chooser.addOption("1 Note Left", Autos.runAutoPath(m_DriveTrain, "1 Note Left"));
+    // m_Chooser.addOption("1 Note Mid", Autos.runAutoPath(m_DriveTrain, "1 Note Mid"));
+    // m_Chooser.addOption("1 Note Right", Autos.runAutoPath(m_DriveTrain, "1 Note Right"));
+    // // m_Chooser.addOption("2 Note Right Shooter Only", Autos.runAutoPath(m_DriveTrain, "2 Note
+    // // Right Shooter Only"));
+    // // m_Chooser.addOption("2 Note Left Shooter Only", Autos.runAutoPath(m_DriveTrain, "2 Note
+    // Left
+    // // Shooter Only"));
+    // m_Chooser.addOption("RIPA", Autos.runAutoPath(m_DriveTrain, "RIPA"));
+
+    // SmartDashboard.putData("Auto Chooser", m_Chooser);
     configureBindings();
   }
 
+  // private final SendableChooser<Command> m_Chooser = AutoBuilder.buildAutoChooser();
   /**
    * Use this method to define your trigger->command mappings. Triggers can be created via the
    * {@link Trigger#Trigger(java.util.function.BooleanSupplier)} constructor with an arbitrary
@@ -285,93 +362,13 @@ public class RobotContainer {
         .whileTrue(m_Shooter.forwardsFeederStartEnd().alongWith(m_Indexer.runIndexerStartEnd()));
   }
 
-  public void addAutos() {
-
-    NamedCommands.registerCommand(
-        "Shoot Subwoofer",
-        Commands.sequence(
-            // Autos.runAutoPath(drive, "Taxi Auto"),
-            m_Shooter.initialSetWristAngle(),
-            drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward),
-            new command_ToWristAndSpeed(
-                m_Shooter,
-                () -> ShooterConstants.WristSepoints.testSpeakerWrist,
-                () -> ShooterConstants.FlywheelSetpoints.SpeakerSpeed),
-            new WaitUntilCommand(m_Shooter.isReadyToShoot()),
-            Commands.parallel(
-                m_Shooter.forwardsFeederStartEnd().withTimeout(2.0),
-                m_Indexer.runIndexerShootStartEnd().withTimeout(2.0)),
-            m_Shooter.stowShooter()) // TODO: Set timeout to 0.75 after indexer re-attached
-        );
-
-    // NamedCommands.registerCommand("Shoot Line", new command_AutoSpeaker(m_DriveTrain, m_Shooter,
-    // () -> true).until(m_Shooter.isReadyToShoot())
-    // .andThen(shootSequence(m_Indexer,
-    // m_Shooter)).withTimeout(3.0).andThen(m_Shooter.stowShooter()));
-
-    m_Chooser.addOption(
-        "Drive SysId (Quasistatic Forward)",
-        drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-    m_Chooser.addOption(
-        "Drive SysId (Quasistatic Reverse)",
-        drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-    m_Chooser.addOption(
-        "Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
-    m_Chooser.addOption(
-        "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
-
-    m_Chooser.addOption("Taxi Auto", Autos.runAutoPath(drive, "Taxi Auto"));
-
-    m_Chooser.addOption("Taxi Auto", Autos.runAutoPath(drive, "Taxi Auto"));
-    // m_Chooser.addOption("2 Note Crack", Autos.runAutoPath(drive, "2 Note Crack"));
-    // m_Chooser.addOption("Taxi Auto Left", Autos.runAutoPath(drive, "Taxi Auto Left"));
-    // m_Chooser.addOption("Do Nothing Auto", Autos.runAutoPath(drive, "Do Nothing Auto"));
-    // m_Chooser.addOption("Preload Left", Autos.runAutoPath(drive, "Preload Left"));
-    // m_Chooser.addOption("Preload Mid", Autos.runAutoPath(drive, "Preload Mid"));
-    // m_Chooser.addOption("Preload Right", Autos.runAutoPath(drive, "Preload Right"));
-    // m_Chooser.addOption("2 Note Left", Autos.runAutoPath(drive, "2 Note Left"));
-    // m_Chooser.addOption("2 Note Mid", Autos.runAutoPath(drive, "2 Note Mid"));
-    // m_Chooser.addOption("2 Note Right", Autos.runAutoPath(drive, "2 Note Right"));
-    // m_Chooser.addOption("1 Note Left", Autos.runAutoPath(drive, "1 Note Left"));
-    // m_Chooser.addOption("1 Note Mid", Autos.runAutoPath(drive, "1 Note Mid"));
-    // m_Chooser.addOption("1 Note Right", Autos.runAutoPath(drive, "1 Note Right"));
-    // // m_Chooser.addOption("2 Note Right Shooter Only", Autos.runAutoPath(m_DriveTrain, "2 Note
-    // // Right Shooter Only"));
-    // // m_Chooser.addOption("2 Note Left Shooter Only", Autos.runAutoPath(m_DriveTrain, "2 Note
-    // Left
-
-    SmartDashboard.putData("Auto Chooser", m_Chooser);
-    // m_ = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
-    // m_Chooser.addOption("Taxi Auto", Autos.runAutoPath(DriveTrain, "Taxi Auto"));
-    // m_Chooser.addOption("2 Note Crack", Autos.runAutoPath(m_DriveTrain, "2 Note Crack"));
-    // m_Chooser.addOption("Taxi Auto Left", Autos.runAutoPath(m_DriveTrain, "Taxi Auto Left"));
-    // m_Chooser.addOption("Do Nothing Auto", Autos.runAutoPath(m_DriveTrain, "Do Nothing Auto"));
-    // m_Chooser.addOption("Preload Left", Autos.runAutoPath(m_DriveTrain, "Preload Left"));
-    // m_Chooser.addOption("Preload Mid", Autos.runAutoPath(m_DriveTrain, "Preload Mid"));
-    // m_Chooser.addOption("Preload Right", Autos.runAutoPath(m_DriveTrain, "Preload Right"));
-    // m_Chooser.addOption("2 Note Left", Autos.runAutoPath(m_DriveTrain, "2 Note Left"));
-    // m_Chooser.addOption("2 Note Mid", Autos.runAutoPath(m_DriveTrain, "2 Note Mid"));
-    // m_Chooser.addOption("2 Note Right", Autos.runAutoPath(m_DriveTrain, "2 Note Right"));
-    // m_Chooser.addOption("1 Note Left", Autos.runAutoPath(m_DriveTrain, "1 Note Left"));
-    // m_Chooser.addOption("1 Note Mid", Autos.runAutoPath(m_DriveTrain, "1 Note Mid"));
-    // m_Chooser.addOption("1 Note Right", Autos.runAutoPath(m_DriveTrain, "1 Note Right"));
-    // // m_Chooser.addOption("2 Note Right Shooter Only", Autos.runAutoPath(m_DriveTrain, "2 Note
-    // // Right Shooter Only"));
-    // // m_Chooser.addOption("2 Note Left Shooter Only", Autos.runAutoPath(m_DriveTrain, "2 Note
-    // Left
-    // // Shooter Only"));
-    // m_Chooser.addOption("RIPA", Autos.runAutoPath(m_DriveTrain, "RIPA"));
-
-    // SmartDashboard.putData("Auto Chooser", m_Chooser);
-  }
-
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
    *
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    return m_Chooser.getSelected();
+    return m_Chooser.get();
   }
 
   public Command shootSequence(subsystem_Indexer indexer, subsystem_Shooter shooter) {
