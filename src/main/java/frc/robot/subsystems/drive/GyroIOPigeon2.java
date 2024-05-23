@@ -22,13 +22,12 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import java.util.OptionalDouble;
 import java.util.Queue;
-// import frc.robot.subsystems.drive.DriveConstants;
 
 /** IO implementation for Pigeon2 */
 public class GyroIOPigeon2 implements GyroIO {
   private final Pigeon2 pigeon =
       new Pigeon2(
-          2,
+          12,
           "LunaDriveCANivore"); // MEER AND MATTHEW CONFIGURE THIS MAKE SURE ID AND CAN NETWORK IS
   // CORRECT
   private final StatusSignal<Double> yaw = pigeon.getYaw();
@@ -39,7 +38,7 @@ public class GyroIOPigeon2 implements GyroIO {
   public GyroIOPigeon2(boolean phoenixDrive) {
     pigeon.getConfigurator().apply(new Pigeon2Configuration());
     pigeon.getConfigurator().setYaw(0.0);
-    yaw.setUpdateFrequency(DriveConstants.odometryFrequency);
+    yaw.setUpdateFrequency(Module.ODOMETRY_FREQUENCY);
     yawVelocity.setUpdateFrequency(100.0);
     pigeon.optimizeBusUtilization();
     if (phoenixDrive) {
