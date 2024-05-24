@@ -33,10 +33,11 @@ import frc.robot.subsystems.indexer.subsystem_Indexer;
 import frc.robot.subsystems.intake.subsystem_Intake;
 import frc.robot.subsystems.led.subsystem_LED;
 import frc.robot.subsystems.shooter.subsystem_Shooter;
+import frc.robot.subsystems.vision.VisionIO;
+import frc.robot.subsystems.vision.VisionSubsystem;
 import frc.robot.subsystems.vision.subsystem_Vision;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
-import frc.robot.subsystems.vision.VisionIOPhoton;
-import frc.robot.subsystems.vision.VisionIO;
+
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
  * "declarative" paradigm, very little robot logic should actually be handled in the {@link Robot}
@@ -48,6 +49,7 @@ public class RobotContainer {
 
   /* Subsystems */
   public Drive drive;
+  private final VisionSubsystem vision;
   private final subsystem_Vision m_Vision = new subsystem_Vision();
   private final subsystem_Shooter m_Shooter = new subsystem_Shooter();
   private final subsystem_Indexer m_Indexer = new subsystem_Indexer();
@@ -69,6 +71,8 @@ public class RobotContainer {
 
   public RobotContainer() {
 
+    vision = new VisionSubsystem(new VisionIO[] {});
+
     CameraServer.startAutomaticCapture(0);
     // m_Chooser = new LoggedDashboardChooser<>("Auto Choices");
 
@@ -80,7 +84,8 @@ public class RobotContainer {
                 new ModuleIOTalonFX(0),
                 new ModuleIOTalonFX(1),
                 new ModuleIOTalonFX(2),
-                new ModuleIOTalonFX(3));
+                new ModuleIOTalonFX(3),
+                vision);
       }
 
       case SIMBOT -> {
@@ -90,7 +95,8 @@ public class RobotContainer {
                 new ModuleIOSim(),
                 new ModuleIOSim(),
                 new ModuleIOSim(),
-                new ModuleIOSim());
+                new ModuleIOSim(),
+                vision);
       }
 
         // Replayed robot, disable IO implementations
@@ -101,7 +107,8 @@ public class RobotContainer {
                 new ModuleIO() {},
                 new ModuleIO() {},
                 new ModuleIO() {},
-                new ModuleIO() {});
+                new ModuleIO() {},
+                vision);
       }
     }
     // Configure the trigger bindings

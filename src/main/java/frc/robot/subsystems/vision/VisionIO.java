@@ -7,43 +7,54 @@
 
 package frc.robot.subsystems.vision;
 
-import org.littletonrobotics.junction.AutoLog;
-
-import edu.wpi.first.math.geometry.Pose2d;
-
-import static frc.robot.subsystems.vision.VisionConstants.*;
+// import static frc.robot.subsystems.vision.VisionConstants.*;
 
 import edu.wpi.first.math.Matrix;
-import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
-import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import java.util.Optional;
+import org.littletonrobotics.junction.AutoLog;
 import org.photonvision.EstimatedRobotPose;
-import org.photonvision.PhotonCamera;
-import org.photonvision.PhotonPoseEstimator;
-import org.photonvision.PhotonPoseEstimator.PoseStrategy;
-import org.photonvision.simulation.PhotonCameraSim;
-import org.photonvision.simulation.SimCameraProperties;
-import org.photonvision.simulation.VisionSystemSim;
 import org.photonvision.targeting.PhotonPipelineResult;
+
 public interface VisionIO {
   @AutoLog
   public static class VisionIOinput {
+    public double x;
+    public double y;
+    public double rotation;
+    public double timestamp;
+    public double maxAmbiguity;
+    public double maxDistance;
+    public double minDistance;
     public Pose2d estimation = new Pose2d();
+    public boolean hasTarget = false;
+    public boolean isNew; // is new pose
     public int tagCount = 0;
     public double timestamps = 0;
-
+    public int singleIDUsed;
+    public double singleIDUsedDouble;
   }
   // void readInput(VisionIOinput inputs);
   // void pollNetworkTables();
-  public default void updateInputs(VisionIOinput inputs, Pose2d estimate) {}
+  public default void updateInputs(VisionIOinput inputs) {}
 
-  public default PhotonPipelineResult getLatestResult() { return null; }
+  default String getName() {
+    return "";
+  }
 
-  public default Matrix<N3, N1> getEstimationStdDevs(Pose2d estimatedPose) { return null; }
+  default void setReferencePose(Pose2d pose) {}
 
-  public default Optional<EstimatedRobotPose> getEstimatedGlobalPose() { return null; }
+  public default PhotonPipelineResult getLatestResult() {
+    return null;
+  }
+
+  public default Matrix<N3, N1> getEstimationStdDevs(Pose2d estimatedPose) {
+    return null;
+  }
+
+  public default Optional<EstimatedRobotPose> getEstimatedGlobalPose() {
+    return null;
+  }
 }
