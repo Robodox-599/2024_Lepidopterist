@@ -149,6 +149,7 @@ public class Robot extends LoggedRobot {
       System.out.println("Autonomous Init didn't before Teleop Init");
       pigeonIMU.setFusedHeading(0);
     }
+
     // if (RobotConstants.robotColor == Alliance.Red){
     //   m_robotContainer.m_DriveTrain.SertGyro();
     // }
