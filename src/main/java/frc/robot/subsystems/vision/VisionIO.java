@@ -5,41 +5,45 @@
 // license that can be found in the LICENSE file at
 // the root directory of this project.
 
-package org.littletonrobotics.frc2024.subsystems.apriltagvision;
+package frc.robot.subsystems.vision;
 
-import org.littletonrobotics.junction.LogTable;
-import org.littletonrobotics.junction.inputs.LoggableInputs;
+import org.littletonrobotics.junction.AutoLog;
 
-public interface AprilTagVisionIO {
-  class AprilTagVisionIOInputs implements LoggableInputs {
-    public double[] timestamps = new double[] {};
-    public double[][] frames = new double[][] {};
-    public double[] demoFrame = new double[] {};
-    public long fps = 0;
+import edu.wpi.first.math.geometry.Pose2d;
 
-    @Override
-    public void toLog(LogTable table) {
-      table.put("Timestamps", timestamps);
-      table.put("FrameCount", frames.length);
-      for (int i = 0; i < frames.length; i++) {
-        table.put("Frame/" + i, frames[i]);
-      }
-      table.put("DemoFrame", demoFrame);
-      table.put("Fps", fps);
-    }
+import static frc.robot.subsystems.vision.VisionConstants.*;
 
-    @Override
-    public void fromLog(LogTable table) {
-      timestamps = table.get("Timestamps", new double[] {0.0});
-      int frameCount = table.get("FrameCount", 0);
-      frames = new double[frameCount][];
-      for (int i = 0; i < frameCount; i++) {
-        frames[i] = table.get("Frame/" + i, new double[] {});
-      }
-      demoFrame = table.get("DemoFrame", new double[] {});
-      fps = table.get("Fps", 0);
-    }
+import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import java.util.Optional;
+import org.photonvision.EstimatedRobotPose;
+import org.photonvision.PhotonCamera;
+import org.photonvision.PhotonPoseEstimator;
+import org.photonvision.PhotonPoseEstimator.PoseStrategy;
+import org.photonvision.simulation.PhotonCameraSim;
+import org.photonvision.simulation.SimCameraProperties;
+import org.photonvision.simulation.VisionSystemSim;
+import org.photonvision.targeting.PhotonPipelineResult;
+public interface VisionIO {
+  @AutoLog
+  public static class VisionIOinput {
+    public Pose2d estimation = new Pose2d();
+    public int tagCount = 0;
+    public double timestamps = 0;
+
   }
+  // void readInput(VisionIOinput inputs);
+  // void pollNetworkTables();
+  public default void updateInputs(VisionIOinput inputs, Pose2d estimate) {}
 
-  default void updateInputs(AprilTagVisionIOInputs inputs) {}
+  public default PhotonPipelineResult getLatestResult() { return null; }
+
+  public default Matrix<N3, N1> getEstimationStdDevs(Pose2d estimatedPose) { return null; }
+
+  public default Optional<EstimatedRobotPose> getEstimatedGlobalPose() { return null; }
 }

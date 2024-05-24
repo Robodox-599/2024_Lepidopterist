@@ -31,28 +31,28 @@ import org.littletonrobotics.junction.Logger;
 
 /** Vision subsystem for AprilTag vision. */
 public class Vision extends SubsystemBase {
-  // private static final LoggedTunableNumber timestampOffset =
-  //     new LoggedTunableNumber("AprilTagVision/TimestampOffset", -(1.0 / 50.0));
+  // // private static final LoggedTunableNumber timestampOffset =
+  // //     new LoggedTunableNumber("AprilTagVision/TimestampOffset", -(1.0 / 50.0));
 
-  private final VisionIO io;
-  private final RobotState state; 
-  private final VisionIOAutoLogged inputs = new VisionIOinputsAutoLogged();
-  public Vision(VisionIO io, RobotState state){
-    this.io = io;
-    this.state = state;
+  // private final VisionIO io;
+  // private final RobotState state; 
+  // private final VisionIOAutoLogged inputs = new VisionIOinputsAutoLogged();
+  // public Vision(VisionIO io, RobotState state){
+  //   this.io = io;
+  //   this.state = state;
     
-  }
+  // }
 
-  @Override
-  public void periodic() {
-    double timstamp = VisionConstants.getTimestampSeconds();
-    
-    io.readInput(inputs);
-    Logger.processInputs("Vision", inputs);
-    if (inputs.cameraSeesTarget()){
+  // @Override
+  // public void periodic() {
+  //   double timstamp = VisionConstants.getTimestampSeconds();
 
-    } 
-  }
+  //   io.readInput(inputs);
+  //   Logger.processInputs("Vision", inputs);
+  //   if (inputs.cameraSeesTarget()){
+
+  //   } 
+  // }
 
 //     // Log robot poses
 //     Logger.recordOutput("AprilTagVision/RobotPoses", allRobotPoses.toArray(Pose2d[]::new));
