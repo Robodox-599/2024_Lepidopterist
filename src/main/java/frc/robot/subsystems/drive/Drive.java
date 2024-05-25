@@ -20,31 +20,54 @@ import com.pathplanner.lib.pathfinding.Pathfinding;
 import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.PathPlannerLogging;
 import com.pathplanner.lib.util.ReplanningConfig;
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.MatBuilder;
+import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.Nat;
+import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.math.numbers.N5;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import frc.robot.subsystems.vision.VisionSubsystem;
-import frc.robot.subsystems.vision.VisionSubsystem.PoseAndTimestamp;
+import frc.robot.subsystems.vision.Vision;
 // Initializing Drive Class extending SubsystemBase to make use of WPILib's command-based structure
+import frc.robot.subsystems.vision.Vision.VisionConstants;
+import frc.robot.subsystems.vision.VisionHelper;
+import frc.robot.subsystems.vision.VisionIO;
+import frc.robot.subsystems.vision.VisionIOReal;
+import frc.robot.subsystems.vision.VisionIOSim;
 import frc.robot.util.LocalADStarAK;
+import java.io.File;
+import java.util.NoSuchElementException;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
+import org.photonvision.targeting.PhotonPipelineResult;
 
 public class Drive extends SubsystemBase {
 
@@ -59,6 +82,9 @@ public class Drive extends SubsystemBase {
   private static final double DRIVE_BASE_RADIUS =
       Math.hypot(TRACK_WIDTH_X / 2.0, TRACK_WIDTH_Y / 2.0); // MATTHEW AND MEER PLEASE SET
   private static final double MAX_ANGULAR_SPEED = MAX_LINEAR_SPEED / DRIVE_BASE_RADIUS;
+  public static final double MAX_LINEAR_ACCELERATION = 8.0;
+  public static final double MAX_ANGULAR_ACCELERATION = MAX_LINEAR_ACCELERATION / DRIVE_BASE_RADIUS;
+  public static final double MAX_AUTOAIM_SPEED = MAX_LINEAR_SPEED / 4;
 
   // Odometry lock for sychronized odometry updates
 
@@ -72,11 +98,11 @@ public class Drive extends SubsystemBase {
 
   static final Lock odometryLock = new ReentrantLock();
   private final GyroIO gyroIO;
-  private final VisionSubsystem vision;
-
   private final GyroIOInputsAutoLogged gyroInputs = new GyroIOInputsAutoLogged();
   private final Module[] modules = new Module[4]; // FL, FR, BL, BR
   private final SysIdRoutine sysId;
+  private final Vision[] cameras;
+  public static AprilTagFieldLayout fieldTags;
 
   // Drive kinematics and pose estimator for position tracking
   private SwerveDriveKinematics kinematics = new SwerveDriveKinematics(getModuleTranslations());
@@ -90,6 +116,49 @@ public class Drive extends SubsystemBase {
       };
   private SwerveDrivePoseEstimator poseEstimator =
       new SwerveDrivePoseEstimator(kinematics, rawGyroRotation, lastModulePositions, new Pose2d());
+  Vector<N3> odoStdDevs = VecBuilder.fill(0.3, 0.3, 0.01);
+  private double lastEstTimestamp = 0.0;
+  private double lastOdometryUpdateTimestamp = 0.0;
+
+  public static final Matrix<N3, N3> CAMERA_MATRIX =
+      MatBuilder.fill(
+          Nat.N3(),
+          Nat.N3(),
+          915.2126592056358,
+          0.0,
+          841.560216921862,
+          0.0,
+          913.9556728013187,
+          648.2330358379004,
+          0.0,
+          0.0,
+          1.0);
+  public static final Matrix<N5, N1> DIST_COEFFS =
+      MatBuilder.fill(
+          Nat.N5(),
+          Nat.N1(),
+          0.0576413369828492,
+          -0.07356597379196807,
+          -6.669129885790735E-4,
+          6.491281122640802E-4,
+          0.03731824873787814); // Last 3 values have been truncated
+
+  public static final VisionConstants CamConstants =
+      new VisionConstants(
+          "Camera One",
+          new Transform3d(
+              new Translation3d(
+                  Units.inchesToMeters(-10.386),
+                  Units.inchesToMeters(10.380),
+                  Units.inchesToMeters(7.381)),
+              new Rotation3d(
+                  Units.degreesToRadians(0.0),
+                  Units.degreesToRadians(-28.125),
+                  Units.degreesToRadians(120))),
+          CAMERA_MATRIX,
+          DIST_COEFFS);
+
+  private SwerveDriveOdometry odometry;
 
   // Constructor for initalizing modules and subsystems
   public Drive(
@@ -98,9 +167,10 @@ public class Drive extends SubsystemBase {
       ModuleIO frModuleIO,
       ModuleIO blModuleIO,
       ModuleIO brModuleIO,
-      VisionSubsystem vision) {
+      VisionIO[] visionIOs) {
     this.gyroIO = gyroIO;
-    this.vision = vision;
+    cameras = new Vision[visionIOs.length];
+    // new AutoAim();
     modules[0] = new Module(flModuleIO, 0);
     modules[1] = new Module(frModuleIO, 1);
     modules[2] = new Module(blModuleIO, 2);
@@ -109,6 +179,12 @@ public class Drive extends SubsystemBase {
     // Start threads (no-op for each if no signals have been created) // Starting threads for
     // hardware interface odometry
     PhoenixOdometryThread.getInstance().start();
+    for (int i = 0; i < visionIOs.length; i++) {
+      cameras[i] = new Vision(visionIOs[i]);
+    }
+
+    VisionIOSim.pose = this::getPose3d;
+
     SparkMaxOdometryThread.getInstance().start();
 
     // Configure AutoBuilder for PathPlanner // Configuration for auto path planning
@@ -134,6 +210,18 @@ public class Drive extends SubsystemBase {
           Logger.recordOutput("Odometry/TrajectorySetpoint", targetPose);
         });
 
+    try {
+      fieldTags =
+          new AprilTagFieldLayout(
+              Filesystem.getDeployDirectory()
+                  .toPath()
+                  .resolve("vision" + File.separator + "2024-crescendo.json"));
+      System.out.println("Successfully loaded tag map");
+    } catch (Exception e) {
+      System.err.println("Failed to load tag map");
+      fieldTags = AprilTagFields.k2024Crescendo.loadAprilTagLayoutField();
+    }
+
     // Configure SysId // Setup for system identification routine
     sysId =
         new SysIdRoutine(
@@ -152,14 +240,34 @@ public class Drive extends SubsystemBase {
                 this));
   }
 
+  public static VisionIO[] createRealCameras() {
+    return new VisionIO[] {new VisionIOReal(CamConstants)};
+  }
+
+  /**
+   * Constructs an array of vision IOs corresponding to the simulated robot.
+   *
+   * @return The array of vision IOs.
+   */
+  public static VisionIO[] createSimCameras() {
+    return new VisionIO[] {new VisionIOSim(CamConstants)};
+  }
+
   // Regularly called method to update subsystem state
 
   public void periodic() {
     odometryLock.lock(); // Prevents odometry updates while reading data
     gyroIO.updateInputs(gyroInputs);
+
     for (var module : modules) {
       module.updateInputs();
     }
+
+    for (var camera : cameras) {
+      camera.updateInputs();
+      camera.processInputs();
+    }
+
     odometryLock.unlock();
     Logger.processInputs("Drive/Gyro", gyroInputs);
     for (var module : modules) {
@@ -176,6 +284,7 @@ public class Drive extends SubsystemBase {
     if (DriverStation.isDisabled()) {
       Logger.recordOutput("SwerveStates/Setpoints", new SwerveModuleState[] {});
       Logger.recordOutput("SwerveStates/SetpointsOptimized", new SwerveModuleState[] {});
+      updateVision();
     }
 
     // Update odometry // This updates based on sensor data and kinematics
@@ -204,11 +313,6 @@ public class Drive extends SubsystemBase {
         // Use the angle delta from the kinematics and module deltas
         Twist2d twist = kinematics.toTwist2d(moduleDeltas);
         rawGyroRotation = rawGyroRotation.plus(new Rotation2d(twist.dtheta));
-      }
-
-      var results = vision.getVisionOdometry();
-      for (PoseAndTimestamp result : results) {
-        addVisionMeasurement(result.getPose(), result.getTimestamp());
       }
       // Apply update
       poseEstimator.updateWithTime(sampleTimestamps[i], rawGyroRotation, modulePositions);
@@ -244,6 +348,29 @@ public class Drive extends SubsystemBase {
         (targetPose) -> {
           Logger.recordOutput("Odometry/TrajectorySetpoint", targetPose);
         });
+  }
+
+  private void updateVision() {
+    for (var camera : cameras) {
+      PhotonPipelineResult result =
+          new PhotonPipelineResult(camera.inputs.latency, camera.inputs.targets);
+      result.setTimestampSeconds(camera.inputs.timestamp);
+      boolean newResult = Math.abs(camera.inputs.timestamp - lastEstTimestamp) > 1e-5;
+      try {
+        var estPose = camera.update(result);
+        var visionPose = estPose.get().estimatedPose;
+        // Sets the pose on the sim field
+        camera.setSimPose(estPose, camera, newResult);
+        Logger.recordOutput("Vision/Vision Pose From " + camera.getName(), visionPose);
+        Logger.recordOutput("Vision/Vision Pose2d From " + camera.getName(), visionPose.toPose2d());
+        poseEstimator.addVisionMeasurement(
+            visionPose.toPose2d(),
+            camera.inputs.timestamp,
+            VisionHelper.findVisionMeasurementStdDevs(estPose.get()));
+        if (newResult) lastEstTimestamp = camera.inputs.timestamp;
+      } catch (NoSuchElementException e) {
+      }
+    }
   }
 
   public void runVelocity(ChassisSpeeds speeds) {
@@ -345,6 +472,10 @@ public class Drive extends SubsystemBase {
     return poseEstimator.getEstimatedPosition();
   }
 
+  public Pose3d getPose3d() {
+    return new Pose3d(getPose());
+  }
+
   /** Returns the current odometry rotation. */
   public Rotation2d getRotation() {
     return getPose().getRotation();
@@ -383,5 +514,9 @@ public class Drive extends SubsystemBase {
       new Translation2d(-TRACK_WIDTH_X / 2.0, TRACK_WIDTH_Y / 2.0),
       new Translation2d(-TRACK_WIDTH_X / 2.0, -TRACK_WIDTH_Y / 2.0)
     };
+  }
+
+  public static VisionConstants[] getCameraConstants() {
+    return new VisionConstants[] {CamConstants};
   }
 }

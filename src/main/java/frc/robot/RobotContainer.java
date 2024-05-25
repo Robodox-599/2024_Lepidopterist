@@ -33,10 +33,6 @@ import frc.robot.subsystems.indexer.subsystem_Indexer;
 import frc.robot.subsystems.intake.subsystem_Intake;
 import frc.robot.subsystems.led.subsystem_LED;
 import frc.robot.subsystems.shooter.subsystem_Shooter;
-import frc.robot.subsystems.vision.VisionConstants.VisionBasic;
-import frc.robot.subsystems.vision.VisionIO;
-import frc.robot.subsystems.vision.VisionIOPhoton;
-import frc.robot.subsystems.vision.VisionSubsystem;
 import frc.robot.subsystems.vision.subsystem_Vision;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
@@ -79,7 +75,6 @@ public class RobotContainer {
 
     switch (Constants.getRobot()) {
       case REALBOT -> {
-        final VisionSubsystem vision = new VisionSubsystem(new VisionIO[] {});
         drive =
             new Drive(
                 new GyroIOPigeon2(true),
@@ -87,13 +82,10 @@ public class RobotContainer {
                 new ModuleIOTalonFX(1),
                 new ModuleIOTalonFX(2),
                 new ModuleIOTalonFX(3),
-                vision);
+                Drive.createRealCameras());
       }
 
       case SIMBOT -> {
-        VisionIOPhoton visionIOPhotonSim =
-            new VisionIOPhoton("PhotonVisionSim", VisionBasic.kRobotToCam);
-        final VisionSubsystem vision = new VisionSubsystem(new VisionIO[] {visionIOPhotonSim});
         drive =
             new Drive(
                 new GyroIO() {},
@@ -101,14 +93,11 @@ public class RobotContainer {
                 new ModuleIOSim(),
                 new ModuleIOSim(),
                 new ModuleIOSim(),
-                vision);
+                Drive.createSimCameras());
       }
 
         // Replayed robot, disable IO implementations
       case REPLAYBOT -> {
-        VisionIOPhoton visionIOPhotonSim =
-            new VisionIOPhoton("PhotonVisionSim", VisionBasic.kRobotToCam);
-        final VisionSubsystem vision = new VisionSubsystem(new VisionIO[] {visionIOPhotonSim});
         drive =
             new Drive(
                 new GyroIO() {},
@@ -116,7 +105,7 @@ public class RobotContainer {
                 new ModuleIO() {},
                 new ModuleIO() {},
                 new ModuleIO() {},
-                vision);
+                Drive.createSimCameras());
       }
       default -> {
         break;

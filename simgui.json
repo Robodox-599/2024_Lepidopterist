@@ -20,6 +20,7 @@
     "types": {
       "/FMSInfo": "FMSInfo",
       "/SmartDashboard/Auto Choices": "String Chooser",
+      "/SmartDashboard/VisionSystemSim-Camera One/Sim Field": "Field2d",
       "/SmartDashboard/VisionSystemSim-main/Sim Field": "Field2d",
       "/SmartDashboard/zero shooter wrist": "Command"
     },
