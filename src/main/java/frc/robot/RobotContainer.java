@@ -33,7 +33,9 @@ import frc.robot.subsystems.indexer.subsystem_Indexer;
 import frc.robot.subsystems.intake.subsystem_Intake;
 import frc.robot.subsystems.led.subsystem_LED;
 import frc.robot.subsystems.shooter.subsystem_Shooter;
+import frc.robot.subsystems.vision.VisionConstants.VisionBasic;
 import frc.robot.subsystems.vision.VisionIO;
+import frc.robot.subsystems.vision.VisionIOPhoton;
 import frc.robot.subsystems.vision.VisionSubsystem;
 import frc.robot.subsystems.vision.subsystem_Vision;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
@@ -49,7 +51,7 @@ public class RobotContainer {
 
   /* Subsystems */
   public Drive drive;
-  private final VisionSubsystem vision;
+  //   private final VisionSubsystem vision = new VisionSubsystem)(;
   private final subsystem_Vision m_Vision = new subsystem_Vision();
   private final subsystem_Shooter m_Shooter = new subsystem_Shooter();
   private final subsystem_Indexer m_Indexer = new subsystem_Indexer();
@@ -71,13 +73,13 @@ public class RobotContainer {
 
   public RobotContainer() {
 
-    vision = new VisionSubsystem(new VisionIO[] {});
-
+    // vision = new VisionSubsystem(new VisionIO[] {});
     CameraServer.startAutomaticCapture(0);
     // m_Chooser = new LoggedDashboardChooser<>("Auto Choices");
 
     switch (Constants.getRobot()) {
       case REALBOT -> {
+        final VisionSubsystem vision = new VisionSubsystem(new VisionIO[] {});
         drive =
             new Drive(
                 new GyroIOPigeon2(true),
@@ -89,6 +91,9 @@ public class RobotContainer {
       }
 
       case SIMBOT -> {
+        VisionIOPhoton visionIOPhotonSim =
+            new VisionIOPhoton("PhotonVisionSim", VisionBasic.kRobotToCam);
+        final VisionSubsystem vision = new VisionSubsystem(new VisionIO[] {visionIOPhotonSim});
         drive =
             new Drive(
                 new GyroIO() {},
@@ -101,6 +106,9 @@ public class RobotContainer {
 
         // Replayed robot, disable IO implementations
       case REPLAYBOT -> {
+        VisionIOPhoton visionIOPhotonSim =
+            new VisionIOPhoton("PhotonVisionSim", VisionBasic.kRobotToCam);
+        final VisionSubsystem vision = new VisionSubsystem(new VisionIO[] {visionIOPhotonSim});
         drive =
             new Drive(
                 new GyroIO() {},
@@ -109,6 +117,9 @@ public class RobotContainer {
                 new ModuleIO() {},
                 new ModuleIO() {},
                 vision);
+      }
+      default -> {
+        break;
       }
     }
     // Configure the trigger bindings

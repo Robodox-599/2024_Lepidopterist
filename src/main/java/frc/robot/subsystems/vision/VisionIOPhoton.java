@@ -8,17 +8,16 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 // import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform3d;
-import edu.wpi.first.wpilibj.RobotBase;
-import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 // import edu.wpi.first.wpilibj.DriverStation;
 // import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 // import frc.robot.Robot;
+import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import frc.robot.subsystems.vision.VisionConstants.VisionBasic;
 import java.util.List;
 import java.util.Optional;
-
 import org.littletonrobotics.junction.Logger;
 // import org.littletonrobotics.junction.Logger;
 import org.photonvision.EstimatedRobotPose;
@@ -44,8 +43,8 @@ public class VisionIOPhoton implements VisionIO {
   // private static DriverStation.Alliance storedAlliance = DriverStation.Alliance.Invalid;
 
   // Simulation
-    private PhotonCameraSim cameraSim;
-    private VisionSystemSim visionSim;
+  private PhotonCameraSim cameraSim;
+  private VisionSystemSim visionSim;
 
   public VisionIOPhoton(String name, Transform3d pose) {
     this.name = name;
@@ -62,25 +61,25 @@ public class VisionIOPhoton implements VisionIO {
 
     // ----- Simulation
     if (RobotBase.isSimulation()) {
-    //Create the vision system simulation which handles cameras and targets on the field.
+      // Create the vision system simulation which handles cameras and targets on the field.
       visionSim = new VisionSystemSim("main");
-    //Add all the AprilTags inside the tag layout as visible targets to this simulated field.
+      // Add all the AprilTags inside the tag layout as visible targets to this simulated field.
       visionSim.addAprilTags(VisionBasic.kTagLayout);
-    //Create simulated camera properties. These can be set to mimic your actual camera.
+      // Create simulated camera properties. These can be set to mimic your actual camera.
       var cameraProp = new SimCameraProperties();
       cameraProp.setCalibration(960, 720, Rotation2d.fromDegrees(90));
       cameraProp.setCalibError(0.35, 0.10);
       cameraProp.setFPS(15);
       cameraProp.setAvgLatencyMs(50);
       cameraProp.setLatencyStdDevMs(15);
-    // Create a PhotonCameraSim which will update the linked PhotonCamera's values with visible
-    // targets.
+      // Create a PhotonCameraSim which will update the linked PhotonCamera's values with visible
+      // targets.
       cameraSim = new PhotonCameraSim(camera, cameraProp);
-    // Add the simulated camera to view the targets on this simulated field.
-          visionSim.addCamera(cameraSim, VisionBasic.kRobotToCam);
+      // Add the simulated camera to view the targets on this simulated field.
+      visionSim.addCamera(cameraSim, VisionBasic.kRobotToCam);
 
-          cameraSim.enableDrawWireframe(true);
-        }
+      cameraSim.enableDrawWireframe(true);
+    }
   }
 
   public PhotonPipelineResult getLatestResult() {
@@ -94,57 +93,54 @@ public class VisionIOPhoton implements VisionIO {
    * @return An {@link EstimatedRobotPose} with an estimated pose, estimate timestamp, and targets
    *     used for estimation.
    */
-    public Optional<EstimatedRobotPose> getEstimatedGlobalPose() {
-      var visionEst = odometry.update();
-      double latestTimestamp = camera.getLatestResult().getTimestampSeconds();
-      boolean newResult = Math.abs(latestTimestamp - pastTimestamp) > 1e-5;
-      if (RobotBase.isSimulation()) {
-        visionEst.ifPresentOrElse(
-            est ->
-                getSimDebugField()
-                    .getObject("VisionEstimation")
-                    .setPose(est.estimatedPose.toPose2d()),
-            () -> {
-              if (newResult) getSimDebugField().getObject("VisionEstimation").setPoses();
-            });
-      }
-      if (newResult) pastTimestamp = latestTimestamp;
-      return visionEst;
+  public Optional<EstimatedRobotPose> getEstimatedGlobalPose() {
+    var visionEst = odometry.update();
+    double latestTimestamp = camera.getLatestResult().getTimestampSeconds();
+    boolean newResult = Math.abs(latestTimestamp - pastTimestamp) > 1e-5;
+    if (RobotBase.isSimulation()) {
+      visionEst.ifPresentOrElse(
+          est ->
+              getSimDebugField()
+                  .getObject("VisionEstimation")
+                  .setPose(est.estimatedPose.toPose2d()),
+          () -> {
+            if (newResult) getSimDebugField().getObject("VisionEstimation").setPoses();
+          });
     }
+    if (newResult) pastTimestamp = latestTimestamp;
+    return visionEst;
+  }
 
-     /**
-      * The standard deviations of the estimated pose from {@link #getEstimatedGlobalPose()}, for
-         use
-      * with {@link edu.wpi.first.math.estimator.SwerveDrivePoseEstimator
-        SwerveDrivePoseEstimator}.
-      * This should only be used when there are targets visible.
-      *
-      * @param estimatedPose The estimated pose to guess standard deviations for.
-      */
-    public Matrix<N3, N1> getEstimationStdDevs(Pose2d estimatedPose) {
-      var estStdDevs = VisionBasic.kSingleTagStdDevs;
-      var targets = getLatestResult().getTargets();
-      int numTags = 0;
-      double avgDist = 0;
-      for (var tgt : targets) {
-        var tagPose = odometry.getFieldTags().getTagPose(tgt.getFiducialId());
-        if (tagPose.isEmpty()) continue;
-        numTags++;
-        avgDist +=
-  
-  tagPose.get().toPose2d().getTranslation().getDistance(estimatedPose.getTranslation());
-      }
-      if (numTags == 0) return estStdDevs;
-      avgDist /= numTags;
-      // Decrease std devs if multiple targets are visible
-      if (numTags > 1) estStdDevs = VisionBasic.kMultiTagStdDevs;
-      // Increase std devs based on (average) distance
-      if (numTags == 1 && avgDist > 4)
-        estStdDevs = VecBuilder.fill(Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE);
-      else estStdDevs = estStdDevs.times(1 + (avgDist * avgDist / 30));
-
-      return estStdDevs;
+  /**
+   * The standard deviations of the estimated pose from {@link #getEstimatedGlobalPose()}, for use
+   * with {@link edu.wpi.first.math.estimator.SwerveDrivePoseEstimator SwerveDrivePoseEstimator}.
+   * This should only be used when there are targets visible.
+   *
+   * @param estimatedPose The estimated pose to guess standard deviations for.
+   */
+  public Matrix<N3, N1> getEstimationStdDevs(Pose2d estimatedPose) {
+    var estStdDevs = VisionBasic.kSingleTagStdDevs;
+    var targets = getLatestResult().getTargets();
+    int numTags = 0;
+    double avgDist = 0;
+    for (var tgt : targets) {
+      var tagPose = odometry.getFieldTags().getTagPose(tgt.getFiducialId());
+      if (tagPose.isEmpty()) continue;
+      numTags++;
+      avgDist +=
+          tagPose.get().toPose2d().getTranslation().getDistance(estimatedPose.getTranslation());
     }
+    if (numTags == 0) return estStdDevs;
+    avgDist /= numTags;
+    // Decrease std devs if multiple targets are visible
+    if (numTags > 1) estStdDevs = VisionBasic.kMultiTagStdDevs;
+    // Increase std devs based on (average) distance
+    if (numTags == 1 && avgDist > 4)
+      estStdDevs = VecBuilder.fill(Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE);
+    else estStdDevs = estStdDevs.times(1 + (avgDist * avgDist / 30));
+
+    return estStdDevs;
+  }
 
   // ----- Simulation
 
@@ -222,21 +218,22 @@ public class VisionIOPhoton implements VisionIO {
     odometry.setReferencePose(pose);
   }
 
-   public void simulationPeriodic(Pose2d robotSimPose) {
-       visionSim.update(robotSimPose);
-       Logger.recordOutput("Vision/SimIO/updateSimPose", robotSimPose);
-   }
+  public void simulationPeriodic(Pose2d robotSimPose) {
+    visionSim.update(robotSimPose);
+    Logger.recordOutput("Vision/SimIO/updateSimPose", robotSimPose);
+  }
 
   /** Reset pose history of the robot in the vision system simulation. */
-   public void resetSimPose(Pose2d pose) {
-       if (RobotBase.isSimulation()) visionSim.resetRobotPose(pose);
-   }
+  public void resetSimPose(Pose2d pose) {
+    if (RobotBase.isSimulation()) visionSim.resetRobotPose(pose);
+  }
 
   // /** A Field2d for visualizing our robot and objects on the field. */
-   public Field2d getSimDebugField() {
-       if (!RobotBase.isSimulation()) return null;
-       return visionSim.getDebugField();
-   }
+  public Field2d getSimDebugField() {
+    if (!RobotBase.isSimulation()) return null;
+    return visionSim.getDebugField();
+  }
+
   private boolean checkValidResult(List<PhotonTrackedTarget> result) {
     for (PhotonTrackedTarget target : result) {
       if (target.getFiducialId() > 8) {
