@@ -23,7 +23,6 @@ public class VisionSubsystem extends SubsystemBase {
   private static final double LOWEST_DISTANCE = Units.feetToMeters(10.0);
   private final VisionIO[] cameras;
   private final VisionIOinputAutoLogged[] inputs;
-
   private final List<VisionSubsystem.PoseAndTimestamp> results = new ArrayList<>();
 
   private int acceptableTagID;

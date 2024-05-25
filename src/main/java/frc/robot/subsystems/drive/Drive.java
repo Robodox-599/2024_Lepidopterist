@@ -38,6 +38,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.subsystems.vision.VisionSubsystem;
+import frc.robot.subsystems.vision.VisionSubsystem.PoseAndTimestamp;
 // Initializing Drive Class extending SubsystemBase to make use of WPILib's command-based structure
 import frc.robot.util.LocalADStarAK;
 import java.util.concurrent.locks.Lock;
@@ -205,6 +206,10 @@ public class Drive extends SubsystemBase {
         rawGyroRotation = rawGyroRotation.plus(new Rotation2d(twist.dtheta));
       }
 
+      var results = vision.getVisionOdometry();
+      for (PoseAndTimestamp result : results) {
+        addVisionMeasurement(result.getPose(), result.getTimestamp());
+      }
       // Apply update
       poseEstimator.updateWithTime(sampleTimestamps[i], rawGyroRotation, modulePositions);
     }

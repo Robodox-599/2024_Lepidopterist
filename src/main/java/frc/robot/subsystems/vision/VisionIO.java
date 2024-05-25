@@ -9,14 +9,8 @@ package frc.robot.subsystems.vision;
 
 // import static frc.robot.subsystems.vision.VisionConstants.*;
 
-import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.numbers.N1;
-import edu.wpi.first.math.numbers.N3;
-import java.util.Optional;
 import org.littletonrobotics.junction.AutoLog;
-import org.photonvision.EstimatedRobotPose;
-import org.photonvision.targeting.PhotonPipelineResult;
 
 public interface VisionIO {
   @AutoLog
@@ -45,16 +39,4 @@ public interface VisionIO {
   }
 
   default void setReferencePose(Pose2d pose) {}
-
-  public default PhotonPipelineResult getLatestResult() {
-    return null;
-  }
-
-  public default Matrix<N3, N1> getEstimationStdDevs(Pose2d estimatedPose) {
-    return null;
-  }
-
-  public default Optional<EstimatedRobotPose> getEstimatedGlobalPose() {
-    return null;
-  }
 }
