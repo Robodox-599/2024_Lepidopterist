@@ -144,19 +144,30 @@ public class Drive extends SubsystemBase {
           6.491281122640802E-4,
           0.03731824873787814); // Last 3 values have been truncated
 
-  public static final VisionConstants CamConstants =
+  public static final VisionConstants Cam1Constants =
       new VisionConstants(
           "Camera One",
           new Transform3d(
               new Translation3d(
-                  Units.inchesToMeters(0l), Units.inchesToMeters(0), Units.inchesToMeters(0)),
+                  Units.inchesToMeters(0), Units.inchesToMeters(0), Units.inchesToMeters(0)),
               new Rotation3d(
                   Units.degreesToRadians(0.0),
                   Units.degreesToRadians(0),
                   Units.degreesToRadians(180))),
           CAMERA_MATRIX,
           DIST_COEFFS);
-
+  public static final VisionConstants Cam2Constants =
+      new VisionConstants(
+          "Camera Two",
+          new Transform3d(
+              new Translation3d(
+                  Units.inchesToMeters(0), Units.inchesToMeters(0), Units.inchesToMeters(0)),
+              new Rotation3d(
+                  Units.degreesToRadians(0.0),
+                  Units.degreesToRadians(0),
+                  Units.degreesToRadians(0))),
+          CAMERA_MATRIX,
+          DIST_COEFFS);
   private SwerveDriveOdometry odometry;
 
   // Constructor for initalizing modules and subsystems
@@ -244,7 +255,7 @@ public class Drive extends SubsystemBase {
   }
 
   public static VisionIO[] createRealCameras() {
-    return new VisionIO[] {new VisionIOReal(CamConstants)};
+    return new VisionIO[] {new VisionIOReal(Cam1Constants), new VisionIOSim(Cam2Constants)};
   }
 
   /**
@@ -253,7 +264,7 @@ public class Drive extends SubsystemBase {
    * @return The array of vision IOs.
    */
   public static VisionIO[] createSimCameras() {
-    return new VisionIO[] {new VisionIOSim(CamConstants)};
+    return new VisionIO[] {new VisionIOSim(Cam1Constants), new VisionIOSim(Cam2Constants)};
   }
 
   // Regularly called method to update subsystem state
@@ -268,6 +279,8 @@ public class Drive extends SubsystemBase {
 
     cameras[0].updateInputs();
     cameras[0].processInputs();
+    cameras[1].updateInputs();
+    cameras[1].processInputs();
     updateVision();
     odometryLock.unlock();
     Logger.processInputs("Drive/Gyro", gyroInputs);
@@ -492,6 +505,6 @@ public class Drive extends SubsystemBase {
   }
 
   public static VisionConstants[] getCameraConstants() {
-    return new VisionConstants[] {CamConstants};
+    return new VisionConstants[] {Cam1Constants, Cam2Constants};
   }
 }
