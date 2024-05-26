@@ -39,7 +39,6 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
-import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.numbers.N1;
@@ -119,8 +118,6 @@ public class Drive extends SubsystemBase {
       new SwerveDrivePoseEstimator(kinematics, rawGyroRotation, lastModulePositions, new Pose2d());
   Vector<N3> odoStdDevs = VecBuilder.fill(0.3, 0.3, 0.01);
   private double lastEstTimestamp = 0.0;
-  private double lastOdometryUpdateTimestamp = 0.0;
-
   public static final Matrix<N3, N3> CAMERA_MATRIX =
       MatBuilder.fill(
           Nat.N3(),
@@ -168,7 +165,6 @@ public class Drive extends SubsystemBase {
                   Units.degreesToRadians(0))),
           CAMERA_MATRIX,
           DIST_COEFFS);
-  private SwerveDriveOdometry odometry;
 
   // Constructor for initalizing modules and subsystems
   public Drive(
