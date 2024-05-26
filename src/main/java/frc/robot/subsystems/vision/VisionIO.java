@@ -8,7 +8,9 @@ import edu.wpi.first.math.MatBuilder;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.Nat;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation3d;
 import frc.robot.subsystems.vision.Vision.VisionConstants;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,12 +27,14 @@ public interface VisionIO {
     public List<PhotonTrackedTarget> targets =
         new ArrayList<>(); // TODO make protobuf work whenever that happens
     public double numTags = 0; // TODO why isn't this just targets.size()?
+    private Rotation3d defaultPoseRotation = new Rotation3d(0, 0, 90);
+    private Translation3d defaultPoseTranslation3d = new Translation3d(0, 0, 5);
     public Transform3d coprocPNPTransform = new Transform3d();
     public Pose3d[] targetPose3ds = new Pose3d[] {};
     public VisionConstants constants =
         new VisionConstants(
             "Default",
-            new Transform3d(),
+            new Transform3d(defaultPoseTranslation3d, defaultPoseRotation),
             Matrix.eye(Nat.N3()),
             MatBuilder.fill(Nat.N5(), Nat.N1(), 0.0, 0.0, 0.0, 0.0, 0.0));
   }

@@ -3,6 +3,7 @@ package frc.robot.subsystems.vision;
 import edu.wpi.first.math.geometry.Pose3d;
 import frc.robot.subsystems.drive.Drive;
 import org.littletonrobotics.junction.LogTable;
+import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.inputs.LoggableInputs;
 
 /**
@@ -15,7 +16,7 @@ public class VisionIOInputsLogged extends VisionIO.VisionIOInputs
   public void toLog(LogTable table) {
     table.put("Timestamp", timestamp);
     table.put("Latency", latency);
-
+    Logger.recordOutput("Poses 3d", coprocPNPTransform);
     targetPose3ds = new Pose3d[targets.size()];
     for (int i = 0; i < targets.size(); i++) {
       VisionHelper.Logging.logPhotonTrackedTarget(targets.get(i), table, String.valueOf(i));
@@ -23,6 +24,8 @@ public class VisionIOInputsLogged extends VisionIO.VisionIOInputs
     }
     table.put("NumTags", targets.size());
     table.put("Pose", coprocPNPTransform);
+    // System.out.printLn(coprocPNPTransform);
+    // System.out.println(coprocPNPTransform + ": " + coprocPNPTransform.toString());
     table.put("Target Pose3ds", targetPose3ds);
     VisionHelper.Logging.logVisionConstants(constants, table);
   }

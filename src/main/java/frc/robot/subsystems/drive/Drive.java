@@ -148,13 +148,11 @@ public class Drive extends SubsystemBase {
           "Camera One",
           new Transform3d(
               new Translation3d(
-                  Units.inchesToMeters(-10.386),
-                  Units.inchesToMeters(10.380),
-                  Units.inchesToMeters(7.381)),
+                  Units.inchesToMeters(0), Units.inchesToMeters(0), Units.inchesToMeters(0)),
               new Rotation3d(
                   Units.degreesToRadians(0.0),
-                  Units.degreesToRadians(-28.125),
-                  Units.degreesToRadians(120))),
+                  Units.degreesToRadians(0),
+                  Units.degreesToRadians(180))),
           CAMERA_MATRIX,
           DIST_COEFFS);
 
@@ -263,11 +261,9 @@ public class Drive extends SubsystemBase {
       module.updateInputs();
     }
 
-    for (var camera : cameras) {
-      camera.updateInputs();
-      camera.processInputs();
-    }
-
+    cameras[0].updateInputs();
+    cameras[0].processInputs();
+    updateVision();
     odometryLock.unlock();
     Logger.processInputs("Drive/Gyro", gyroInputs);
     for (var module : modules) {

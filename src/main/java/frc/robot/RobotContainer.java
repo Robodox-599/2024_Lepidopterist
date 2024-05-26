@@ -33,7 +33,6 @@ import frc.robot.subsystems.indexer.subsystem_Indexer;
 import frc.robot.subsystems.intake.subsystem_Intake;
 import frc.robot.subsystems.led.subsystem_LED;
 import frc.robot.subsystems.shooter.subsystem_Shooter;
-import frc.robot.subsystems.vision.subsystem_Vision;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -48,7 +47,7 @@ public class RobotContainer {
   /* Subsystems */
   public Drive drive;
   //   private final VisionSubsystem vision = new VisionSubsystem)(;
-  private final subsystem_Vision m_Vision = new subsystem_Vision();
+  //   private final subsystem_Vision m_Vision = new subsystem_Vision();
   private final subsystem_Shooter m_Shooter = new subsystem_Shooter();
   private final subsystem_Indexer m_Indexer = new subsystem_Indexer();
   private final subsystem_Intake m_Intake = new subsystem_Intake();
