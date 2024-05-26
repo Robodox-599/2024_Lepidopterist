@@ -54,9 +54,9 @@ public class Module {
       driveFeedback = new PIDController(0.05, 0.0, 0.0);
       turnFeedback = new PIDController(7.0, 0.0, 0.0);
     } else if (Constants.getMode() == Constants.Mode.SIM) {
-      driveFeedforward = new SimpleMotorFeedforward(0, .05);
+      driveFeedforward = new SimpleMotorFeedforward(0, .13);
       driveFeedback = new PIDController(.1, 0., 0.0);
-      turnFeedback = new PIDController(11, 0.0, 0.0);
+      turnFeedback = new PIDController(10, 0.0, 0.0);
     } else {
       driveFeedforward = new SimpleMotorFeedforward(0.0, 0.13);
       driveFeedback = new PIDController(0.1, 0.0, 0.0);
