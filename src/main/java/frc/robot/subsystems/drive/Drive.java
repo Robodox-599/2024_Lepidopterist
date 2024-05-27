@@ -106,6 +106,7 @@ public class Drive extends SubsystemBase {
 
   // Drive kinematics and pose estimator for position tracking
   private SwerveDriveKinematics kinematics = new SwerveDriveKinematics(getModuleTranslations());
+  private Pose2d pose = new Pose2d();
   private Rotation2d rawGyroRotation = new Rotation2d();
   private SwerveModulePosition[] lastModulePositions = // For delta tracking
       new SwerveModulePosition[] {
@@ -115,7 +116,7 @@ public class Drive extends SubsystemBase {
         new SwerveModulePosition()
       };
   private SwerveDrivePoseEstimator poseEstimator =
-      new SwerveDrivePoseEstimator(kinematics, rawGyroRotation, lastModulePositions, new Pose2d());
+      new SwerveDrivePoseEstimator(kinematics, rawGyroRotation, lastModulePositions, pose);
   Vector<N3> odoStdDevs = VecBuilder.fill(0.3, 0.3, 0.01);
   private double lastEstTimestamp = 0.0;
   public static final Matrix<N3, N3> CAMERA_MATRIX =
@@ -146,7 +147,7 @@ public class Drive extends SubsystemBase {
           "Camera One",
           new Transform3d(
               new Translation3d(
-                  Units.inchesToMeters(0), Units.inchesToMeters(0), Units.inchesToMeters(0)),
+                  Units.inchesToMeters(0), Units.inchesToMeters(0), Units.inchesToMeters(12.)),
               new Rotation3d(
                   Units.degreesToRadians(0.0),
                   Units.degreesToRadians(0),
