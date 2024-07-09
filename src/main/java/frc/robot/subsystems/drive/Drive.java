@@ -13,7 +13,7 @@
 
 package frc.robot.subsystems.drive;
 
-import static edu.wpi.first.units.Units.*;
+import static edu.wpi.first.units.Units.Volts;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.pathfinding.Pathfinding;
@@ -147,11 +147,11 @@ public class Drive extends SubsystemBase {
           "Camera One",
           new Transform3d(
               new Translation3d(
-                  Units.inchesToMeters(0), Units.inchesToMeters(0), Units.inchesToMeters(12.)),
-              new Rotation3d(
-                  Units.degreesToRadians(0.0),
-                  Units.degreesToRadians(0),
-                  Units.degreesToRadians(180))),
+                  Units.inchesToMeters(8.875),
+                  Units.inchesToMeters(10.5),
+                  Units.inchesToMeters(8.25)),
+              new Rotation3d(0.0, Units.degreesToRadians(-28.125), 0.0)
+                  .rotateBy(new Rotation3d(0.0, 0.0, Units.degreesToRadians(30.0)))),
           CAMERA_MATRIX,
           DIST_COEFFS);
   public static final VisionConstants Cam2Constants =
@@ -159,11 +159,11 @@ public class Drive extends SubsystemBase {
           "Camera Two",
           new Transform3d(
               new Translation3d(
-                  Units.inchesToMeters(0), Units.inchesToMeters(0), Units.inchesToMeters(0)),
-              new Rotation3d(
-                  Units.degreesToRadians(0.0),
-                  Units.degreesToRadians(0),
-                  Units.degreesToRadians(0))),
+                  Units.inchesToMeters(8.875),
+                  Units.inchesToMeters(-10.5),
+                  Units.inchesToMeters(8.25)),
+              new Rotation3d(0.0, Units.degreesToRadians(-28.125), 0.0)
+                  .rotateBy(new Rotation3d(0.0, 0.0, Units.degreesToRadians(-30.0)))),
           CAMERA_MATRIX,
           DIST_COEFFS);
 

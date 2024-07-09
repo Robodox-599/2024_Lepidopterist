@@ -27,8 +27,8 @@ public interface VisionIO {
     public List<PhotonTrackedTarget> targets =
         new ArrayList<>(); // TODO make protobuf work whenever that happens
     public double numTags = 0; // TODO why isn't this just targets.size()?
-    private Rotation3d defaultPoseRotation = new Rotation3d(0, 0, 90);
-    private Translation3d defaultPoseTranslation3d = new Translation3d(0, 0, 5);
+    private Rotation3d defaultPoseRotation = new Rotation3d(0, 0, 0);
+    private Translation3d defaultPoseTranslation3d = new Translation3d(0, 0, 0);
     public Transform3d coprocPNPTransform = new Transform3d();
     public Pose3d[] targetPose3ds = new Pose3d[] {};
     public VisionConstants constants =
