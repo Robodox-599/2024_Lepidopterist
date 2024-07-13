@@ -13,6 +13,8 @@
 
 package frc.robot.subsystems.drive;
 
+import static frc.robot.subsystems.drive.DriveConstants.*;
+
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -45,24 +47,20 @@ public class Module {
     // Switch constants based on mode (the physics simulator is treated as a
     // separate robot with different tuning)
 
-    if (Constants.getMode() == Constants.Mode.REAL) {
-      driveFeedforward = new SimpleMotorFeedforward(0.1, 0.13);
-      driveFeedback = new PIDController(0.05, 0.0, 0.0);
-      turnFeedback = new PIDController(7.0, 0.0, 0.0);
-    } else if (Constants.getMode() == Constants.Mode.REPLAY) {
-      driveFeedforward = new SimpleMotorFeedforward(0.1, 0.13);
-      driveFeedback = new PIDController(0.05, 0.0, 0.0);
-      turnFeedback = new PIDController(7.0, 0.0, 0.0);
-    } else if (Constants.getMode() == Constants.Mode.SIM) {
-      driveFeedforward = new SimpleMotorFeedforward(0, .13);
-      driveFeedback = new PIDController(.1, 0., 0.0);
-      turnFeedback = new PIDController(10, 0.0, 0.0);
+    if (Constants.getMode() == Constants.Mode.SIM) {
+      driveFeedforward =
+          new SimpleMotorFeedforward(
+              driveSimFeedFowardkS, driveSimFeedFowardkV, driveSimFeedFowardkA);
+      driveFeedback = new PIDController(driveSimFeedBackkP, driveSimFeedBackkI, driveSimFeedBackkD);
+      turnFeedback = new PIDController(turnSimFeedbackkP, turnSimFeedbackkI, turnSimFeedbackkD);
     } else {
-      driveFeedforward = new SimpleMotorFeedforward(0.0, 0.13);
-      driveFeedback = new PIDController(0.1, 0.0, 0.0);
-      turnFeedback = new PIDController(10.0, 0.0, 0.0);
+      driveFeedforward =
+          new SimpleMotorFeedforward(
+              driveRealFeedFowardkS, driveRealFeedFowardkV, driveRealFeedFowardkA);
+      driveFeedback =
+          new PIDController(driveRealFeedBackkP, driveRealFeedBackkI, driveRealFeedBackkD);
+      turnFeedback = new PIDController(turnRealFeedbackkP, turnRealFeedbackkI, turnRealFeedbackkD);
     }
-
     turnFeedback.enableContinuousInput(-Math.PI, Math.PI);
     setBrakeMode(true);
   }

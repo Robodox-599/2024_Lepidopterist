@@ -85,47 +85,36 @@ public class ModuleIOTalonFX implements ModuleIO {
     switch (index) {
         // MODULE 0 HARDWARE IDENTIFIERS
       case 0:
-        driveTalon = new TalonFX(Module0DriveTalon, canbus); // MEER AND MATTHEW CONFIGURE THIS
-        turnTalon = new TalonFX(Module0TurnTalon, canbus); // MEER AND MATTHEW CONFIGURE THIS
-        cancoder = new CANcoder(Module0Cancoder, canbus); // MEER AND MATTHEW CONFIGURE THIS
-        absoluteEncoderOffset =
-            new Rotation2d(
-                Module0AbsoluteEncoderOffset); // 3.084 MUST BE CALIBRATED // MEER AND MATTHEW
-        // CONFIGURE THIS
+        driveTalon = new TalonFX(Module0DriveTalon, canbus);
+        turnTalon = new TalonFX(Module0TurnTalon, canbus);
+        cancoder = new CANcoder(Module0Cancoder, canbus);
+        absoluteEncoderOffset = new Rotation2d(Module0AbsoluteEncoderOffset);
         break;
 
         // MODULE 1 HARDWARE IDENTIFIERS
       case 1:
-        driveTalon = new TalonFX(Module1DriveTalon, canbus); // MEER AND MATTHEW CONFIGURE THIS
-        turnTalon = new TalonFX(Module1TurnTalon, canbus); // MEER AND MATTHEW CONFIGURE THIS
-        cancoder = new CANcoder(Module1Cancoder, canbus); // MEER AND MATTHEW CONFIGURE THIS
-        absoluteEncoderOffset =
-            new Rotation2d(
-                Module1AbsoluteEncoderOffset); // -3.135 MUST BE CALIBRATED // MEER AND MATTHEW
-        // CONFIGURE THIS
+        driveTalon = new TalonFX(Module1DriveTalon, canbus);
+        turnTalon = new TalonFX(Module1TurnTalon, canbus);
+        cancoder = new CANcoder(Module1Cancoder, canbus);
+        absoluteEncoderOffset = new Rotation2d(Module1AbsoluteEncoderOffset);
         break;
 
         // MODULE 2 HARDWARE IDENTIFIERS
       case 2:
-        driveTalon = new TalonFX(Module2DriveTalon, canbus); // MEER AND MATTHEW CONFIGURE THIS
-        turnTalon = new TalonFX(Module2TurnTalon, canbus); // MEER AND MATTHEW CONFIGURE THIS
-        cancoder = new CANcoder(Module2Cancoder, canbus); // MEER AND MATTHEW CONFIGURE THIS
-        absoluteEncoderOffset =
-            new Rotation2d(
-                Module2AbsoluteEncoderOffset); // -3.114 MUST BE CALIBRATED // MEER AND MATTHEW
-        // CONFIGURE THIS
+        driveTalon = new TalonFX(Module2DriveTalon, canbus);
+        turnTalon = new TalonFX(Module2TurnTalon, canbus);
+        cancoder = new CANcoder(Module2Cancoder, canbus);
+        absoluteEncoderOffset = new Rotation2d(Module2AbsoluteEncoderOffset);
         break;
 
         // MODULE 3 HARDWARE IDENTIFIERS
       case 3:
-        driveTalon = new TalonFX(Module3DriveTalon, canbus); // MEER AND MATTHEW CONFIGURE THIS
-        turnTalon = new TalonFX(Module3TurnTalon, canbus); // MEER AND MATTHEW CONFIGURE THIS
-        cancoder = new CANcoder(Module3Cancoder, canbus); // MEER AND MATTHEW CONFIGURE THIS
-        absoluteEncoderOffset =
-            new Rotation2d(
-                Module3AbsoluteEncoderOffset); // 0.003 []\ MUST BE CALIBRATED // MEER AND
-        // MATTHEW CONFIGURE THIS
+        driveTalon = new TalonFX(Module3DriveTalon, canbus);
+        turnTalon = new TalonFX(Module3TurnTalon, canbus);
+        cancoder = new CANcoder(Module3Cancoder, canbus);
+        absoluteEncoderOffset = new Rotation2d(Module3AbsoluteEncoderOffset);
         break;
+
       default:
         throw new RuntimeException("Invalid module index");
     }

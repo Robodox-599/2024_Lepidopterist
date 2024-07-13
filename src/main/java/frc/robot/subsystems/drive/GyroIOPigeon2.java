@@ -13,6 +13,8 @@
 
 package frc.robot.subsystems.drive;
 
+import static frc.robot.subsystems.drive.DriveConstants.*;
+
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.StatusSignal;
@@ -24,11 +26,7 @@ import java.util.Queue;
 
 /** IO implementation for Pigeon2 */
 public class GyroIOPigeon2 implements GyroIO {
-  private final Pigeon2 pigeon =
-      new Pigeon2(
-          12,
-          "LunaDriveCANivore"); // MEER AND MATTHEW CONFIGURE THIS MAKE SURE ID AND CAN NETWORK IS
-  // CORRECT
+  private final Pigeon2 pigeon = new Pigeon2(gyro, canbus);
   private final StatusSignal<Double> yaw = pigeon.getYaw();
   private final Queue<Double> yawPositionQueue;
   private final Queue<Double> yawTimestampQueue;
@@ -40,24 +38,9 @@ public class GyroIOPigeon2 implements GyroIO {
     yaw.setUpdateFrequency(Module.ODOMETRY_FREQUENCY);
     yawVelocity.setUpdateFrequency(100.0);
     pigeon.optimizeBusUtilization();
-    // if (phoenixDrive) {
+
     yawTimestampQueue = PhoenixOdometryThread.getInstance().makeTimestampQueue();
     yawPositionQueue = PhoenixOdometryThread.getInstance().registerSignal(pigeon, pigeon.getYaw());
-    // }
-    // } else {
-    //   yawTimestampQueue = SparkMaxOdometryThread.getInstance().makeTimestampQueue();
-    //   yawPositionQueue =
-    //       SparkMaxOdometryThread.getInstance()
-    //           .registerSignal(
-    //               () -> {
-    //                 boolean valid = yaw.refresh().getStatus().isOK();
-    //                 if (valid) {
-    //                   return OptionalDouble.of(yaw.getValueAsDouble());
-    //                 } else {
-    //                   return OptionalDouble.empty();
-    //                 }
-    //               });
-    // }
   }
 
   @Override

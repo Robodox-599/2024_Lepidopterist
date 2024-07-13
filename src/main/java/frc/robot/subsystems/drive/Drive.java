@@ -14,6 +14,7 @@
 package frc.robot.subsystems.drive;
 
 import static edu.wpi.first.units.Units.Volts;
+import static frc.robot.subsystems.drive.DriveConstants.*;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.pathfinding.Pathfinding;
@@ -23,9 +24,6 @@ import com.pathplanner.lib.util.PathPlannerLogging;
 import com.pathplanner.lib.util.ReplanningConfig;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
-import edu.wpi.first.math.MatBuilder;
-import edu.wpi.first.math.Matrix;
-import edu.wpi.first.math.Nat;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
@@ -41,10 +39,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
-import edu.wpi.first.math.numbers.N5;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Filesystem;
@@ -71,28 +66,13 @@ import org.photonvision.targeting.PhotonPipelineResult;
 
 public class Drive extends SubsystemBase {
 
-  // Constants for Maximum linear speed, track width, and drive base radius
-
-  private static final double MAX_LINEAR_SPEED =
-      Units.feetToMeters(15.725065833333); // MATTHEW AND MEER PLEASE SET
-  private static final double TRACK_WIDTH_X =
-      Units.inchesToMeters(20.749988795006054); // MATTHEW AND MEER PLEASE SET
-  private static final double TRACK_WIDTH_Y =
-      Units.inchesToMeters(20.749988795006054); // MATTHEW AND MEER PLEASE SET
-  private static final double DRIVE_BASE_RADIUS =
-      Math.hypot(TRACK_WIDTH_X / 2.0, TRACK_WIDTH_Y / 2.0); // MATTHEW AND MEER PLEASE SET
-  private static final double MAX_ANGULAR_SPEED = MAX_LINEAR_SPEED / DRIVE_BASE_RADIUS;
-  public static final double MAX_LINEAR_ACCELERATION = 8.0;
-  public static final double MAX_ANGULAR_ACCELERATION = MAX_LINEAR_ACCELERATION / DRIVE_BASE_RADIUS;
-  public static final double MAX_AUTOAIM_SPEED = MAX_LINEAR_SPEED / 4;
-
   // Odometry lock for sychronized odometry updates
 
   // You lock here because odometry calculations often involve reading from and-
   // writing to shared variables that represent the state of the robot, such as its-
   // position, orientation, and velocity. These variables are updated based on sensor inputs,
   // which may be collected in different threads or subsystems. Using a lock prevents multiple
-  // threads from-
+  // threads from-x
   // modifying these shared variables simultaneously, which can lead to corrupted data and
   // inaccurate odometry.
 
@@ -119,53 +99,23 @@ public class Drive extends SubsystemBase {
       new SwerveDrivePoseEstimator(kinematics, rawGyroRotation, lastModulePositions, pose);
   Vector<N3> odoStdDevs = VecBuilder.fill(0.3, 0.3, 0.01);
   private double lastEstTimestamp = 0.0;
-  public static final Matrix<N3, N3> CAMERA_MATRIX =
-      MatBuilder.fill(
-          Nat.N3(),
-          Nat.N3(),
-          915.2126592056358,
-          0.0,
-          841.560216921862,
-          0.0,
-          913.9556728013187,
-          648.2330358379004,
-          0.0,
-          0.0,
-          1.0);
-  public static final Matrix<N5, N1> DIST_COEFFS =
-      MatBuilder.fill(
-          Nat.N5(),
-          Nat.N1(),
-          0.0576413369828492,
-          -0.07356597379196807,
-          -6.669129885790735E-4,
-          6.491281122640802E-4,
-          0.03731824873787814); // Last 3 values have been truncated
 
   public static final VisionConstants Cam1Constants =
       new VisionConstants(
-          "Camera One",
+          camera1Name,
           new Transform3d(
-              new Translation3d(
-                  Units.inchesToMeters(8.875),
-                  Units.inchesToMeters(10.5),
-                  Units.inchesToMeters(8.25)),
-              new Rotation3d(0.0, Units.degreesToRadians(-28.125), 0.0)
-                  .rotateBy(new Rotation3d(0.0, 0.0, Units.degreesToRadians(30.0)))),
-          CAMERA_MATRIX,
-          DIST_COEFFS);
+              new Translation3d(camera1PoseX, camera1PoseY, camera1PoseZ),
+              new Rotation3d(camera1PoseRoll, camera1PosePitch, camera1PoseYaw)),
+          CAMERA_ONE_MATRIX,
+          CAMERA_ONE_DIST_COEFFS);
   public static final VisionConstants Cam2Constants =
       new VisionConstants(
-          "Camera Two",
+          camera2Name,
           new Transform3d(
-              new Translation3d(
-                  Units.inchesToMeters(8.875),
-                  Units.inchesToMeters(-10.5),
-                  Units.inchesToMeters(8.25)),
-              new Rotation3d(0.0, Units.degreesToRadians(-28.125), 0.0)
-                  .rotateBy(new Rotation3d(0.0, 0.0, Units.degreesToRadians(-30.0)))),
-          CAMERA_MATRIX,
-          DIST_COEFFS);
+              new Translation3d(camera2PoseX, camera2PoseY, camera2PoseZ),
+              new Rotation3d(camera2PoseRoll, camera2PosePitch, camera2PoseYaw)),
+          CAMERA_TWO_MATRIX,
+          CAMERA_TWO_DIST_COEFFS);
 
   // Constructor for initalizing modules and subsystems
   public Drive(
@@ -201,8 +151,9 @@ public class Drive extends SubsystemBase {
         () -> kinematics.toChassisSpeeds(getModuleStates()),
         this::runVelocity,
         new HolonomicPathFollowerConfig(
-            new PIDConstants(15.0, 0.15, 0.0),
-            new PIDConstants(20.0, 0.1, 0.0),
+            new PIDConstants(
+                pathFollowTranslationkP, pathFollowTranslationkI, pathFollowTranslationkD),
+            new PIDConstants(pathFollowRotationkP, pathFollowRotationkI, pathFollowRotationkD),
             MAX_LINEAR_SPEED,
             DRIVE_BASE_RADIUS,
             new ReplanningConfig()),
@@ -274,11 +225,13 @@ public class Drive extends SubsystemBase {
       module.updateInputs();
     }
 
-    cameras[0].updateInputs();
-    cameras[0].processInputs();
-    cameras[1].updateInputs();
-    cameras[1].processInputs();
+    for (var camera : cameras) {
+      camera.updateInputs();
+      camera.processInputs();
+    }
+
     updateVision();
+
     odometryLock.unlock();
     Logger.processInputs("Drive/Gyro", gyroInputs);
     for (var module : modules) {
