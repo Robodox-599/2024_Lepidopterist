@@ -92,9 +92,9 @@ public final class DriveConstants {
    * IF THERE IS A NEED TO CHANGE THESE VALUES DURING COMP THEN PLEASE ASK MEER
    */
 
-  public static final double MAX_LINEAR_SPEED = Units.feetToMeters(15.725065833333);
-  public static final double TRACK_WIDTH_X = Units.inchesToMeters(20.749988795006054);
-  public static final double TRACK_WIDTH_Y = Units.inchesToMeters(20.749988795006054);
+  public static final double MAX_LINEAR_SPEED = Units.feetToMeters(15.725);
+  public static final double TRACK_WIDTH_X = Units.inchesToMeters(20.75);
+  public static final double TRACK_WIDTH_Y = Units.inchesToMeters(20.75);
   public static final double DRIVE_BASE_RADIUS =
       Math.hypot(TRACK_WIDTH_X / 2.0, TRACK_WIDTH_Y / 2.0);
   public static final double MAX_ANGULAR_SPEED = MAX_LINEAR_SPEED / DRIVE_BASE_RADIUS;
