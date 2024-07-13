@@ -17,23 +17,51 @@
   ],
   "cameras": [
     {
-      "name": "limelight",
+      "name": "Front Left Camera",
       "rotations": [
         {
           "axis": "y",
-          "degress": 55
+          "degrees": -28.125
+        },
+        {
+          "axis": "z",
+          "degrees": 30.0
         }
       ],
       "position": [
-        0.3302,
-        -0.325152766,
-        0.3
+        0.225425,
+        0.2667,
+        0.20955
       ],
       "resolution": [
-        640,
-        480
+        1200,
+        800
       ],
-      "fov": 63.3
+      "fov": 70.0
+    },
+
+    {
+      "name": "Front Right Camera",
+      "rotations": [
+        {
+          "axis": "y",
+          "degrees": -28.125
+        },
+        {
+          "axis": "z",
+          "degrees": -30.0
+        }
+      ],
+      "position": [
+        0.225425,
+        0.2667,
+        0.20955
+      ],
+      "resolution": [
+        1200,
+        800
+      ],
+      "fov": 70.0
     }
   ],
   "components": []

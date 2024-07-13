@@ -224,10 +224,10 @@ public final class DriveConstants {
   public static final double camera1PoseRoll = Units.degreesToRadians(0);
 
   // CAMERA 1 POSE (PITCH)
-  public static final double camera1PosePitch = Units.inchesToMeters(-28.125);
+  public static final double camera1PosePitch = Units.degreesToRadians(-28.125);
 
   // CAMERA 1 POSE (YAW)
-  public static final double camera1PoseYaw = Units.inchesToMeters(30);
+  public static final double camera1PoseYaw = Units.degreesToRadians(30);
 
   // CAMERA 1 DISTORTION MATRIX
   public static final Matrix<N3, N3> CAMERA_ONE_MATRIX =
@@ -271,10 +271,10 @@ public final class DriveConstants {
   public static final double camera2PoseRoll = Units.degreesToRadians(0);
 
   // CAMERA 2 POSE (PITCH)
-  public static final double camera2PosePitch = Units.inchesToMeters(-28.125);
+  public static final double camera2PosePitch = Units.degreesToRadians(-28.125);
 
   // CAMERA 2 POSE (YAW)
-  public static final double camera2PoseYaw = Units.inchesToMeters(-30);
+  public static final double camera2PoseYaw = Units.degreesToRadians(-30);
 
   // CAMERA 2 DISTORTION MATRIX
   public static final Matrix<N3, N3> CAMERA_TWO_MATRIX =
