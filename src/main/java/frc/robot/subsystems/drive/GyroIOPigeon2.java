@@ -20,7 +20,6 @@ import com.ctre.phoenix6.configs.Pigeon2Configuration;
 import com.ctre.phoenix6.hardware.Pigeon2;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
-import java.util.OptionalDouble;
 import java.util.Queue;
 
 /** IO implementation for Pigeon2 */
@@ -41,24 +40,24 @@ public class GyroIOPigeon2 implements GyroIO {
     yaw.setUpdateFrequency(Module.ODOMETRY_FREQUENCY);
     yawVelocity.setUpdateFrequency(100.0);
     pigeon.optimizeBusUtilization();
-    if (phoenixDrive) {
-      yawTimestampQueue = PhoenixOdometryThread.getInstance().makeTimestampQueue();
-      yawPositionQueue =
-          PhoenixOdometryThread.getInstance().registerSignal(pigeon, pigeon.getYaw());
-    } else {
-      yawTimestampQueue = SparkMaxOdometryThread.getInstance().makeTimestampQueue();
-      yawPositionQueue =
-          SparkMaxOdometryThread.getInstance()
-              .registerSignal(
-                  () -> {
-                    boolean valid = yaw.refresh().getStatus().isOK();
-                    if (valid) {
-                      return OptionalDouble.of(yaw.getValueAsDouble());
-                    } else {
-                      return OptionalDouble.empty();
-                    }
-                  });
-    }
+    // if (phoenixDrive) {
+    yawTimestampQueue = PhoenixOdometryThread.getInstance().makeTimestampQueue();
+    yawPositionQueue = PhoenixOdometryThread.getInstance().registerSignal(pigeon, pigeon.getYaw());
+    // }
+    // } else {
+    //   yawTimestampQueue = SparkMaxOdometryThread.getInstance().makeTimestampQueue();
+    //   yawPositionQueue =
+    //       SparkMaxOdometryThread.getInstance()
+    //           .registerSignal(
+    //               () -> {
+    //                 boolean valid = yaw.refresh().getStatus().isOK();
+    //                 if (valid) {
+    //                   return OptionalDouble.of(yaw.getValueAsDouble());
+    //                 } else {
+    //                   return OptionalDouble.empty();
+    //                 }
+    //               });
+    // }
   }
 
   @Override

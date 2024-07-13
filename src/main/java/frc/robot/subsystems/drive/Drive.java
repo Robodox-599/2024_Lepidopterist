@@ -192,7 +192,7 @@ public class Drive extends SubsystemBase {
 
     VisionIOSim.pose = this::getPose3d;
 
-    SparkMaxOdometryThread.getInstance().start();
+    // SparkMaxOdometryThread.getInstance().start();
 
     // Configure AutoBuilder for PathPlanner // Configuration for auto path planning
     AutoBuilder.configureHolonomic(

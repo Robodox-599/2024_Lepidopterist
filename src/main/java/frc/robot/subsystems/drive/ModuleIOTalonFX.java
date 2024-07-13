@@ -13,6 +13,8 @@
 
 package frc.robot.subsystems.drive;
 
+import static frc.robot.subsystems.drive.DriveConstants.*;
+
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
@@ -69,8 +71,8 @@ public class ModuleIOTalonFX implements ModuleIO {
   private final StatusSignal<Double> turnCurrent;
 
   // Gear ratios for SDS MK4i L2, adjust as necessary // MATTHEW OR MEER PLEASE SETUP
-  private final double DRIVE_GEAR_RATIO = (50.0 / 14.0) * (17.0 / 27.0) * (45.0 / 15.0);
-  private final double TURN_GEAR_RATIO = 150.0 / 7.0;
+  private final double DRIVE_GEAR_RATIO = DriveGearRatioConstant;
+  private final double TURN_GEAR_RATIO = TurnGearRatioConstant;
 
   // Indicates if the turn motor is inverted
   private final boolean isTurnMotorInverted = true;
@@ -83,39 +85,46 @@ public class ModuleIOTalonFX implements ModuleIO {
     switch (index) {
         // MODULE 0 HARDWARE IDENTIFIERS
       case 0:
-        driveTalon = new TalonFX(0, "LunaDriveCANivore"); // MEER AND MATTHEW CONFIGURE THIS
-        turnTalon = new TalonFX(1, "LunaDriveCANivore"); // MEER AND MATTHEW CONFIGURE THIS
-        cancoder = new CANcoder(2, "LunaDriveCANivore"); // MEER AND MATTHEW CONFIGURE THIS
+        driveTalon = new TalonFX(Module0DriveTalon, canbus); // MEER AND MATTHEW CONFIGURE THIS
+        turnTalon = new TalonFX(Module0TurnTalon, canbus); // MEER AND MATTHEW CONFIGURE THIS
+        cancoder = new CANcoder(Module0Cancoder, canbus); // MEER AND MATTHEW CONFIGURE THIS
         absoluteEncoderOffset =
-            new Rotation2d(-0.655); // 3.084 MUST BE CALIBRATED // MEER AND MATTHEW CONFIGURE THIS
+            new Rotation2d(
+                Module0AbsoluteEncoderOffset); // 3.084 MUST BE CALIBRATED // MEER AND MATTHEW
+        // CONFIGURE THIS
         break;
 
         // MODULE 1 HARDWARE IDENTIFIERS
       case 1:
-        driveTalon = new TalonFX(3, "LunaDriveCANivore"); // MEER AND MATTHEW CONFIGURE THIS
-        turnTalon = new TalonFX(4, "LunaDriveCANivore"); // MEER AND MATTHEW CONFIGURE THIS
-        cancoder = new CANcoder(5, "LunaDriveCANivore"); // MEER AND MATTHEW CONFIGURE THIS
+        driveTalon = new TalonFX(Module1DriveTalon, canbus); // MEER AND MATTHEW CONFIGURE THIS
+        turnTalon = new TalonFX(Module1TurnTalon, canbus); // MEER AND MATTHEW CONFIGURE THIS
+        cancoder = new CANcoder(Module1Cancoder, canbus); // MEER AND MATTHEW CONFIGURE THIS
         absoluteEncoderOffset =
-            new Rotation2d(-2.984); // -3.135 MUST BE CALIBRATED // MEER AND MATTHEW CONFIGURE THIS
+            new Rotation2d(
+                Module1AbsoluteEncoderOffset); // -3.135 MUST BE CALIBRATED // MEER AND MATTHEW
+        // CONFIGURE THIS
         break;
 
         // MODULE 2 HARDWARE IDENTIFIERS
       case 2:
-        driveTalon = new TalonFX(6, "LunaDriveCANivore"); // MEER AND MATTHEW CONFIGURE THIS
-        turnTalon = new TalonFX(7, "LunaDriveCANivore"); // MEER AND MATTHEW CONFIGURE THIS
-        cancoder = new CANcoder(8, "LunaDriveCANivore"); // MEER AND MATTHEW CONFIGURE THIS
+        driveTalon = new TalonFX(Module2DriveTalon, canbus); // MEER AND MATTHEW CONFIGURE THIS
+        turnTalon = new TalonFX(Module2TurnTalon, canbus); // MEER AND MATTHEW CONFIGURE THIS
+        cancoder = new CANcoder(Module2Cancoder, canbus); // MEER AND MATTHEW CONFIGURE THIS
         absoluteEncoderOffset =
-            new Rotation2d(0.690); // -3.114 MUST BE CALIBRATED // MEER AND MATTHEW CONFIGURE THIS
+            new Rotation2d(
+                Module2AbsoluteEncoderOffset); // -3.114 MUST BE CALIBRATED // MEER AND MATTHEW
+        // CONFIGURE THIS
         break;
 
         // MODULE 3 HARDWARE IDENTIFIERS
       case 3:
-        driveTalon = new TalonFX(9, "LunaDriveCANivore"); // MEER AND MATTHEW CONFIGURE THIS
-        turnTalon = new TalonFX(10, "LunaDriveCANivore"); // MEER AND MATTHEW CONFIGURE THIS
-        cancoder = new CANcoder(11, "LunaDriveCANivore"); // MEER AND MATTHEW CONFIGURE THIS
+        driveTalon = new TalonFX(Module3DriveTalon, canbus); // MEER AND MATTHEW CONFIGURE THIS
+        turnTalon = new TalonFX(Module3TurnTalon, canbus); // MEER AND MATTHEW CONFIGURE THIS
+        cancoder = new CANcoder(Module3Cancoder, canbus); // MEER AND MATTHEW CONFIGURE THIS
         absoluteEncoderOffset =
             new Rotation2d(
-                -1.457); // 0.003 []\ MUST BE CALIBRATED // MEER AND MATTHEW CONFIGURE THIS
+                Module3AbsoluteEncoderOffset); // 0.003 []\ MUST BE CALIBRATED // MEER AND
+        // MATTHEW CONFIGURE THIS
         break;
       default:
         throw new RuntimeException("Invalid module index");
@@ -123,14 +132,14 @@ public class ModuleIOTalonFX implements ModuleIO {
 
     // Configuration settings & current limits for drive motor
     var driveConfig = new TalonFXConfiguration();
-    driveConfig.CurrentLimits.SupplyCurrentLimit = 40.0;
+    driveConfig.CurrentLimits.SupplyCurrentLimit = DriveMotorSupplyCurrentLimitConstant;
     driveConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
     driveTalon.getConfigurator().apply(driveConfig);
     setDriveBrakeMode(true);
 
     // Configuration settings & current limits for turn motor
     var turnConfig = new TalonFXConfiguration();
-    turnConfig.CurrentLimits.SupplyCurrentLimit = 30.0;
+    turnConfig.CurrentLimits.SupplyCurrentLimit = TurnMotorSupplyCurrentLimitConstant;
     turnConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
     turnTalon.getConfigurator().apply(turnConfig);
     setTurnBrakeMode(true);

@@ -40,7 +40,6 @@ public class PhoenixOdometryThread extends Thread {
   private final List<Queue<Double>> queues = new ArrayList<>();
   private final List<Queue<Double>> timestampQueues = new ArrayList<>();
   private boolean isCANFD = true;
-
   private static PhoenixOdometryThread instance = null;
 
   public static PhoenixOdometryThread getInstance() {
@@ -104,7 +103,7 @@ public class PhoenixOdometryThread extends Thread {
           // signals with a bus that is not CAN FD, regardless
           // of Pro licensing. No reasoning for this behavior
           // is provided by the documentation.
-          Thread.sleep((long) (1000.0 / DriveConstants.odometryFrequency));
+          Thread.sleep((long) (1000.0 / 250));
           if (signals.length > 0) BaseStatusSignal.refreshAll(signals);
         }
       } catch (InterruptedException e) {
