@@ -19,7 +19,6 @@ import static frc.robot.subsystems.drive.DriveConstants.*;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.pathfinding.Pathfinding;
 import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
-import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.PathPlannerLogging;
 import com.pathplanner.lib.util.ReplanningConfig;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
@@ -151,12 +150,15 @@ public class Drive extends SubsystemBase {
         () -> kinematics.toChassisSpeeds(getModuleStates()),
         this::runVelocity,
         new HolonomicPathFollowerConfig(
+
             // IMPORTANT DISCLAIMER: commented out because untested on real.
-            // new PIDConstants(pathFollowTranslationkP, pathFollowTranslationkI, pathFollowTranslationkD),
+
+            // TODO: add logic to make it pick the correct PID for sim or real.
+
+            // new PIDConstants(pathFollowTranslationkP, pathFollowTranslationkI,
+            // pathFollowTranslationkD),
             // new PIDConstants(pathFollowRotationkP, pathFollowRotationkI, pathFollowRotationkD),
-            MAX_LINEAR_SPEED,
-            DRIVE_BASE_RADIUS,
-            new ReplanningConfig()),
+            MAX_LINEAR_SPEED, DRIVE_BASE_RADIUS, new ReplanningConfig()),
         () ->
             DriverStation.getAlliance().isPresent()
                 && DriverStation.getAlliance().get() == Alliance.Red,

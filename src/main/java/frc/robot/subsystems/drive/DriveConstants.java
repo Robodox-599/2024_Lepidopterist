@@ -77,6 +77,8 @@ public final class DriveConstants {
 
   // IMPORTANT: commented out because untested on real.
 
+  // TODO: add logic to make it pick the correct PID for sim or real.
+
   // public static final double pathFollowTranslationkP = 15.0;
   // public static final double pathFollowTranslationkI = 0.15;
   // public static final double pathFollowTranslationkD = 0.0;
