@@ -75,13 +75,15 @@ public final class DriveConstants {
 
   // Drive Path Following Constants
 
-  public static final double pathFollowTranslationkP = 15.0;
-  public static final double pathFollowTranslationkI = 0.15;
-  public static final double pathFollowTranslationkD = 0.0;
+  // IMPORTANT: commented out because untested on real.
 
-  public static final double pathFollowRotationkP = 20.0;
-  public static final double pathFollowRotationkI = 0.1;
-  public static final double pathFollowRotationkD = 0.0;
+  // public static final double pathFollowTranslationkP = 15.0;
+  // public static final double pathFollowTranslationkI = 0.15;
+  // public static final double pathFollowTranslationkD = 0.0;
+
+  // public static final double pathFollowRotationkP = 20.0;
+  // public static final double pathFollowRotationkI = 0.1;
+  // public static final double pathFollowRotationkD = 0.0;
 
   // Drive Replay/Real/Teleop constants
 
