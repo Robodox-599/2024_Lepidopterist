@@ -3,7 +3,6 @@ package frc.robot.commands;
 import static frc.robot.Constants.shouldFlip;
 import static frc.robot.FieldConstants.wingX;
 import static frc.robot.subsystems.drive.DriveConstants.*;
-import static frc.robot.util.CommandXboxControllerSubsystem.*;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
@@ -45,11 +44,8 @@ public class AutoAlignCommands extends Command {
           Pose2d speakerPose =
               AllianceFlipUtil.apply(new Pose2d(-0.2, (5 + 6.12) / 2, new Rotation2d(0)));
           if (drive.getPose().minus(speakerPose).getX() > wingX) {
-            new StartEndCommand(
-                () -> controller.getHID().setRumble(RumbleType.kBothRumble, 1),
-                () -> controller.getHID().setRumble(RumbleType.kBothRumble, 0));
+            // do nothing
           } else {
-
             // Create a new PID controller for controlling the angle
             final PIDController angleController =
                 new PIDController(autoTurnSpeakerkP, autoTurnSpeakerkI, autoTurnSpeakerkD);
