@@ -1,8 +1,9 @@
 package frc.robot.commands;
 
+import static frc.robot.Constants.getMode;
 import static frc.robot.Constants.shouldFlip;
 import static frc.robot.FieldConstants.wingX;
-import static frc.robot.subsystems.drive.DriveConstants.*;
+import static frc.robot.commands.CommandConstants.*;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
@@ -11,11 +12,10 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.Constants.Mode;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.util.AllianceFlipUtil;
 import org.littletonrobotics.junction.Logger;
@@ -30,13 +30,6 @@ public class AutoAlignCommands extends Command {
     }
   }
 
-  public static Command rumbleControllers(CommandXboxController driver) {
-    // wtf
-    return new StartEndCommand(
-        () -> driver.getHID().setRumble(RumbleType.kBothRumble, 1),
-        () -> driver.getHID().setRumble(RumbleType.kBothRumble, 0));
-  }
-
   public static double autoAlignSpeakerPoseSetter(Drive drive) {
     if (drive.getPose().getY() > 6.25) {
       return (Units.inchesToMeters(197.765)); // aim more left
@@ -49,10 +42,21 @@ public class AutoAlignCommands extends Command {
     }
   }
 
+  public static double[] setAutoAlignConstants() {
+    if (getMode() == Mode.SIM || getMode() == Mode.REPLAY) {
+      double[] arr;
+      arr = new double[] {simAutoTurnSpeakerkP, simAutoTurnSpeakerkI, simAutoTurnSpeakerkD};
+      return (arr);
+    } else {
+      double[] arr;
+      arr = new double[] {realAutoTurnSpeakerkP, realAutoTurnSpeakerkI, realAutoTurnSpeakerkD};
+      return (arr);
+    }
+  }
+
   public static Command autoAlignCommand(Drive drive, CommandXboxController controller) {
     return Commands.run(
         () -> {
-          // if (drive.getPose().getY() > )
           // Get the position of the speaker on the field, adjusted for alliance
           Pose2d speakerPose =
               AllianceFlipUtil.apply(
@@ -62,9 +66,9 @@ public class AutoAlignCommands extends Command {
             // do nothing
           } else {
             // Create a new PID controller for controlling the angle
-            final PIDController angleController =
-                new PIDController(autoTurnSpeakerkP, autoTurnSpeakerkI, autoTurnSpeakerkD);
-
+            final double[] anglePIDarr = setAutoAlignConstants();
+            PIDController angleController =
+                new PIDController(anglePIDarr[0], anglePIDarr[1], anglePIDarr[2]);
             // Set tolerance for the PID controller
             angleController.setTolerance(0.08, 0.01);
             // Calculate the transformation from the robot's pose to the speaker's pose
@@ -101,7 +105,8 @@ public class AutoAlignCommands extends Command {
   public static boolean pointedAtSpeaker(Drive drive) {
     // Get the position of the speaker on the field, adjusted for alliance
     Pose2d speakerPose =
-        AllianceFlipUtil.apply(new Pose2d(-0.2, (5 + 6.12) / 2, new Rotation2d(0)));
+        AllianceFlipUtil.apply(
+            new Pose2d(-0.2, autoAlignSpeakerPoseSetter(drive), new Rotation2d(0)));
     // Calculate the transformation from the robot's pose to the speaker's pose
     Transform2d targetTransform = drive.getPose().minus(speakerPose);
     // Calculate the target direction considering heading flip

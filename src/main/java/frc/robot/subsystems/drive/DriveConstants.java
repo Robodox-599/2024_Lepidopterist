@@ -302,13 +302,6 @@ public final class DriveConstants {
           6.491281122640802E-4,
           0.03731824873787814); // Last 3 values have been truncated
 
-  // auto align constants
-  public static final double autoAlignAngleThreshold = 3;
-
-  public static final double autoTurnSpeakerkP = 1.3;
-  public static final double autoTurnSpeakerkI = 0;
-  public static final double autoTurnSpeakerkD = 0;
-
   /*
    * ODOMETRY FREQUENCY
    *
