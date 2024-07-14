@@ -156,7 +156,7 @@ public class RobotContainer {
         DriveCommands.joystickDrive(
             drive, () -> -driver.getLeftY(), () -> -driver.getLeftX(), () -> -driver.getRightX()));
 
-    driver.y().whileTrue(AutoAlignCommands.autoAlignCommand(drive));
+    driver.y().whileTrue(AutoAlignCommands.autoAlignCommand(drive, driver));
 
     // driver.a().onTrue(m_DriveTrain.parkCommand());
     // driver.x().onTrue(m_DriveTrain.invertGyroInstantCommand());
