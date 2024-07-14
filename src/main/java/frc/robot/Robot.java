@@ -10,7 +10,6 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.robot.Constants.RobotConstants;
 import java.util.Optional;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
@@ -26,6 +25,7 @@ import org.littletonrobotics.junction.wpilog.WPILOGWriter;
  * project.
  */
 public class Robot extends LoggedRobot {
+  private Optional<Alliance> allianceColor = Optional.of(Alliance.Blue);
   private Command m_autonomousCommand;
 
   private RobotContainer m_robotContainer;
@@ -110,18 +110,17 @@ public class Robot extends LoggedRobot {
     // and running subsystem periodic() methods.  This must be called from the robot's periodic
     // block in order for anything in the Command-based framework to work.
     CommandScheduler.getInstance().run();
-    checkDSUpdate();
   }
 
   /** This function is called once each time the robot enters Disabled mode. */
   @Override
   public void disabledInit() {
-    checkDSUpdate();
+    // checkDSUpdate();
   }
 
   @Override
   public void disabledPeriodic() {
-    checkDSUpdate();
+    // checkDSUpdate();
   }
 
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
@@ -135,17 +134,17 @@ public class Robot extends LoggedRobot {
     //   isred = ally;
     // }
     // schedule the autonomous command (example)
-    checkDSUpdate();
+    // checkDSUpdate();
     if (m_autonomousCommand != null) {
       m_autonomousCommand.schedule();
     }
-    checkDSUpdate();
+    // checkDSUpdate();
   }
 
   /** This function is called periodically during autonomous. */
   @Override
   public void autonomousPeriodic() {
-    checkDSUpdate();
+    // checkDSUpdate();
   }
 
   @Override
@@ -156,7 +155,7 @@ public class Robot extends LoggedRobot {
       // Optional<Alliance> ally = DriverStation.getAlliance();
       // isred = ally;
     }
-    checkDSUpdate();
+    // checkDSUpdate();
     // if (RobotConstants.robotColor == Alliance.Red){
     //   m_robotContainer.m_DriveTrain.SertGyro();
     // }
@@ -173,38 +172,31 @@ public class Robot extends LoggedRobot {
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
-    checkDSUpdate();
+    // checkDSUpdate();
   }
 
   @Override
   public void testInit() {
     // Cancels all running commands at the start of test mode.
     CommandScheduler.getInstance().cancelAll();
-    checkDSUpdate();
+    // checkDSUpdate();
   }
 
   /** This function is called periodically during test mode. */
   @Override
   public void testPeriodic() {
-    checkDSUpdate();
+    // checkDSUpdate();
   }
 
   /** This function is called once when the robot is first started up. */
   @Override
   public void simulationInit() {
-    checkDSUpdate();
+    // checkDSUpdate();
   }
 
   /** This function is called periodically whilst in simulation. */
   @Override
   public void simulationPeriodic() {
-    checkDSUpdate();
-  }
-
-  private void checkDSUpdate() {
-    Optional<Alliance> ally = DriverStation.getAlliance();
-    if (ally.isPresent() && ally.get() != RobotConstants.robotColor) {
-      RobotConstants.robotColor = ally.get();
-    }
+    // checkDSUpdate();
   }
 }
