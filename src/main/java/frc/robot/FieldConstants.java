@@ -92,7 +92,7 @@ public class FieldConstants {
   }
 
   public static final Pose2d SpeakerPosition = new Pose2d(-0.2, (5 + 6.12) / 2, new Rotation2d(0));
-
+  // 197.765
   public static final class Subwoofer {
     public static final Pose2d ampFaceCorner =
         new Pose2d(

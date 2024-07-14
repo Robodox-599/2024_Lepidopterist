@@ -37,12 +37,27 @@ public class AutoAlignCommands extends Command {
         () -> driver.getHID().setRumble(RumbleType.kBothRumble, 0));
   }
 
+  public static double autoAlignSpeakerPoseSetter(Drive drive) {
+    if (drive.getPose().getY() > 6.25) {
+      return (Units.inchesToMeters(197.765)); // aim more left
+    } else if (drive.getPose().getY() >= 4.75) {
+      return ((5 + 6.12) / 2); // aim middle
+    } else if (4.75 >= drive.getPose().getY()) {
+      return (Units.inchesToMeters(238.815)); // aim more right
+    } else {
+      return ((5 + 6.12) / 2); // defualt aim middle
+    }
+  }
+
   public static Command autoAlignCommand(Drive drive, CommandXboxController controller) {
     return Commands.run(
         () -> {
+          // if (drive.getPose().getY() > )
           // Get the position of the speaker on the field, adjusted for alliance
           Pose2d speakerPose =
-              AllianceFlipUtil.apply(new Pose2d(-0.2, (5 + 6.12) / 2, new Rotation2d(0)));
+              AllianceFlipUtil.apply(
+                  new Pose2d(-0.2, autoAlignSpeakerPoseSetter(drive), new Rotation2d(0)));
+          Logger.recordOutput("Odometry/SpeakerPose", speakerPose);
           if (drive.getPose().minus(speakerPose).getX() > wingX) {
             // do nothing
           } else {
