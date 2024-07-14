@@ -7,6 +7,7 @@ package frc.robot.subsystems.vision;
 import edu.wpi.first.apriltag.AprilTagFieldLayout.OriginPosition;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import frc.robot.subsystems.vision.Vision.VisionConstants;
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -28,7 +29,10 @@ public class VisionIOSim implements VisionIO {
     this.sim = new VisionSystemSim(constants.cameraName());
     var cameraProp = new SimCameraProperties();
     // TODO Fix these constants
-    cameraProp.setCalibration(1080, 960, constants.intrinsicsMatrix(), constants.distCoeffs());
+    cameraProp.setCalibration(
+        1200,
+        800,
+        Rotation2d.fromDegrees(70)); // constants.intrinsicsMatrix(), constants.distCoeffs());
     cameraProp.setCalibError(0.0, 0.0);
     cameraProp.setFPS(50.0);
     cameraProp.setAvgLatencyMs(30.0);

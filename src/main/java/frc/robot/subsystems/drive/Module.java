@@ -32,9 +32,9 @@ public class Module {
   private final ModuleIOInputsAutoLogged inputs = new ModuleIOInputsAutoLogged();
   private final int index;
 
-  private final SimpleMotorFeedforward driveFeedforward;
-  private final PIDController driveFeedback;
-  private final PIDController turnFeedback;
+  public final SimpleMotorFeedforward driveFeedforward;
+  public final PIDController driveFeedback;
+  public final PIDController turnFeedback;
   private Rotation2d angleSetpoint = null; // Setpoint for closed loop control, null for open loop
   private Double speedSetpoint = null; // Setpoint for closed loop control, null for open loop
   private Rotation2d turnRelativeOffset = null; // Relative + Offset = Absolute
@@ -47,26 +47,61 @@ public class Module {
     // Switch constants based on mode (the physics simulator is treated as a
     // separate robot with different tuning)
 
+    final double drivekS;
+    final double drivekV;
+    final double drivekA;
+
+    final double drivekP;
+    final double drivekI;
+    final double drivekD;
+
+    final double turnkP;
+    final double turnkI;
+    final double turnkD;
+
+    double[] driveConstantsArr;
+
     if (Constants.getMode() == Constants.Mode.SIM) {
-      driveFeedforward =
-          new SimpleMotorFeedforward(
-              driveSimFeedFowardkS, driveSimFeedFowardkV, driveSimFeedFowardkA);
-      driveFeedback = new PIDController(driveSimFeedBackkP, driveSimFeedBackkI, driveSimFeedBackkD);
-      turnFeedback = new PIDController(turnSimFeedbackkP, turnSimFeedbackkI, turnSimFeedbackkD);
+      driveConstantsArr =
+          new double[] {
+            driveSimFeedFowardkS, driveSimFeedFowardkV, driveSimFeedFowardkA,
+            driveSimFeedBackkP, driveSimFeedBackkI, driveSimFeedBackkD,
+            turnSimFeedbackkP, turnSimFeedbackkI, turnSimFeedbackkD
+          };
+
     } else {
-      driveFeedforward =
-          new SimpleMotorFeedforward(
-              driveRealFeedFowardkS, driveRealFeedFowardkV, driveRealFeedFowardkA);
-      driveFeedback =
-          new PIDController(driveRealFeedBackkP, driveRealFeedBackkI, driveRealFeedBackkD);
-      turnFeedback = new PIDController(turnRealFeedbackkP, turnRealFeedbackkI, turnRealFeedbackkD);
+      driveConstantsArr =
+          new double[] {
+            driveRealFeedFowardkS, driveRealFeedFowardkV, driveRealFeedFowardkA,
+            driveRealFeedBackkP, driveRealFeedBackkI, driveRealFeedBackkD,
+            turnRealFeedbackkP, turnRealFeedbackkI, turnRealFeedbackkD
+          };
     }
+
+    drivekS = driveConstantsArr[0];
+    drivekV = driveConstantsArr[1];
+    drivekA = driveConstantsArr[2];
+
+    drivekP = driveConstantsArr[3];
+    drivekI = driveConstantsArr[4];
+    drivekD = driveConstantsArr[5];
+
+    turnkP = driveConstantsArr[6];
+    turnkI = driveConstantsArr[7];
+    turnkD = driveConstantsArr[8];
+
+    driveFeedforward = new SimpleMotorFeedforward(drivekS, drivekV, drivekA);
+
+    driveFeedback = new PIDController(drivekP, drivekI, drivekD);
+
+    turnFeedback = new PIDController(turnkP, turnkI, turnkD);
+
     turnFeedback.enableContinuousInput(-Math.PI, Math.PI);
     setBrakeMode(true);
   }
 
   /**
-   * Update inputs without running the rest of the periodic logic. This is useful since these
+   * w Update inputs without running the rest of the periodic logic. This is useful since these
    * updates need to be properly thread-locked.
    */
   public void updateInputs() {

@@ -20,7 +20,6 @@ import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.Constants.IndexerConstants;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.IntakeConstants.WristMotorConstants;
-import frc.robot.Constants.RobotConstants;
 import frc.robot.Constants.ShooterConstants;
 import frc.robot.HardwareConfig;
 import java.util.function.DoubleSupplier;
@@ -45,13 +44,10 @@ public class subsystem_Intake extends SubsystemBase {
   private Timer m_beamBreakTimer = new Timer();
   /** Creates a new subsystem_Intake. */
   public subsystem_Intake() {
-    m_IntakeMotor =
-        new TalonFX(
-            IntakeConstants.RollerMotorConstants.intakeRollersMotorID, RobotConstants.CANBus);
+    m_IntakeMotor = new TalonFX(IntakeConstants.RollerMotorConstants.intakeRollersMotorID, "rio");
     m_IntakeMotor.setNeutralMode(NeutralModeValue.Brake);
 
-    m_WristMotor =
-        new TalonFX(IntakeConstants.WristMotorConstants.wristMotorID, RobotConstants.CANBus);
+    m_WristMotor = new TalonFX(IntakeConstants.WristMotorConstants.wristMotorID, "rio");
     m_WristMotor.setNeutralMode(NeutralModeValue.Coast);
 
     m_BeamBreak1 = new DigitalInput(IntakeConstants.beamBreak1Port);

@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import static org.littletonrobotics.junction.Logger.*;
+
 import com.ctre.phoenix6.signals.AbsoluteSensorRangeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
@@ -22,6 +24,7 @@ import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.RobotBase;
 import frc.robot.Constants.ShooterConstants.sigmoidCoefficients;
@@ -35,9 +38,14 @@ import frc.robot.Constants.ShooterConstants.sigmoidCoefficients;
  * constants are needed, to reduce verbosity.
  */
 public final class Constants {
+  public static boolean shouldFlip() {
+    return DriverStation.getAlliance().isPresent()
+        && DriverStation.getAlliance().get() == Alliance.Red;
+  }
 
   // public static final boolean isblue = DriverStation.getAlliance().get() == Alliance.Blue;
-  // public static final boolean isred = DriverStation.getAlliance().get() == Alliance.Red;
+  // public static Optional<Alliance> isred;
+
   private static final boolean isReplayMode = false; // MAKE TRUE IF REPLAY MODE IS DESIRED
   public static final boolean tuningMode = true;
 

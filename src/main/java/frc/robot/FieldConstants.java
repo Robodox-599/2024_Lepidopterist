@@ -10,7 +10,10 @@ package frc.robot;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
-import edu.wpi.first.math.geometry.*;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Filesystem;
 import java.io.IOException;
@@ -37,6 +40,8 @@ public class FieldConstants {
 
   public static final Translation2d ampCenter =
       new Translation2d(Units.inchesToMeters(72.455), fieldWidth);
+
+  private static Pose2d ampPose = new Pose2d(ampCenter, Rotation2d.fromDegrees(-90));
 
   /** Staging locations for each note */
   public static final class StagingLocations {
@@ -93,6 +98,8 @@ public class FieldConstants {
         bottomLeftSpeaker.interpolate(topRightSpeaker, 0.5);
   }
 
+  public static final Pose2d SpeakerPosition = new Pose2d(-0.2, (5 + 6.12) / 2, new Rotation2d(0));
+
   public static final class Subwoofer {
     public static final Pose2d ampFaceCorner =
         new Pose2d(
@@ -144,10 +151,7 @@ public class FieldConstants {
         center.getTranslation().getDistance(centerPodiumAmpChain.getTranslation());
   }
 
-  public static final class Amp {
-    public static final Translation2d ampTapeTopCorner =
-        new Translation2d(Units.inchesToMeters(130.0), Units.inchesToMeters(305.256));
-  }
+  // vision april tag constants, do not touch =D
 
   public static final double aprilTagWidth = Units.inchesToMeters(6.50);
   public static final AprilTagLayoutType defaultAprilTagType = AprilTagLayoutType.OFFICIAL;

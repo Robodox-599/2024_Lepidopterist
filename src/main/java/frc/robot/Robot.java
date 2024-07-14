@@ -89,7 +89,6 @@ public class Robot extends LoggedRobot {
     // Starts recording to data log
     DataLogManager.start();
     DriverStation.startDataLog(DataLogManager.getLog());
-    checkDSUpdate();
     // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.
 
@@ -111,6 +110,7 @@ public class Robot extends LoggedRobot {
     // and running subsystem periodic() methods.  This must be called from the robot's periodic
     // block in order for anything in the Command-based framework to work.
     CommandScheduler.getInstance().run();
+    checkDSUpdate();
   }
 
   /** This function is called once each time the robot enters Disabled mode. */
@@ -120,20 +120,26 @@ public class Robot extends LoggedRobot {
   }
 
   @Override
-  public void disabledPeriodic() {}
+  public void disabledPeriodic() {
+    checkDSUpdate();
+  }
 
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override
   public void autonomousInit() {
-    checkDSUpdate();
     autonomousInitRan = true;
     pigeonIMU.setFusedHeading(0);
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
-
+    // Optional<Alliance> ally = DriverStation.getAlliance();
+    // if (ally.get() == Alliance.Red) {
+    //   isred = ally;
+    // }
     // schedule the autonomous command (example)
+    checkDSUpdate();
     if (m_autonomousCommand != null) {
       m_autonomousCommand.schedule();
     }
+    checkDSUpdate();
   }
 
   /** This function is called periodically during autonomous. */
@@ -144,12 +150,13 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void teleopInit() {
-    checkDSUpdate();
     if (!autonomousInitRan) {
       System.out.println("Autonomous Init didn't before Teleop Init");
       pigeonIMU.setFusedHeading(0);
+      // Optional<Alliance> ally = DriverStation.getAlliance();
+      // isred = ally;
     }
-
+    checkDSUpdate();
     // if (RobotConstants.robotColor == Alliance.Red){
     //   m_robotContainer.m_DriveTrain.SertGyro();
     // }
@@ -173,19 +180,26 @@ public class Robot extends LoggedRobot {
   public void testInit() {
     // Cancels all running commands at the start of test mode.
     CommandScheduler.getInstance().cancelAll();
+    checkDSUpdate();
   }
 
   /** This function is called periodically during test mode. */
   @Override
-  public void testPeriodic() {}
+  public void testPeriodic() {
+    checkDSUpdate();
+  }
 
   /** This function is called once when the robot is first started up. */
   @Override
-  public void simulationInit() {}
+  public void simulationInit() {
+    checkDSUpdate();
+  }
 
   /** This function is called periodically whilst in simulation. */
   @Override
-  public void simulationPeriodic() {}
+  public void simulationPeriodic() {
+    checkDSUpdate();
+  }
 
   private void checkDSUpdate() {
     Optional<Alliance> ally = DriverStation.getAlliance();

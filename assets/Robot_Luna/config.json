@@ -32,7 +32,6 @@
         0.225425,
         0.2667,
         0.20955
-
       ],
       "resolution": [
         1200,
@@ -40,7 +39,6 @@
       ],
       "fov": 70.0
     },
-
     {
       "name": "Front Right Camera",
       "rotations": [
