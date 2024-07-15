@@ -49,7 +49,7 @@ public class WristIOSim implements WristIO {
             WristConstants.PivotArmSimConstants.kEncoderBChannel);
     m_encoderSim = new EncoderSim(m_encoder);
 
-m_encoderSim.setDistancePerPulse(WristConstants.PivotArmSimConstants.kArmEncoderDistPerPulse);
+    m_encoderSim.setDistancePerPulse(WristConstants.PivotArmSimConstants.kArmEncoderDistPerPulse);
     m_controller =
         new ProfiledPIDController(
             WristConstants.PivotArmSimConstants.kPivotSimPID[0],
