@@ -6,24 +6,11 @@ package frc.robot;
 
 import static org.littletonrobotics.junction.Logger.*;
 
-import com.ctre.phoenix6.signals.AbsoluteSensorRangeValue;
-import com.ctre.phoenix6.signals.SensorDirectionValue;
-import edu.wpi.first.apriltag.AprilTagFieldLayout;
-import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Transform2d;
-import edu.wpi.first.math.geometry.Transform3d;
-import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 // import edu.wpi.first.math.geometry.Translation3d;
-import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.RobotBase;
@@ -84,100 +71,6 @@ public final class Constants {
     REPLAYBOT,
 
     REALBOT
-  }
-
-  public static boolean disableHAL = false;
-
-  public static void disableHAL() {
-    disableHAL = true;
-  }
-
-  public static class RobotConstants {
-
-    public static Alliance robotColor = null;
-    public static final String CANBus = "rio";
-    // offset from robot coords to shooter entrance pt
-    public static final Translation3d shooterOffset = new Translation3d(0, 0.46, 0.23);
-    // public static final Translation3d shooterOffset = new Translation3d(0, 0.41, 0.09);
-  }
-
-  public static class FieldConstants {
-    public static final Translation3d blueSpeakerCenter =
-        new Translation3d(0.231625, 5.55818375, 2.0705635);
-    public static final Translation3d redSpeakerCenter =
-        new Translation3d(16.308315, 5.55818375, 2.0705635);
-
-    public static Pose2d newPose(double x, double y, double theta) {
-      return new Pose2d(x, y, Rotation2d.fromDegrees(theta))
-          .plus(
-              new Transform2d(
-                  new Translation2d(-16.0 / 12.0 * UnitConstants.FEETRES_TO_METRES, 0.0)
-                      .rotateBy(Rotation2d.fromDegrees(theta)),
-                  Rotation2d.fromDegrees(0.0)));
-    }
-
-    public static final Pose2d[] subwooferPoses =
-        new Pose2d[] {
-          // newPose(15.7258562759, 4.5680435, -60.0), // R Source
-          // newPose(15.7258567759, 6.552936, 60.0), // R Amp
-          // newPose(15.215708, 5.5603685, 0.0), // R Center
-          // newPose(0.6664485, 6.7017227241, 120.0),  // B Amp
-          // newPose(1.325244, 5.5604715, 180.0), // B Center
-          // newPose(0.815188224098, 4.567971, -120.0) // B Source
-
-          new Pose2d(15.7258562759, 4.5680435, Rotation2d.fromDegrees(-60.0)), // R Source
-          new Pose2d(15.7258567759, 6.552936, Rotation2d.fromDegrees(60.0)), // R Amp
-          new Pose2d(15.215708, 5.5603685, Rotation2d.fromDegrees(0.0)), // R Center
-          new Pose2d(0.6664485, 6.7017227241, Rotation2d.fromDegrees(120.0)), // B Amp
-          new Pose2d(1.325244, 5.5604715, Rotation2d.fromDegrees(180.0)), // B Center
-          new Pose2d(0.815188224098, 4.567971, Rotation2d.fromDegrees(-120.0)) // B Source
-        };
-    // public static final Translation2d redSubwooferAmp = new Translation2d(16.0778095,
-    // 6.349736).minus(new Translation2d(16.0, Rotation2d.fromDegrees(60.0)));
-    // public static final Translation2d redSubwooferCenter = new Translation2d(15.215708,
-    // 5.5603685).minus(new Translation2d(16.0, Rotation2d.fromDegrees(0.0)));
-    // public static final Translation2d redSubwooferSource = new Translation2d(15.7258562759,
-    // 4.5680435).minus(new Translation2d(16.0, Rotation2d.fromDegrees(-60.0)));
-    // public static final Translation2d blueSubwooferSource = new
-    // Translation2d(0.4632355,4.771171).minus(new Translation2d(16.0,
-    // Rotation2d.fromDegrees(-120.0)));
-    // public static final Translation2d blueSubwooferAmp = new
-    // Translation2d(0.4632485,6.34977).minus(new Translation2d(16.0,
-    // Rotation2d.fromDegrees(180.0)));
-    // public static final Translation2d blueSubwooferCenter = new
-    // Translation2d(0.918944,5.5604715).minus(new Translation2d(16.0,
-    // Rotation2d.fromDegrees(120.0)));
-    public static enum SubwooferSide {
-      LEFT,
-      CENTER,
-      RIGHT
-    };
-    /*0.4632485, 6.34977 amp
-    0.918944, 5.5604715 center
-    0.4632355, 4.771171 source
-
-    blue^^
-    16.077809, 4.7712435 source
-    15.622108, 5.5603685 center
-    16.0778095, 6.349736 amp
-
-    16.077809, 4.7712435 L
-    15.622108, 5.5603685 C
-    16.0778095, 6.349736 R
-
-    ^^^red */
-    // inches field: https://www.desmos.com/3d/9199baf324
-    // metres field: https://www.desmos.com/3d/c460283226
-  }
-
-  public static class UnitConstants {
-    public static final double DEG_TO_RAD = Units.degreesToRadians(1.0);
-    public static final double RAD_TO_DEG = Units.radiansToDegrees(1.0);
-    public static final double METRES_TO_FEETRES = Units.metersToFeet(1.0);
-    public static final double FEETRES_TO_METRES = Units.feetToMeters(1.0);
-    public static final double DEG_TO_ROT = Units.degreesToRotations(1.0);
-    public static final double ROT_TO_DEG = Units.rotationsToDegrees(1.0);
-    public static final double kNominal = 12.0;
   }
 
   public static class SurfaceSpeed {
@@ -298,25 +191,6 @@ public final class Constants {
 
     public static final double shootRPS = 60;
     public static final double intakeRPS = 30;
-  }
-
-  public static class LEDConstants {
-    public static final int CANdle_ID = 20; // change
-
-    public static enum LEDColor {
-      CoopLED,
-      AmplifyLED,
-      Intook,
-      Shooting,
-      Amping,
-      None
-    };
-
-    public static enum LEDAnimation {
-      Intook,
-      Shooting,
-      Amping
-    };
   }
 
   public static class ShooterConstants {
@@ -455,157 +329,6 @@ public final class Constants {
     }
   }
 
-  public static class VisionConstants {
-    public static final double camHeight = 5;
-    public static final double targetHeight = 5;
-    public static final double camPitch = 0;
-    public static final String kCameraName = "Global_Shutter_Camera";
-    public static final double threshold = 0.3; // radians?
-    // Cam mounted facing forward, half a meter forward of center, half a meter up
-    // from center.
-    public static final Transform3d kRobotToCam =
-        new Transform3d(
-            Units.inchesToMeters(3.5),
-            Units.inchesToMeters(7.0),
-            Units.inchesToMeters(17.5),
-            new Rotation3d(0, 0, 0));
-
-    public static final AprilTagFieldLayout kTagLayout =
-        AprilTagFields.k2024Crescendo.loadAprilTagLayoutField();
-  }
-
-  public static class SwerveConstants {
-
-    public static final String CANBus = "LunaDriveCANivore";
-
-    public static final int gyroID = 12;
-    public static final boolean invertGyro = true;
-
-    // Drivetrain Constants
-    public static final double openLoopRamp = 0.25;
-    public static final double closedLoopRamp = 0.375;
-
-    public static final double driveGearRatio = 75.0 / 14.0;
-    public static final double angleGearRatio = 150.0 / 7.0;
-
-    public static final double wheelCircumference = Units.inchesToMeters(4.0 * Math.PI);
-
-    public static final Translation2d frontLeft =
-        new Translation2d(Units.inchesToMeters(10.375), Units.inchesToMeters(10.375));
-    public static final Translation2d frontRight =
-        new Translation2d(Units.inchesToMeters(10.375), -Units.inchesToMeters(10.375));
-    public static final Translation2d backLeft =
-        new Translation2d(-Units.inchesToMeters(10.375), Units.inchesToMeters(10.375));
-    public static final Translation2d backRight =
-        new Translation2d(-Units.inchesToMeters(10.375), -Units.inchesToMeters(10.375));
-
-    public static final SwerveDriveKinematics kinematics =
-        new SwerveDriveKinematics(frontLeft, frontRight, backLeft, backRight);
-
-    // Change to non-linear throttle for finer tuned movements
-    public static enum Throttle {
-      LINEAR,
-      NONLINEAR
-    };
-
-    /*simepleMotorFeedforward gains*/
-    public static final double driveKS = 0.080108;
-    public static final double driveKV = 0.61952;
-    public static final double driveKA = 0.019975;
-
-    /*Angle Encoder Invert*/
-    public static final AbsoluteSensorRangeValue RANGE_VALUE =
-        AbsoluteSensorRangeValue.Unsigned_0To1;
-    public static final SensorDirectionValue DIRECTION_VALUE =
-        SensorDirectionValue.CounterClockwise_Positive;
-
-    /*Swerve Angle Motor PID gains*/
-    public static final double angleKP = 5.0;
-    public static final double angleKI = 0.0;
-    public static final double angleKD = 0.0;
-    public static final double angleKF = 0.0;
-
-    /*Swerve Angle Current Limit Config*/
-    public static final boolean angleEnableCurrentLimit = true;
-    public static final int angleContinuousCurrentLimit = 10;
-    public static final int anglePeakCurrentLimit = 20;
-    public static final double anglePeakCurrentDuration = 0.1;
-
-    /*Swerve Drive Motor PID gains*/
-    public static final double driveKP = 0.1;
-    public static final double driveKI = 0.0;
-    public static final double driveKD = 0.0;
-    public static final double driveKF = 0.0;
-
-    /*Swerve Drive Current Limit Config*/
-    public static final boolean driveEnableCurrentLimit = true;
-    public static final int driveContinuousCurrentLimit = 25;
-    public static final int drivePeakCurrentLimit = 30;
-    public static final double drivePeakCurrentDuration = 0.1;
-
-    /*Motor Inverts Config*/
-    public static final boolean angleMotorInvert = true;
-    public static final boolean driveMotorInvert = false;
-
-    /* Swerve Profiling values */
-    public static final double maxSpeed = 10.0 / 4.0; // mps
-    public static final double maxAngularVelocity =
-        450.0 * UnitConstants.DEG_TO_RAD / 4.0; // rad per sec
-    public static final boolean isFieldRelative = true;
-    public static final boolean isOpenLoop = false;
-
-    public static final double readyToShootThreshold = 0.2;
-
-    public static enum DRIVE_STATE {
-      DRIVER_CONTROL,
-      SHOOTER_PREP,
-      ALIGNING_TO_DPAD
-    };
-
-    public static enum DPAD {
-      UP,
-      UPRIGHT,
-      RIGHT,
-      DOWNRIGHT,
-      DOWN,
-      DOWNLEFT,
-      LEFT,
-      UPLEFT
-    };
-  }
-
-  public static final class FrontLeftModule {
-    public static final int driveMotorID = 0;
-    public static final int angleMotorID = 1;
-    public static final int canCoderID = 2;
-    public static final double angleOffset = 0.404297 * 360.0;
-    public static final double[] constants = {driveMotorID, angleMotorID, canCoderID, angleOffset};
-  }
-
-  public static final class FrontRightModule {
-    public static final int driveMotorID = 3;
-    public static final int angleMotorID = 4;
-    public static final int canCoderID = 5;
-    public static final double angleOffset = 0.024414 * 360.0;
-    public static final double[] constants = {driveMotorID, angleMotorID, canCoderID, angleOffset};
-  }
-
-  public static final class BackLeftModule {
-    public static final int driveMotorID = 6;
-    public static final int angleMotorID = 7;
-    public static final int canCoderID = 8;
-    public static final double angleOffset = 0.606689 * 360.0;
-    public static final double[] constants = {driveMotorID, angleMotorID, canCoderID, angleOffset};
-  }
-
-  public static final class BackRightModule {
-    public static final int driveMotorID = 9;
-    public static final int angleMotorID = 10;
-    public static final int canCoderID = 11;
-    public static final double angleOffset = 0.268555 * 360.0;
-    public static final double[] constants = {driveMotorID, angleMotorID, canCoderID, angleOffset};
-  }
-
   public static class AutoConstants {
     public static final double MaxSpeedMetersPerSecond = 4.0;
     public static final double MaxAccelMetersPerSecondSquared = 7.0;
@@ -637,10 +360,6 @@ public final class Constants {
             new TrapezoidProfile.Constraints(
                 MaxAngularSpeedRadiansPerSecond, MaxAngularAccelRadiansPerSecondSquared));
 
-    // public static final double[] AutoWristSetpoints = {61.55,50.43,52.66,50.83,
-    // 66.04,50.63,65.55,58.88};
-    // public static final double[] AutoFlywheelSetpoints = {8.0,8.0,8.0,8.0,
-    // 8.0,8.0,8.0,8.0};
     public static final double[] AutoWristSetpointsCalc = {
       74.0, 65.0, 67.0, 66.0, 75.0, 35.0, 75.0, 72.0
     };

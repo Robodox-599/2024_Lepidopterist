@@ -7,8 +7,6 @@ import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.ShooterConstants;
 // import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 // import com.ctre.phoenix6.StatusSignal;
-import frc.robot.Constants.SwerveConstants;
-import frc.robot.Constants.UnitConstants;
 
 public class HardwareConfig {
   CANcoderConfiguration swerveCANCoderConfig;
@@ -22,45 +20,6 @@ public class HardwareConfig {
   TalonFXConfiguration intakeRollerConfig;
 
   public HardwareConfig() {
-    /* CANCoder Config */
-    swerveCANCoderConfig = new CANcoderConfiguration();
-    swerveCANCoderConfig.MagnetSensor.AbsoluteSensorRange = SwerveConstants.RANGE_VALUE;
-    swerveCANCoderConfig.MagnetSensor.SensorDirection = SwerveConstants.DIRECTION_VALUE;
-    // Per second is default
-
-    /* Drive Motor Config */
-    swerveDriveFXConfig = new TalonFXConfiguration();
-    swerveDriveFXConfig.Slot0.kP = SwerveConstants.driveKP;
-    swerveDriveFXConfig.Slot0.kI = SwerveConstants.driveKI;
-    swerveDriveFXConfig.Slot0.kD = SwerveConstants.driveKD;
-    swerveDriveFXConfig.CurrentLimits.SupplyCurrentLimitEnable =
-        SwerveConstants.driveEnableCurrentLimit;
-    swerveDriveFXConfig.CurrentLimits.SupplyCurrentLimit =
-        SwerveConstants.driveContinuousCurrentLimit;
-    swerveDriveFXConfig.CurrentLimits.SupplyCurrentThreshold =
-        SwerveConstants.drivePeakCurrentLimit;
-    swerveDriveFXConfig.CurrentLimits.SupplyTimeThreshold =
-        SwerveConstants.drivePeakCurrentDuration;
-
-    swerveDriveFXConfig.OpenLoopRamps.VoltageOpenLoopRampPeriod = SwerveConstants.openLoopRamp;
-    swerveDriveFXConfig.ClosedLoopRamps.VoltageClosedLoopRampPeriod =
-        SwerveConstants.closedLoopRamp;
-    swerveDriveFXConfig.Voltage.PeakForwardVoltage = UnitConstants.kNominal;
-
-    /* Angle Motor Config */
-    swerveAngleFXConfig = new TalonFXConfiguration();
-    swerveAngleFXConfig.Slot0.kP = SwerveConstants.angleKP;
-    swerveAngleFXConfig.Slot0.kI = SwerveConstants.angleKI;
-    swerveAngleFXConfig.Slot0.kD = SwerveConstants.angleKD;
-    swerveAngleFXConfig.CurrentLimits.SupplyCurrentLimitEnable =
-        SwerveConstants.angleEnableCurrentLimit;
-    swerveAngleFXConfig.CurrentLimits.SupplyCurrentLimit =
-        SwerveConstants.angleContinuousCurrentLimit;
-    swerveAngleFXConfig.CurrentLimits.SupplyCurrentThreshold =
-        SwerveConstants.anglePeakCurrentLimit;
-    swerveAngleFXConfig.CurrentLimits.SupplyTimeThreshold =
-        SwerveConstants.anglePeakCurrentDuration;
-
     /* Intake Wrist Motor Config */
     intakeWristMotorConfig = new TalonFXConfiguration();
     intakeWristMotorConfig.Slot0.kP = IntakeConstants.WristMotorConstants.wristExtendKP;
@@ -85,34 +44,6 @@ public class HardwareConfig {
     indexerMotorConfig.Slot0.kD = IndexerConstants.indexerKD;
     indexerMotorConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
     indexerMotorConfig.CurrentLimits.SupplyCurrentLimit = 30.0;
-
-    /* Left Flywheel Motor Configs */
-    leftFlywheelConfig = new TalonFXConfiguration();
-    leftFlywheelConfig.Slot0.kP = ShooterConstants.LeftFlywheelMotorConstants.leftFlywheelKP;
-    leftFlywheelConfig.Slot0.kI = ShooterConstants.LeftFlywheelMotorConstants.leftFlywheelKI;
-    leftFlywheelConfig.Slot0.kD = ShooterConstants.LeftFlywheelMotorConstants.leftFlywheelKD;
-    leftFlywheelConfig.Slot0.kS = ShooterConstants.LeftFlywheelMotorConstants.leftFlywheelKS;
-    leftFlywheelConfig.Slot0.kV = ShooterConstants.LeftFlywheelMotorConstants.leftFlywheelKV;
-    leftFlywheelConfig.Slot0.kA = ShooterConstants.LeftFlywheelMotorConstants.leftFlywheelKA;
-
-    leftFlywheelConfig.CurrentLimits.SupplyCurrentLimitEnable =
-        ShooterConstants.LeftFlywheelMotorConstants.EnableCurrentLimit;
-    leftFlywheelConfig.CurrentLimits.SupplyCurrentLimit =
-        ShooterConstants.LeftFlywheelMotorConstants.SupplyCurrentLimit;
-
-    /* Right Flywheel Motor Configs */
-    rightFlywheelConfig = new TalonFXConfiguration();
-    rightFlywheelConfig.Slot0.kP = ShooterConstants.RightFlywheelMotorConstants.rightFlywheelKP;
-    rightFlywheelConfig.Slot0.kI = ShooterConstants.RightFlywheelMotorConstants.rightFlywheelKI;
-    rightFlywheelConfig.Slot0.kD = ShooterConstants.RightFlywheelMotorConstants.rightFlywheelKD;
-    rightFlywheelConfig.Slot0.kS = ShooterConstants.RightFlywheelMotorConstants.rightFlywheelKS;
-    rightFlywheelConfig.Slot0.kV = ShooterConstants.RightFlywheelMotorConstants.rightFlywheelKV;
-    rightFlywheelConfig.Slot0.kA = ShooterConstants.RightFlywheelMotorConstants.rightFlywheelKA;
-
-    rightFlywheelConfig.CurrentLimits.SupplyCurrentLimitEnable =
-        ShooterConstants.RightFlywheelMotorConstants.EnableCurrentLimit;
-    rightFlywheelConfig.CurrentLimits.SupplyCurrentLimit =
-        ShooterConstants.RightFlywheelMotorConstants.SupplyCurrentLimit;
 
     /* Shooter Wrist Motor Configs */
     shooterWristConfig = new TalonFXConfiguration();
