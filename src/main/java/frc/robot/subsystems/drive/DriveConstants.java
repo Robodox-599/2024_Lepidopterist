@@ -229,7 +229,7 @@ public final class DriveConstants {
   // CAMERA 1 POSE (YAW)
   public static final double camera1PoseYaw = Units.degreesToRadians(30);
 
-  // CAMERA 1 DISTORTION MATRIX
+  // CAMERA 1 INTRINSICS MATRIX
   public static final Matrix<N3, N3> CAMERA_ONE_MATRIX =
       MatBuilder.fill(
           Nat.N3(),
@@ -244,7 +244,7 @@ public final class DriveConstants {
           0.0,
           1.0);
 
-  // CAMERA 1 DISTANCE COEFFICIENTS
+  // CAMERA 1 DISTORTION COEFFICIENTS
   public static final Matrix<N5, N1> CAMERA_ONE_DIST_COEFFS =
       MatBuilder.fill(
           Nat.N5(),
@@ -254,6 +254,8 @@ public final class DriveConstants {
           -6.669129885790735E-4,
           6.491281122640802E-4,
           0.03731824873787814); // Last 3 values have been truncated
+
+  // FR CAMERA CONSTANTS
 
   // CAMERA 2 NAME
   public static final String camera2Name = "Camera Two";
@@ -276,7 +278,7 @@ public final class DriveConstants {
   // CAMERA 2 POSE (YAW)
   public static final double camera2PoseYaw = Units.degreesToRadians(-30);
 
-  // CAMERA 2 DISTORTION MATRIX
+  // CAMERA 2 INTRINSICS MATRIX
   public static final Matrix<N3, N3> CAMERA_TWO_MATRIX =
       MatBuilder.fill(
           Nat.N3(),
@@ -291,8 +293,57 @@ public final class DriveConstants {
           0.0,
           1.0);
 
-  // CAMERA 2 DISTANCE COEFFICIENTS
+  // CAMERA 2 DISTORTION COEFFICIENTS
   public static final Matrix<N5, N1> CAMERA_TWO_DIST_COEFFS =
+      MatBuilder.fill(
+          Nat.N5(),
+          Nat.N1(),
+          0.0576413369828492,
+          -0.07356597379196807,
+          -6.669129885790735E-4,
+          6.491281122640802E-4,
+          0.03731824873787814); // Last 3 values have been truncated
+
+  // Camera 3 (FM) Constants
+
+  // CAMERA 3 NAME
+  public static final String camera3Name = "Camera Three";
+
+  // CAMERA 3 POSE (X)
+  public static final double camera3PoseX = Units.inchesToMeters(0);
+
+  // CAMERA 3 POSE (Y)
+  public static final double camera3PoseY = Units.inchesToMeters(1);
+
+  // CAMERA 3 POSE (Z)
+  public static final double camera3PoseZ = Units.inchesToMeters(21);
+
+  // CAMERA 3 POSE (ROLL)
+  public static final double camera3PoseRoll = Units.degreesToRadians(0);
+
+  // CAMERA 3 POSE (PITCH)
+  public static final double camera3PosePitch = Units.degreesToRadians(-28);
+
+  // CAMERA 3 POSE (YAW)
+  public static final double camera3PoseYaw = Units.degreesToRadians(0);
+
+  // CAMERA 3 INTRINSICS MATRIX
+  public static final Matrix<N3, N3> CAMERA_THREE_MATRIX =
+      MatBuilder.fill(
+          Nat.N3(),
+          Nat.N3(),
+          915.2126592056358,
+          0.0,
+          841.560216921862,
+          0.0,
+          913.9556728013187,
+          648.2330358379004,
+          0.0,
+          0.0,
+          1.0);
+
+  // CAMERA 3 DISTORTION COEFFICIENTS
+  public static final Matrix<N5, N1> CAMERA_THREE_DIST_COEFFS =
       MatBuilder.fill(
           Nat.N5(),
           Nat.N1(),

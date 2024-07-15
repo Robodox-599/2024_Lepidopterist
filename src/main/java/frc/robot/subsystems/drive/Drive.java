@@ -115,7 +115,14 @@ public class Drive extends SubsystemBase {
               new Rotation3d(camera2PoseRoll, camera2PosePitch, camera2PoseYaw)),
           CAMERA_TWO_MATRIX,
           CAMERA_TWO_DIST_COEFFS);
-
+  public static final VisionConstants Cam3Constants =
+      new VisionConstants(
+          camera3Name,
+          new Transform3d(
+              new Translation3d(camera3PoseX, camera3PoseY, camera3PoseZ),
+              new Rotation3d(camera3PoseRoll, camera3PosePitch, camera3PoseYaw)),
+          CAMERA_THREE_MATRIX,
+          CAMERA_THREE_DIST_COEFFS);
   // Constructor for initalizing modules and subsystems
   public Drive(
       GyroIO gyroIO,
@@ -205,7 +212,11 @@ public class Drive extends SubsystemBase {
   }
 
   public static VisionIO[] createRealCameras() {
-    return new VisionIO[] {new VisionIOReal(Cam1Constants), new VisionIOSim(Cam2Constants)};
+    return new VisionIO[] {
+      new VisionIOReal(Cam1Constants),
+      new VisionIOSim(Cam2Constants),
+      new VisionIOSim(Cam3Constants)
+    };
   }
 
   /**
@@ -214,7 +225,9 @@ public class Drive extends SubsystemBase {
    * @return The array of vision IOs.
    */
   public static VisionIO[] createSimCameras() {
-    return new VisionIO[] {new VisionIOSim(Cam1Constants), new VisionIOSim(Cam2Constants)};
+    return new VisionIO[] {
+      new VisionIOSim(Cam1Constants), new VisionIOSim(Cam2Constants), new VisionIOSim(Cam3Constants)
+    };
   }
 
   // Regularly called method to update subsystem state
