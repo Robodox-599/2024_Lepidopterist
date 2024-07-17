@@ -102,6 +102,28 @@ public class AutoAlignCommands extends Command {
         drive);
   }
 
+  public static boolean pointedAtSource(Drive drive) {
+    // Get the position of the source on the field, adjusted for alliance
+    Pose2d speakerPose =
+        AllianceFlipUtil.apply(new Pose2d(16, -0.1, new Rotation2d(Units.degreesToRadians(180))));
+    // Calculate the transformation from the robot's pose to the source's pose
+    Transform2d targetTransform = drive.getPose().minus(speakerPose);
+    // Calculate the target direction considering heading flip
+    Rotation2d targetDirection =
+        new Rotation2d(targetTransform.getX(), targetTransform.getY())
+            .plus(new Rotation2d(headingFlip()));
+    ;
+    // Check if the robot's current rotation is within the alignment threshold
+    if (Math.abs(drive.getRotation().getDegrees() - targetDirection.getDegrees())
+        < autoAlignAngleThreshold) {
+      Logger.recordOutput("Odometry/PointedAtSource?", true);
+      return true; // Robot is pointed at the source
+    } else {
+      Logger.recordOutput("Odometry/PointedAtSource?", false);
+      return false; // Robot is not pointed at the source
+    }
+  }
+
   public static Command autoAlignSpeakerCommand(Drive drive, CommandXboxController controller) {
     return Commands.run(
         () -> {
@@ -170,4 +192,48 @@ public class AutoAlignCommands extends Command {
       return false; // Robot is not pointed at the speaker
     }
   }
+
+  // private Transform2d getEstimatedTransform(Drive drive) {
+  //   return new Transform2d(
+  //       new Translation2d(
+  //           drive.getFieldVelocity().vxMetersPerSecond * 0.02,
+  //           drive.getFieldVelocity().vyMetersPerSecond * 0.02),
+  //       new Rotation2d(0.0));
+  // }
+
+  // // Returns the estimated robot position
+  // private Pose2d getEstimatedPosition(Drive drive) {
+  //   return drive.getPose().plus(getEstimatedTransform(drive).inverse());
+  // }
+
+  // // Returns the distance between the robot's next estimated position and the
+  // // speaker position
+  // @AutoLogOutput(key = "DistanceAway")
+  // private double getEstimatedDistance(Drive drive) {
+  //   Transform2d targetTransform = getEstimatedPosition(drive).minus(AllianceFlipUtil.apply(
+  //           new Pose2d(-0.2, autoAlignSpeakerPoseSetter(drive), new Rotation2d(0))));
+  //   return targetTransform.getTranslation().getNorm();
+  // }
+
+  // @AutoLogOutput(key = "PointedAtSpeaker")
+  // public boolean isPointedAtSpeaker(Drive drive) {
+  //   return pointedAtSpeaker(drive);
+  // }
+
+  // @AutoLogOutput(key = "AimedAtSpeaker")
+  // public boolean isAimedAtSpeaker(Drive drive, Wrist wrist) {
+  //   boolean isAimedAtSpeakerBool = pointedAtSpeaker(drive) && wrist.atSetpoint(); // ???? TODO:
+  // check this later
+  //   return isAimedAtSpeakerBool;
+  // }
+
+  // // Gets angle based on distance from speaker, taking into account the actual
+  // // shooting position
+  // @AutoLogOutput(key = "ShootAnywhereAngle")
+  // private double getAngle(Drive drive) {
+  //   double angle = Lookup.getAngle(getEstimatedDistance(drive)); // TODO: think about taking 1257
+  // regression/ shooter matrix gen
+  //   Logger.recordOutput("ShootAnywhereAngle", angle);
+  //   return angle;
+  // }
 }

@@ -214,8 +214,8 @@ public class Drive extends SubsystemBase {
   public static VisionIO[] createRealCameras() {
     return new VisionIO[] {
       new VisionIOReal(Cam1Constants),
-      new VisionIOSim(Cam2Constants),
-      new VisionIOSim(Cam3Constants)
+      new VisionIOReal(Cam2Constants),
+      new VisionIOReal(Cam3Constants)
     };
   }
 
@@ -367,6 +367,15 @@ public class Drive extends SubsystemBase {
     }
     kinematics.resetHeadings(headings);
     stop();
+  }
+
+  public ChassisSpeeds getFieldVelocity() {
+    // ChassisSpeeds has a method to convert from field-relative to robot-relative speeds,
+    // but not the reverse.  However, because this transform is a simple rotation, negating the
+    // angle
+    // given as the robot angle reverses the direction of rotation, and the conversion is reversed.
+    return ChassisSpeeds.fromFieldRelativeSpeeds(
+        kinematics.toChassisSpeeds(getModuleStates()), getRotation());
   }
 
   public void resetOdometry(Pose2d pose) {

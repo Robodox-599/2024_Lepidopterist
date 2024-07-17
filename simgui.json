@@ -4,11 +4,23 @@
       "/FMSInfo": "FMSInfo",
       "/SmartDashboard/Auto Choices": "String Chooser",
       "/SmartDashboard/VisionSystemSim-Camera One/Sim Field": "Field2d",
+      "/SmartDashboard/VisionSystemSim-Camera Three/Sim Field": "Field2d",
       "/SmartDashboard/VisionSystemSim-Camera Two/Sim Field": "Field2d",
       "/SmartDashboard/zero shooter wrist": "Command"
     },
     "windows": {
       "/SmartDashboard/Auto Choices": {
+        "window": {
+          "visible": true
+        }
+      },
+      "/SmartDashboard/VisionSystemSim-Camera One/Sim Field": {
+        "bottom": 1476,
+        "height": 8.210550308227539,
+        "left": 150,
+        "right": 2961,
+        "top": 79,
+        "width": 16.541748046875,
         "window": {
           "visible": true
         }
