@@ -127,7 +127,7 @@ public class Robot extends LoggedRobot {
   @Override
   public void autonomousInit() {
     autonomousInitRan = true;
-    pigeonIMU.setFusedHeading(0);
+    pigeonIMU.setFusedHeading(pigeonIMU.getYaw());
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
     // Optional<Alliance> ally = DriverStation.getAlliance();
     // if (ally.get() == Alliance.Red) {
@@ -151,7 +151,7 @@ public class Robot extends LoggedRobot {
   public void teleopInit() {
     if (!autonomousInitRan) {
       System.out.println("Autonomous Init didn't before Teleop Init");
-      pigeonIMU.setFusedHeading(0);
+      pigeonIMU.setFusedHeading(pigeonIMU.getYaw());
       // Optional<Alliance> ally = DriverStation.getAlliance();
       // isred = ally;
     }

@@ -154,7 +154,7 @@ public class RobotContainer {
 
     drive.setDefaultCommand(
         DriveCommands.joystickDrive(
-            drive, () -> driver.getLeftY(), () -> -driver.getLeftX(), () -> -driver.getRightX()));
+            drive, () -> -driver.getLeftY(), () -> -driver.getLeftX(), () -> -driver.getRightX()));
 
     driver.y().whileTrue(AutoAlignCommands.autoAlignSpeakerCommand(drive, driver));
     driver.x().whileTrue(AutoAlignCommands.autoAlignSourceCommand(drive, driver));
