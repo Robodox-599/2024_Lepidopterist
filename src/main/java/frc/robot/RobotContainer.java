@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import static frc.robot.FieldConstants.*;
+
 import com.pathplanner.lib.auto.AutoBuilder;
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -21,7 +23,7 @@ import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
 import frc.robot.subsystems.indexer.subsystem_Indexer;
 import frc.robot.subsystems.intake.subsystem_Intake;
-// import frc.robot.subsystems.shooter.subsystem_Shooter;
+import java.util.function.BooleanSupplier;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -156,8 +158,16 @@ public class RobotContainer {
         DriveCommands.joystickDrive(
             drive, () -> -driver.getLeftY(), () -> -driver.getLeftX(), () -> -driver.getRightX()));
 
-    driver.y().whileTrue(AutoAlignCommands.autoAlignSpeakerCommand(drive, driver));
-    driver.x().whileTrue(AutoAlignCommands.autoAlignSourceCommand(drive, driver));
+    BooleanSupplier isInSpeakerWing = () -> isInSpeakerWing(drive);
+    BooleanSupplier isInSourceWing = () -> isInSourceWing(drive);
+    driver
+        .y()
+        .whileTrue(
+            AutoAlignCommands.autoAlignSpeakerCommand(drive, driver).onlyIf(isInSpeakerWing));
+
+    driver
+        .x()
+        .whileTrue(AutoAlignCommands.autoAlignSourceCommand(drive, driver).onlyIf(isInSourceWing));
 
     // driver.a().onTrue(m_DriveTrain.parkCommand());
     // driver.x().onTrue(m_DriveTrain.invertGyroInstantCommand());

@@ -12,6 +12,9 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
+import frc.robot.commands.AutoAlignCommands;
+import frc.robot.subsystems.drive.Drive;
+import frc.robot.util.AllianceFlipUtil;
 
 /**
  * Contains various field dimensions and useful reference points. Dimensions are in meters, and sets
@@ -62,6 +65,28 @@ public class FieldConstants {
       for (int i = 0; i < spikeTranslations.length; i++) {
         spikeTranslations[i] = new Translation2d(spikeX, spikeFirstY + (i * spikeSeparationY));
       }
+    }
+  }
+
+  public static final boolean isInSpeakerWing(Drive drive) {
+    Pose2d speakerPose =
+        AllianceFlipUtil.apply(
+            new Pose2d(
+                -0.2, AutoAlignCommands.autoAlignSpeakerPoseSetter(drive), new Rotation2d(0)));
+    if (drive.getPose().minus(speakerPose).getX() > wingX) {
+      return false;
+    } else {
+      return true;
+    }
+  }
+
+  public static final boolean isInSourceWing(Drive drive) {
+    Pose2d sourcePose =
+        AllianceFlipUtil.apply(new Pose2d(16, -0.1, new Rotation2d(Units.degreesToRadians(180))));
+    if (drive.getPose().minus(sourcePose).getX() > wingX) {
+      return false;
+    } else {
+      return true;
     }
   }
 
