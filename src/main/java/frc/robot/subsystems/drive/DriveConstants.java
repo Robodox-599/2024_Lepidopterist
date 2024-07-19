@@ -149,7 +149,7 @@ public final class DriveConstants {
   public static final double driveRealFeedFowardkA = 0.019975;
 
   // REAL: KP DRIVE MOTOR
-  public static final double driveRealFeedBackkP = 5.0;
+  public static final double driveRealFeedBackkP = .045;
 
   // REAL: KI DRIVE MOTOR
   public static final double driveRealFeedBackkI = 0.0;
@@ -158,7 +158,7 @@ public final class DriveConstants {
   public static final double driveRealFeedBackkD = 0.0;
 
   // REAL: KP TURN MOTOR
-  public static final double turnRealFeedbackkP = 0.1;
+  public static final double turnRealFeedbackkP = 2;
 
   // REAL: KI TURN MOTOR
   public static final double turnRealFeedbackkI = 0.0;
@@ -209,7 +209,7 @@ public final class DriveConstants {
   // Camera 1 (FL) Constants
 
   // CAMERA 1 NAME
-  public static final String camera1Name = "Camera One";
+  public static final String camera1Name = "FL Camera";
 
   // CAMERA 1 POSE (X)
   public static final double camera1PoseX = Units.inchesToMeters(8.875);
@@ -231,34 +231,18 @@ public final class DriveConstants {
 
   // CAMERA 1 INTRINSICS MATRIX
   public static final Matrix<N3, N3> CAMERA_ONE_MATRIX =
-      MatBuilder.fill(
-          Nat.N3(),
-          Nat.N3(),
-          915.2126592056358,
-          0.0,
-          841.560216921862,
-          0.0,
-          913.9556728013187,
-          648.2330358379004,
-          0.0,
-          0.0,
-          1.0);
+      MatBuilder.fill(Nat.N3(), Nat.N3(), 915.14, 0.0, 914.81, 0.0, 564.33, 352.49, 0.0, 0.0, 2.0);
 
   // CAMERA 1 DISTORTION COEFFICIENTS
   public static final Matrix<N5, N1> CAMERA_ONE_DIST_COEFFS =
       MatBuilder.fill(
-          Nat.N5(),
-          Nat.N1(),
-          0.0576413369828492,
-          -0.07356597379196807,
-          -6.669129885790735E-4,
-          6.491281122640802E-4,
-          0.03731824873787814); // Last 3 values have been truncated
+          Nat.N5(), Nat.N1(), 0.049, -0.067, -0.005, -0.011,
+          0.024); // Last 3 values have been truncated
 
   // FR CAMERA CONSTANTS
 
   // CAMERA 2 NAME
-  public static final String camera2Name = "Camera Two";
+  public static final String camera2Name = "FR Camera";
 
   // CAMERA 2 POSE (X)
   public static final double camera2PoseX = Units.inchesToMeters(8.875);
@@ -280,34 +264,18 @@ public final class DriveConstants {
 
   // CAMERA 2 INTRINSICS MATRIX
   public static final Matrix<N3, N3> CAMERA_TWO_MATRIX =
-      MatBuilder.fill(
-          Nat.N3(),
-          Nat.N3(),
-          915.2126592056358,
-          0.0,
-          841.560216921862,
-          0.0,
-          913.9556728013187,
-          648.2330358379004,
-          0.0,
-          0.0,
-          1.0);
+      MatBuilder.fill(Nat.N3(), Nat.N3(), 910.43, 90, 910.25, 0, 650.48, 356.69, 0.0, 0.0, 2.0);
 
   // CAMERA 2 DISTORTION COEFFICIENTS
   public static final Matrix<N5, N1> CAMERA_TWO_DIST_COEFFS =
       MatBuilder.fill(
-          Nat.N5(),
-          Nat.N1(),
-          0.0576413369828492,
-          -0.07356597379196807,
-          -6.669129885790735E-4,
-          6.491281122640802E-4,
-          0.03731824873787814); // Last 3 values have been truncated
+          Nat.N5(), Nat.N1(), 0.067, -0.132, -0.005, -0.002,
+          0.074); // Last 3 values have been truncated
 
   // Camera 3 (FM) Constants
 
   // CAMERA 3 NAME
-  public static final String camera3Name = "Camera Three";
+  public static final String camera3Name = "FM Camera";
 
   // CAMERA 3 POSE (X)
   public static final double camera3PoseX = Units.inchesToMeters(0);
@@ -329,29 +297,13 @@ public final class DriveConstants {
 
   // CAMERA 3 INTRINSICS MATRIX
   public static final Matrix<N3, N3> CAMERA_THREE_MATRIX =
-      MatBuilder.fill(
-          Nat.N3(),
-          Nat.N3(),
-          915.2126592056358,
-          0.0,
-          841.560216921862,
-          0.0,
-          913.9556728013187,
-          648.2330358379004,
-          0.0,
-          0.0,
-          1.0);
+      MatBuilder.fill(Nat.N3(), Nat.N3(), 899.52, 0.0, 901.24, 0.0, 594.31, 379.39, 0.0, 0.0, 2.0);
 
   // CAMERA 3 DISTORTION COEFFICIENTS
   public static final Matrix<N5, N1> CAMERA_THREE_DIST_COEFFS =
       MatBuilder.fill(
-          Nat.N5(),
-          Nat.N1(),
-          0.0576413369828492,
-          -0.07356597379196807,
-          -6.669129885790735E-4,
-          6.491281122640802E-4,
-          0.03731824873787814); // Last 3 values have been truncated
+          Nat.N5(), Nat.N1(), 0.048, -0.088, -0.004, -0.013,
+          0.029); // Last 3 values have been truncated
 
   /*
    * ODOMETRY FREQUENCY
