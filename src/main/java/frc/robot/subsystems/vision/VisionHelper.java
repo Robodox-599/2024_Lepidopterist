@@ -396,7 +396,7 @@ public class VisionHelper {
                 .transformBy(robotToCamera.inverse()),
             result.getTimestampSeconds(),
             result.getTargets(),
-            PoseStrategy.LOWEST_AMBIGUITY);
+            PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR);
     return Optional.of(estimatedRobotPose);
   }
 

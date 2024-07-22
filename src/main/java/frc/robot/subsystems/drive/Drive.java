@@ -233,6 +233,32 @@ public class Drive extends SubsystemBase {
   // Regularly called method to update subsystem state
 
   public void periodic() {
+    // locks odom, updates all inputs
+    updateInputs();
+
+    // calls disabled actions, to run if bot is disabled
+    disabledActions();
+
+    // apply odom update
+    updateOdom();
+
+    // Apply vision update
+    updateVision();
+  }
+
+  private void disabledActions() {
+    // Stop moving when disabled
+    if (DriverStation.isDisabled()) {
+      for (var module : modules) {
+        module.stop();
+      }
+      Logger.recordOutput("SwerveStates/Setpoints", new SwerveModuleState[] {});
+      Logger.recordOutput("SwerveStates/SetpointsOptimized", new SwerveModuleState[] {});
+      updateVision();
+    }
+  }
+
+  private void updateInputs() {
     odometryLock.lock(); // Prevents odometry updates while reading data
     gyroIO.updateInputs(gyroInputs);
 
@@ -245,27 +271,16 @@ public class Drive extends SubsystemBase {
       camera.processInputs();
     }
 
-    updateVision();
-
     odometryLock.unlock();
+
     Logger.processInputs("Drive/Gyro", gyroInputs);
+
     for (var module : modules) {
       module.periodic();
     }
+  }
 
-    // Stop moving when disabled
-    if (DriverStation.isDisabled()) {
-      for (var module : modules) {
-        module.stop();
-      }
-    }
-    // Log empty setpoint states when disabled
-    if (DriverStation.isDisabled()) {
-      Logger.recordOutput("SwerveStates/Setpoints", new SwerveModuleState[] {});
-      Logger.recordOutput("SwerveStates/SetpointsOptimized", new SwerveModuleState[] {});
-      updateVision();
-    }
-
+  private void updateOdom() {
     // Update odometry // This updates based on sensor data and kinematics
     double[] sampleTimestamps =
         modules[0].getOdometryTimestamps(); // All signals are sampled together
@@ -293,11 +308,10 @@ public class Drive extends SubsystemBase {
         Twist2d twist = kinematics.toTwist2d(moduleDeltas);
         rawGyroRotation = rawGyroRotation.plus(new Rotation2d(twist.dtheta));
       }
-      // Apply update
+
       poseEstimator.updateWithTime(sampleTimestamps[i], rawGyroRotation, modulePositions);
     }
   }
-
   /**
    * Runs the drive at the desired velocity.
    *
@@ -317,7 +331,7 @@ public class Drive extends SubsystemBase {
         Logger.recordOutput("Vision/Vision Pose From " + camera.getName(), visionPose);
         Logger.recordOutput("Vision/Vision Pose2d From " + camera.getName(), visionPose.toPose2d());
         Logger.recordOutput(
-            "Vision/" + camera.getName() + "pose",
+            "Vision/" + camera.getName() + " pose on robot",
             visionPose.plus(camera.inputs.constants.robotToCamera()));
         poseEstimator.addVisionMeasurement(
             visionPose.toPose2d(),

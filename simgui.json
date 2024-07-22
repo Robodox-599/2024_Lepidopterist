@@ -1,4 +1,11 @@
 {
+  "HALProvider": {
+    "Timing": {
+      "window": {
+        "visible": false
+      }
+    }
+  },
   "NTProvider": {
     "types": {
       "/FMSInfo": "FMSInfo",
@@ -6,6 +13,9 @@
       "/SmartDashboard/VisionSystemSim-Camera One/Sim Field": "Field2d",
       "/SmartDashboard/VisionSystemSim-Camera Three/Sim Field": "Field2d",
       "/SmartDashboard/VisionSystemSim-Camera Two/Sim Field": "Field2d",
+      "/SmartDashboard/VisionSystemSim-FL Camera/Sim Field": "Field2d",
+      "/SmartDashboard/VisionSystemSim-FM Camera/Sim Field": "Field2d",
+      "/SmartDashboard/VisionSystemSim-FR Camera/Sim Field": "Field2d",
       "/SmartDashboard/zero shooter wrist": "Command"
     },
     "windows": {
