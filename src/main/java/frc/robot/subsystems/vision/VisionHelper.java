@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import org.littletonrobotics.junction.LogTable;
+import org.littletonrobotics.junction.Logger;
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 import org.photonvision.estimation.TargetModel;
@@ -278,7 +279,8 @@ public class VisionHelper {
             Drive.fieldTags,
             TargetModel.kAprilTag36h11);
     // try fallback strategy if solvePNP fails for some reason
-    if (!pnpResult.isPresent)
+    if (!pnpResult.isPresent) {
+      Logger.recordOutput("Vision/ Fall Back", true);
       return update(
           result,
           cameraMatrix.get(),
@@ -286,6 +288,7 @@ public class VisionHelper {
           multiTagFallbackStrategy,
           robotToCamera,
           new Transform3d());
+    }
     var best =
         new Pose3d()
             .plus(pnpResult.best) // field-to-camera

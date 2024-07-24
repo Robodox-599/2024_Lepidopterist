@@ -114,23 +114,43 @@ public final class DriveConstants {
    * !! DO NOT TUNE DURING COMP OR IN COMP BRANCH !!
    */
 
-  // PATH FOLLOW TRANSLATION KP
-  // public static final double pathFollowTranslationkP = 15.0;
+  // REAL PATH FOLLOW TRANSLATION KP
+  public static final double realPathFollowTranslationkP = 15.0;
 
-  // PATH FOLLOW TRANSLATION KI
-  // public static final double pathFollowTranslationkI = 0.15;
+  // REAL PATH FOLLOW TRANSLATION KI
+  public static final double realPathFollowTranslationkI = 0.15;
 
-  // PATH FOLLOW TRANSLATION KD
-  // public static final double pathFollowTranslationkD = 0.0;
+  // REAL PATH FOLLOW TRANSLATION KD
+  public static final double realPathFollowTranslationkD = 0.0;
 
-  // PATH FOLLOW ROTATION KP
-  // public static final double pathFollowRotationkP = 20.0;
+  // REAL PATH FOLLOW ROTATION KP
+  public static final double realPathFollowRotationkP = 20.0;
 
-  // PATH FOLLOW ROTATION KI
-  // public static final double pathFollowRotationkI = 0.1;
+  // REAL PATH FOLLOW ROTATION KI
+  public static final double realPathFollowRotationkI = 0.1;
 
-  // PATH FOLLOW ROTATION KD
-  // public static final double pathFollowRotationkD = 0.0;
+  // REAL PATH FOLLOW ROTATION KD
+  public static final double realPathFollowRotationkD = 0.0;
+
+  // SIM PATH FOLLOWING CONSTANTS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  // SIM PATH FOLLOWING TRANSLATION KP
+  public static final double simPathFollowTranslationkP = 15.0;
+
+  // SIM PATH FOLLOW TRANSLATION KI
+  public static final double simPathFollowTranslationkI = 0.15;
+
+  // SIM PATH FOLLOW TRANSLATION KD
+  public static final double simPathFollowTranslationkD = 0.0;
+
+  // SIM PATH FOLLOW ROTATION KP
+  public static final double simPathFollowRotationkP = 20.0;
+
+  // SIM PATH FOLLOW ROTATION KI
+  public static final double simPathFollowRotationkI = 0.1;
+
+  // SIM PATH FOLLOW ROTATION KD
+  public static final double simPathFollowRotationkD = 0.0;
 
   /*
    * PID FOR LIVE/REAL ROBOT AND REPLAY MODE ROBOT

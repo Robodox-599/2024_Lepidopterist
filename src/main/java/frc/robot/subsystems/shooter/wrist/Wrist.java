@@ -3,7 +3,6 @@ package frc.robot.subsystems.shooter.wrist;
 import static edu.wpi.first.units.MutableMeasure.mutable;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
-import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Volts;
 import static frc.robot.subsystems.shooter.wrist.WristConstants.*;
 
@@ -21,7 +20,6 @@ import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import java.util.function.DoubleSupplier;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
@@ -54,8 +52,6 @@ public class Wrist extends SubsystemBase {
   // Create a Mechanism2d visualization of the arm
   private MechanismLigament2d armMechanism = getArmMechanism();
 
-  private SysIdRoutine SysId;
-
   public Wrist(WristIO io) {
     this.io = io;
 
@@ -70,24 +66,6 @@ public class Wrist extends SubsystemBase {
     logkG = new LoggedDashboardNumber("PivotArm/kG", io.getkG());
     logkV = new LoggedDashboardNumber("PivotArm/kV", io.getkV());
     logkA = new LoggedDashboardNumber("PivotArm/kG", io.getkA());
-
-    SysId =
-        new SysIdRoutine(
-            new SysIdRoutine.Config(
-                Volts.per(Second).of(WristConstants.RAMP_RATE),
-                Volts.of(WristConstants.STEP_VOLTAGE),
-                null),
-            new SysIdRoutine.Mechanism(
-                v -> io.setVoltage(v.in(Volts)),
-                (sysidLog) -> {
-                  sysidLog
-                      .motor("pivot")
-                      .voltage(m_appliedVoltage.mut_replace(inputs.appliedVolts, Volts))
-                      .angularPosition(m_angle.mut_replace(inputs.angleRads, Rotations))
-                      .angularVelocity(
-                          m_velocity.mut_replace(inputs.angVelocityRadsPerSec, RotationsPerSecond));
-                },
-                this));
   }
 
   @Override
@@ -256,7 +234,6 @@ public class Wrist extends SubsystemBase {
     return new FunctionalCommand(
         () -> {}, () -> io.setVoltage(0), (stop) -> io.stop(), () -> false, this);
   }
-  // no commmand yalee
 
   public Command bringDownCommand() {
     return new FunctionalCommand(

@@ -13,18 +13,16 @@
 
 package frc.robot.subsystems.drive;
 
-import static edu.wpi.first.units.Units.Volts;
 import static frc.robot.subsystems.drive.DriveConstants.*;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.pathfinding.Pathfinding;
 import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
+import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.PathPlannerLogging;
 import com.pathplanner.lib.util.ReplanningConfig;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
-import edu.wpi.first.math.VecBuilder;
-import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
@@ -38,7 +36,6 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Filesystem;
@@ -46,15 +43,15 @@ import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.Constants;
 import frc.robot.subsystems.vision.Vision;
-// Initializing Drive Class extending SubsystemBase to make use of WPILib's command-based structure
 import frc.robot.subsystems.vision.Vision.VisionConstants;
 import frc.robot.subsystems.vision.VisionHelper;
 import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOReal;
 import frc.robot.subsystems.vision.VisionIOSim;
 import frc.robot.util.LocalADStarAK;
+import frc.robot.util.LoggedTunableNumber;
 import java.io.File;
 import java.util.NoSuchElementException;
 import java.util.concurrent.locks.Lock;
@@ -79,7 +76,6 @@ public class Drive extends SubsystemBase {
   private final GyroIO gyroIO;
   private final GyroIOInputsAutoLogged gyroInputs = new GyroIOInputsAutoLogged();
   private final Module[] modules = new Module[4]; // FL, FR, BL, BR
-  private final SysIdRoutine sysId;
   private final Vision[] cameras;
   public static AprilTagFieldLayout fieldTags;
 
@@ -96,7 +92,7 @@ public class Drive extends SubsystemBase {
       };
   private SwerveDrivePoseEstimator poseEstimator =
       new SwerveDrivePoseEstimator(kinematics, rawGyroRotation, lastModulePositions, pose);
-  Vector<N3> odoStdDevs = VecBuilder.fill(0.3, 0.3, 0.01);
+  // Vector<N3> odoStdDevs = VecBuilder.fill(0.3, 0.3, 0.01);
   private double lastEstTimestamp = 0.0;
 
   public static final VisionConstants Cam1Constants =
@@ -124,6 +120,14 @@ public class Drive extends SubsystemBase {
           CAMERA_THREE_MATRIX,
           CAMERA_THREE_DIST_COEFFS);
   // Constructor for initalizing modules and subsystems
+  private static LoggedTunableNumber drivekP;
+  private static LoggedTunableNumber drivekI;
+  private static LoggedTunableNumber drivekD;
+
+  private static LoggedTunableNumber turnkP;
+  private static LoggedTunableNumber turnkI;
+  private static LoggedTunableNumber turnkD;
+
   public Drive(
       GyroIO gyroIO,
       ModuleIO flModuleIO,
@@ -150,6 +154,38 @@ public class Drive extends SubsystemBase {
 
     // SparkMaxOdometryThread.getInstance().start();
 
+    // Switch constants based on mode (the physics simulator is treated as a
+    // separate robot with different tuning)
+
+    double[] driveConstantsArr;
+
+    if (Constants.getMode() == Constants.Mode.SIM) {
+      driveConstantsArr =
+          new double[] {
+            realPathFollowTranslationkP, realPathFollowTranslationkI, realPathFollowTranslationkD,
+            realPathFollowRotationkP, realPathFollowRotationkI, realPathFollowRotationkD
+          };
+
+    } else {
+      driveConstantsArr =
+          new double[] {
+            simPathFollowTranslationkP, simPathFollowTranslationkI, simPathFollowTranslationkD,
+            simPathFollowRotationkP, simPathFollowRotationkI, simPathFollowRotationkD
+          };
+    }
+    drivekP = new LoggedTunableNumber("Translation PF P", driveConstantsArr[0]);
+    drivekI = new LoggedTunableNumber("Translation PF I", driveConstantsArr[1]);
+    drivekD = new LoggedTunableNumber("Translation PF D", driveConstantsArr[2]);
+
+    turnkP = new LoggedTunableNumber("Rotation PF P", driveConstantsArr[3]);
+    turnkI = new LoggedTunableNumber("Rotation PF I", driveConstantsArr[4]);
+    turnkD = new LoggedTunableNumber("Rotation PF D", driveConstantsArr[5]);
+
+    final PIDConstants drivePathFollowPID =
+        new PIDConstants(drivekP.get(), drivekI.get(), drivekD.get());
+    final PIDConstants turnPathFollowPID =
+        new PIDConstants(turnkP.get(), turnkI.get(), turnkD.get());
+
     // Configure AutoBuilder for PathPlanner // Configuration for auto path planning
     AutoBuilder.configureHolonomic(
         this::getPose,
@@ -157,15 +193,11 @@ public class Drive extends SubsystemBase {
         () -> kinematics.toChassisSpeeds(getModuleStates()),
         this::runVelocity,
         new HolonomicPathFollowerConfig(
-
-            // IMPORTANT DISCLAIMER: commented out because untested on real.
-
-            // TODO: add logic to make it pick the correct PID for sim or real.
-
-            // new PIDConstants(pathFollowTranslationkP, pathFollowTranslationkI,
-            // pathFollowTranslationkD),
-            // new PIDConstants(pathFollowRotationkP, pathFollowRotationkI, pathFollowRotationkD),
-            MAX_LINEAR_SPEED, DRIVE_BASE_RADIUS, new ReplanningConfig()),
+            drivePathFollowPID,
+            turnPathFollowPID,
+            MAX_LINEAR_SPEED,
+            DRIVE_BASE_RADIUS,
+            new ReplanningConfig()),
         () ->
             DriverStation.getAlliance().isPresent()
                 && DriverStation.getAlliance().get() == Alliance.Red,
@@ -188,27 +220,14 @@ public class Drive extends SubsystemBase {
                   .toPath()
                   .resolve("vision" + File.separator + "2024-crescendo.json"));
       System.out.println("Successfully loaded tag map");
+      Logger.recordOutput("Odometry/ Tags loaded?", true);
     } catch (Exception e) {
       System.err.println("Failed to load tag map");
       fieldTags = AprilTagFields.k2024Crescendo.loadAprilTagLayoutField();
+      Logger.recordOutput("Odometry/ Tags loaded?", false);
     }
 
     // Configure SysId // Setup for system identification routine
-    sysId =
-        new SysIdRoutine(
-            new SysIdRoutine.Config(
-                null,
-                null,
-                null,
-                (state) -> Logger.recordOutput("Drive/SysIdState", state.toString())),
-            new SysIdRoutine.Mechanism(
-                (voltage) -> {
-                  for (int i = 0; i < 4; i++) {
-                    modules[i].runCharacterization(voltage.in(Volts));
-                  }
-                },
-                null,
-                this));
   }
 
   public static VisionIO[] createRealCameras() {
@@ -414,16 +433,6 @@ public class Drive extends SubsystemBase {
         () -> {
           // Logic to toggle the gyro
         });
-  }
-
-  /** Returns a command to run a quasistatic test in the specified direction. */
-  public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
-    return sysId.quasistatic(direction);
-  }
-
-  /** Returns a command to run a dynamic test in the specified direction. */
-  public Command sysIdDynamic(SysIdRoutine.Direction direction) {
-    return sysId.dynamic(direction);
   }
 
   /** Returns the module states (turn angles and drive velocities) for all of the modules. */

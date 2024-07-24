@@ -10,6 +10,8 @@
     "types": {
       "/FMSInfo": "FMSInfo",
       "/SmartDashboard/Auto Choices": "String Chooser",
+      "/SmartDashboard/Drive PID Controller": "PIDController",
+      "/SmartDashboard/Turn PID Controller": "PIDController",
       "/SmartDashboard/VisionSystemSim-Camera One/Sim Field": "Field2d",
       "/SmartDashboard/VisionSystemSim-Camera Three/Sim Field": "Field2d",
       "/SmartDashboard/VisionSystemSim-Camera Two/Sim Field": "Field2d",
@@ -20,6 +22,16 @@
     },
     "windows": {
       "/SmartDashboard/Auto Choices": {
+        "window": {
+          "visible": true
+        }
+      },
+      "/SmartDashboard/Drive PID Controller": {
+        "window": {
+          "visible": true
+        }
+      },
+      "/SmartDashboard/Turn PID Controller": {
         "window": {
           "visible": true
         }

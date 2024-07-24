@@ -50,9 +50,9 @@ public class Vision {
   public Optional<EstimatedRobotPose> update(PhotonPipelineResult result) {
     // Skip if we only have 1 target
     // TODO change
-    if (result.getTargets().size() < 1) {
-      return Optional.empty();
-    }
+    // if (result.getTargets().size() < 1) {
+    //   return Optional.empty();
+    // }
     var estPose =
         VisionHelper.update(
             result,
