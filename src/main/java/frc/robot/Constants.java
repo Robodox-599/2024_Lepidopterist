@@ -4,17 +4,9 @@
 
 package frc.robot;
 
-import static org.littletonrobotics.junction.Logger.*;
-
-import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.controller.ProfiledPIDController;
-import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
-// import edu.wpi.first.math.geometry.Translation3d;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.RobotBase;
-import frc.robot.Constants.ShooterConstants.sigmoidCoefficients;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
@@ -101,77 +93,13 @@ public final class Constants {
     // public static final double intake_percent = 0.35;
     public static final double intake_rad = 0.0254; // must be in meters
     public static final double intake_GR = 1.0 / 3.13; // must be rolloer to motor
-    public static final double intake_max_rpm =
-        5400 * IntakeConstants.kSpeakerIntakeSpeed; // TODO: test this
-    public static final double intake_max_surface =
-        intake_max_rpm * intake_GR * intake_rad * 2 * Math.PI / 60.0;
+    // public static final double intake_max_rpm =
+    // 5400 * IntakeConstants.kSpeakerIntakeSpeed; // TODO: test this
+    // public static final double intake_max_surface =
+    // intake_max_rpm * intake_GR * intake_rad * 2 * Math.PI / 60.0;
   }
 
-  public static class IntakeConstants {
-    public static final double kIntakeBackfeedSpeed = -0.5;
-
-    public static final double kIntakeAmpScoreSpeed = -0.6;
-    public static final double kSpeakerIntakeSpeed = 0.9; //
-    public static final double kAmpIntakeSpeed = 1.0;
-    public static final double kAutoIntakeSpeed = 1; // why
-    public static final double extraIntakeTime = 2; // seconds
-    public static final double backwardsIntakeTime = 0.75; // seconds
-    public static final double IntakeSpeedupTime = 0.75;
-    public static final double IntakeNoNoteCurrent = 30;
-    public static final double maxManualRatio = 0.08;
-
-    public static final int beamBreak1Port = 0;
-
-    public static final int throughBoreEncID = 2;
-
-    public static final double kWristExtendVal = 7.6;
-    public static final double kWristRetractVal = 0;
-    public static final double kWristAmpVal = 1.12;
-
-    public static final double wristGearRatio = 3.58;
-    public static final double kWristTolerance = 0.1; // Change
-
-    public static class WristMotorConstants {
-      // TODO: Update Motor In PHT
-      public static final int wristMotorID = 18;
-
-      public static final int wristExtendSlot = 0;
-      public static final double wristExtendKP = 7;
-      public static final double wristExtendKI = 0;
-      public static final double wristExtendKD = 0.0;
-      public static final double wristExtendKS = 0.0;
-      public static final double kWristFeedForward = -0.4; // arb feedforward to account for gravity
-
-      public static final double AbsWristP = -7;
-      public static final double AbsWristI = 0;
-      public static final double AbsWristD = 0;
-      public static final double AbsWristFeedForward =
-          -0.8; // arb feedforward to account for gravity
-
-      public static final int wristRetractSlot = 1;
-      public static final double wristRetractKP = 8;
-      public static final double wristRetractKI = 0.0;
-      public static final double wristRetractKD = 0.2;
-
-      public static final double maxWristVelocity = 120;
-      public static final double maxWristAccel = 240;
-    }
-
-    public static class RollerMotorConstants {
-      public static final int intakeRollersMotorID = 19;
-      public static final double kP = 1.0;
-      public static final double kI = 0.0;
-      public static final double kD = 0.0;
-      public static final double kS = 0.0;
-      public static final double kV = 0.0;
-      public static final double kA = 0.0;
-      /*Intake Current Limit Config*/
-      public static final boolean EnableCurrentLimit = true;
-      public static final int ContinuousCurrentLimit = 50;
-      public static final int PeakCurrentLimit = 50;
-      public static final double PeakCurrentDuration = 0.1;
-    }
-  }
+  public static class IntakeConstants {}
 
   public static class IndexerConstants {
     public static final int motorID = 13;
@@ -214,19 +142,19 @@ public final class Constants {
     public static final double flywheelSpikeDebounce = 0.3;
 
     public static final double feederRPS = 70;
-
-    public static final InterpolatingDoubleTreeMap wristFeedForward =
-        new InterpolatingDoubleTreeMap();
-
-    public static void fillWristFeedForward() {
-      wristFeedForward.put(0.0, 0.5);
-      wristFeedForward.put(0.0, 0.5);
-      wristFeedForward.put(0.0, 0.5);
-      wristFeedForward.put(0.0, 0.5);
-      wristFeedForward.put(0.0, 0.5);
-      wristFeedForward.put(0.0, 0.5);
-      wristFeedForward.put(0.0, 0.5);
-    }
+    public static final double[][] shooterLUT = {
+      {0, 0, 38},
+      {0.1151611524, 0, 38},
+      {0.3522449123, 0, 38},
+      {0.8765935905, 0, 38},
+      {1.46, 0, 42},
+      {1.7, 0, 38},
+      {1.959336833, 0, 50.81632738},
+      {2.823481946, 0, 55},
+      {3.211524819, 0, 56},
+      {4.258293028, 0, 57},
+      {5, 0, 60}
+    };
 
     public static class FlywheelSetpoints {
       public static final double StowSpeed = 10;
@@ -237,21 +165,6 @@ public final class Constants {
       public static final double testFlywheelSetpoint = 45; // 15
       public static final double FlywheelCoastMargin = 5;
       public static final double FlywheelTolerance = 3.5;
-    }
-
-    public static class WristSepoints {
-      public static final double minShootAngle = 8.5;
-      public static final double maxShootAngle = 75;
-
-      public static final double ampWrist = 64; // change
-      public static final double sourceWrist = 63;
-      public static final double testSpeakerWrist = 68; // 53 -> 51.5
-      public static final double lineSetpoint = 38.8; // maybe 50?
-      public static final double ampScoringDelay = 0.2;
-      public static final double[] atan_radius_list = {1.8, 1, 2, 3, 4};
-      public static final double[] atan_angle_list = {35.0, 30.0, 28.33, 26.67, 25.0};
-
-      // 3.6288 for 70 deg; 3.29427 for 65 deg
     }
 
     public static class WristMotorConstants {
@@ -292,93 +205,6 @@ public final class Constants {
       public static final boolean EnableCurrentLimit = true;
       public static final int SupplyCurrentLimit = 16;
     }
-
-    public static class WristMathConstants {
-      public static final double driverArmOffset = 56.3127;
-      public static final double wristGearRatio = 24.0;
-
-      public static final double shooterAngleToPivotAngle = 30.9; // 33.3569
-      public static final double shooterConnectionLength = 7.5068; // l1
-      public static final double linkageLength = 7.7504; // l2
-      public static final double driveArmLength = 3.5106; // l3
-    }
-
-    public static class quinticCoefficients {
-      // https://www.desmos.com/calculator/mhspzayw3n
-      public static final double a = -0.0125052;
-      public static final double b = 0.213676;
-      public static final double c = -1.63102;
-      public static final double d = 8.62777;
-      public static final double e = -34.3674;
-      public static final double f = 91.6852;
-    }
-    // TODO: update reg model please
-    public static class sigmoidCoefficients {
-      // https://www.desmos.com/calculator/q1noao8nzq
-      public static final double minNoteVelocity = SurfaceSpeed.feeder_max_surface + 1;
-      public static final double maxNoteVelocity =
-          (SurfaceSpeed.shooter_max_rpm
-                  * SurfaceSpeed.shooter_GR
-                  * SurfaceSpeed.shooter_transfer
-                  * SurfaceSpeed.shooter_rad
-                  * 2.0
-                  * Math.PI)
-              / 60.0; // TODO: Measure this still
-      public static final double Kstretch = 1.2;
-      public static final double sigmoidCenter = 1.44;
-    }
-  }
-
-  public static class AutoConstants {
-    public static final double MaxSpeedMetersPerSecond = 4.0;
-    public static final double MaxAccelMetersPerSecondSquared = 7.0;
-    public static final double MaxAngularSpeedRadiansPerSecond = 10.0;
-    public static final double MaxAngularAccelRadiansPerSecondSquared = 8.0;
-
-    /*Auto Swerve Drive Motor PID gains*/
-    public static final double XDriveKP = 1.0;
-    public static final double XDriveKD = 0.0;
-
-    public static final PIDController XPID = new PIDController(XDriveKP, 0.0, XDriveKD);
-
-    public static final double YDriveKP = 1.0;
-    public static final double YDriveKD = 0.0;
-
-    public static final PIDController YPID = new PIDController(YDriveKP, 0.0, YDriveKD);
-
-    /* Auto Swerve Angle Motor PID gains*/
-    public static final double AngleKP = 3.0;
-    public static final double AngleKD = 0.0;
-
-    public static final PIDController ZPID = new PIDController(AngleKP, 0.0, AngleKD);
-
-    public static final ProfiledPIDController ThetaPIDRadians =
-        new ProfiledPIDController(
-            AngleKP,
-            0.0,
-            AngleKD,
-            new TrapezoidProfile.Constraints(
-                MaxAngularSpeedRadiansPerSecond, MaxAngularAccelRadiansPerSecondSquared));
-
-    public static final double[] AutoWristSetpointsCalc = {
-      74.0, 65.0, 67.0, 66.0, 75.0, 35.0, 75.0, 72.0
-    };
-    public static final double[] AutoWristSetpoints = {
-      65.0, 65.0, 65.0, 65.0, 65.0, 65.0, 65.0, 65.0
-    };
-    public static final double[] AutoFlywheelSetpointsCalc = {
-      12, 22, 22, 22, 7, 22, 7, 18,
-    };
-    public static final double[] AutoFlywheelSetpoints = {
-      sigmoidCoefficients.maxNoteVelocity - 4,
-      sigmoidCoefficients.maxNoteVelocity - 4,
-      sigmoidCoefficients.maxNoteVelocity - 4,
-      sigmoidCoefficients.maxNoteVelocity - 4,
-      sigmoidCoefficients.maxNoteVelocity - 4,
-      sigmoidCoefficients.maxNoteVelocity - 4,
-      sigmoidCoefficients.maxNoteVelocity - 4,
-      sigmoidCoefficients.maxNoteVelocity - 4,
-    };
   }
 
   public static class ControllerConstants {

@@ -3,7 +3,6 @@ package frc.robot;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import frc.robot.Constants.IndexerConstants;
-import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.ShooterConstants;
 // import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 // import com.ctre.phoenix6.StatusSignal;
@@ -20,22 +19,23 @@ public class HardwareConfig {
   TalonFXConfiguration intakeRollerConfig;
 
   public HardwareConfig() {
-    /* Intake Wrist Motor Config */
-    intakeWristMotorConfig = new TalonFXConfiguration();
-    intakeWristMotorConfig.Slot0.kP = IntakeConstants.WristMotorConstants.wristExtendKP;
-    intakeWristMotorConfig.Slot0.kI = IntakeConstants.WristMotorConstants.wristExtendKI;
-    intakeWristMotorConfig.Slot0.kD = IntakeConstants.WristMotorConstants.wristExtendKD;
-    intakeWristMotorConfig.Slot0.kS = IntakeConstants.WristMotorConstants.wristExtendKS;
+    // /* Intake Wrist Motor Config */
+    // intakeWristMotorConfig = new TalonFXConfiguration();
+    // intakeWristMotorConfig.Slot0.kP = IntakeConstants.WristMotorConstants.wristExtendKP;
+    // intakeWristMotorConfig.Slot0.kI = IntakeConstants.WristMotorConstants.wristExtendKI;
+    // intakeWristMotorConfig.Slot0.kD = IntakeConstants.WristMotorConstants.wristExtendKD;
+    // intakeWristMotorConfig.Slot0.kS = IntakeConstants.WristMotorConstants.wristExtendKS;
 
-    intakeWristMotorConfig.Slot1.kP = IntakeConstants.WristMotorConstants.wristRetractKP;
-    intakeWristMotorConfig.Slot1.kI = IntakeConstants.WristMotorConstants.wristRetractKI;
-    intakeWristMotorConfig.Slot1.kD = IntakeConstants.WristMotorConstants.wristRetractKD;
+    // intakeWristMotorConfig.Slot1.kP = IntakeConstants.WristMotorConstants.wristRetractKP;
+    // intakeWristMotorConfig.Slot1.kI = IntakeConstants.WristMotorConstants.wristRetractKI;
+    // intakeWristMotorConfig.Slot1.kD = IntakeConstants.WristMotorConstants.wristRetractKD;
 
-    // chat what in the fricking frickheck is he cooking
-    var motionMagicConfigs = intakeWristMotorConfig.MotionMagic;
-    motionMagicConfigs.MotionMagicCruiseVelocity =
-        IntakeConstants.WristMotorConstants.maxWristVelocity;
-    motionMagicConfigs.MotionMagicAcceleration = IntakeConstants.WristMotorConstants.maxWristAccel;
+    // // chat what in the fricking frickheck is he cooking
+    // var motionMagicConfigs = intakeWristMotorConfig.MotionMagic;
+    // motionMagicConfigs.MotionMagicCruiseVelocity =
+    //     IntakeConstants.WristMotorConstants.maxWristVelocity;
+    // motionMagicConfigs.MotionMagicAcceleration =
+    // IntakeConstants.WristMotorConstants.maxWristAccel;
 
     /* Indexer Motor Config */
     indexerMotorConfig = new TalonFXConfiguration();
@@ -56,22 +56,6 @@ public class HardwareConfig {
     shooterWristMM.MotionMagicCruiseVelocity =
         ShooterConstants.WristMotorConstants.maxWristVelocity;
     shooterWristMM.MotionMagicAcceleration = ShooterConstants.WristMotorConstants.maxWristAccel;
-
-    /* Intake Roller Config */
-    intakeRollerConfig = new TalonFXConfiguration();
-    intakeRollerConfig.Slot0.kP = IntakeConstants.RollerMotorConstants.kP;
-    intakeRollerConfig.Slot0.kI = IntakeConstants.RollerMotorConstants.kI;
-    intakeRollerConfig.Slot0.kD = IntakeConstants.RollerMotorConstants.kD;
-    intakeRollerConfig.Slot0.kV = IntakeConstants.RollerMotorConstants.kV;
-    intakeRollerConfig.Slot0.kS = IntakeConstants.RollerMotorConstants.kS;
-    intakeRollerConfig.CurrentLimits.SupplyCurrentLimitEnable =
-        IntakeConstants.RollerMotorConstants.EnableCurrentLimit;
-    intakeRollerConfig.CurrentLimits.SupplyCurrentLimit =
-        IntakeConstants.RollerMotorConstants.ContinuousCurrentLimit;
-    intakeRollerConfig.CurrentLimits.SupplyCurrentThreshold =
-        IntakeConstants.RollerMotorConstants.PeakCurrentLimit;
-    intakeRollerConfig.CurrentLimits.SupplyTimeThreshold =
-        IntakeConstants.RollerMotorConstants.PeakCurrentDuration;
   }
 
   public TalonFXConfiguration getMotorConfig(int config) {

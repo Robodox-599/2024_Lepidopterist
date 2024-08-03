@@ -173,7 +173,7 @@ public class VisionHelper {
   }
 
   /**
-   * Updates the estimated position of the robot. Returns empty if:
+   *
    *
    * <ul>
    *   <li>The timestamp of the provided pipeline result is the same as in the previous call to

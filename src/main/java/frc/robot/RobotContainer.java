@@ -8,8 +8,13 @@ import static frc.robot.FieldConstants.*;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.ControllerConstants;
@@ -22,8 +27,15 @@ import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
 import frc.robot.subsystems.indexer.subsystem_Indexer;
-import frc.robot.subsystems.intake.subsystem_Intake;
+import frc.robot.subsystems.shooter.wrist.ShooterWrist;
+import frc.robot.subsystems.shooter.wrist.ShooterWristIO;
+import frc.robot.subsystems.shooter.wrist.ShooterWristIOSim;
+import frc.robot.subsystems.shooter.wrist.ShooterWristIOTalonFX;
+import frc.robot.util.AllianceFlipUtil;
+import frc.robot.util.Lookup;
 import java.util.function.BooleanSupplier;
+import org.littletonrobotics.junction.AutoLogOutput;
+import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -36,12 +48,13 @@ public class RobotContainer {
   // The robot's subsystems and commands are defined here...
 
   /* Subsystems */
-  public Drive drive;
+  private Drive drive;
+  private ShooterWrist wrist;
   //   private final VisionSubsystem vision = new VisionSubsystem)(;
   //   private final subsystem_Vision m_Vision = new subsystem_Vision();
   //   private final subsystem_Shooter m_Shooter = new subsystem_Shooter();
   private final subsystem_Indexer m_Indexer = new subsystem_Indexer();
-  private final subsystem_Intake m_Intake = new subsystem_Intake();
+  // private final subsystem_Intake m_Intake = new subsystem_Intake();
 
   /* Controllers */
   private final CommandXboxController driver =
@@ -63,6 +76,7 @@ public class RobotContainer {
 
     switch (Constants.getRobot()) {
       case REALBOT -> {
+        wrist = new ShooterWrist(new ShooterWristIOTalonFX());
         drive =
             new Drive(
                 new GyroIOPigeon2(true),
@@ -74,6 +88,7 @@ public class RobotContainer {
       }
 
       case SIMBOT -> {
+        wrist = new ShooterWrist(new ShooterWristIOSim());
         drive =
             new Drive(
                 new GyroIO() {},
@@ -86,6 +101,7 @@ public class RobotContainer {
 
         // Replayed robot, disable IO implementations
       case REPLAYBOT -> {
+        wrist = new ShooterWrist(new ShooterWristIO() {});
         drive =
             new Drive(
                 new GyroIO() {},
@@ -157,46 +173,42 @@ public class RobotContainer {
     drive.setDefaultCommand(
         DriveCommands.joystickDrive(
             drive, () -> -driver.getLeftY(), () -> -driver.getLeftX(), () -> -driver.getRightX()));
+    final boolean speakerWingVal = isInSpeakerWing(drive);
+    final boolean sourceWingVal = isInSpeakerWing(drive);
+    BooleanSupplier isInSpeakerWing = () -> speakerWingVal;
+    BooleanSupplier isInSourceWing = () -> sourceWingVal;
+    BooleanSupplier isNOTinSpeakerWing = () -> !speakerWingVal;
+    BooleanSupplier isNOTinSourceWing = () -> !sourceWingVal;
 
-    BooleanSupplier isInSpeakerWing = () -> isInSpeakerWing(drive);
-    BooleanSupplier isInSourceWing = () -> isInSourceWing(drive);
     driver
         .y()
         .whileTrue(
-            AutoAlignCommands.autoAlignSpeakerCommand(drive, driver).onlyIf(isInSpeakerWing));
+            AutoAlignCommands.autoAlignSpeakerCommand(drive, driver)
+                .onlyIf(isInSpeakerWing)
+                .andThen(rumbleControllers())
+                .onlyIf(isNOTinSpeakerWing));
 
     driver
         .x()
-        .whileTrue(AutoAlignCommands.autoAlignSourceCommand(drive, driver).onlyIf(isInSourceWing));
-
-    // driver.a().onTrue(m_DriveTrain.parkCommand());
-    // driver.x().onTrue(m_DriveTrain.invertGyroInstantCommand());
-    // driver.y().onTrue(m_DriveTrain.toggleGyroCommand());
-
-    // driver.leftStick().onTrue(m_DriveTrain.toggleLinearThrottleCommand());
-    // driver.rightStick().onTrue(m_DriveTrain.toggleAngularThrottleCommand());
-
-    // // DPAD
-    // driver.povUp().onTrue(m_DriveTrain.DPADCommand(DPAD.UP));
-    // driver.povUpRight().onTrue(m_DriveTrain.DPADCommand(DPAD.UPRIGHT));
-    // driver.povRight().onTrue(m_DriveTrain.DPADCommand(DPAD.RIGHT));
-    // driver.povDownRight().onTrue(m_DriveTrain.DPADCommand(DPAD.DOWNRIGHT));
-    // driver.povDown().onTrue(m_DriveTrain.DPADCommand(DPAD.DOWN));
-    // driver.povDownLeft().onTrue(m_DriveTrain.DPADCommand(DPAD.DOWNLEFT));
-    // driver.povLeft().onTrue(m_DriveTrain.DPADCommand(DPAD.LEFT));
-    // driver.povUpLeft().onTrue(m_DriveTrain.DPADCommand(DPAD.UP));
-    driver
-        .leftBumper()
         .whileTrue(
-            Commands.parallel(m_Intake.autoSpeakerIntake(), m_Indexer.runIndexerUntilBeamBreak()));
-    driver.leftBumper().onFalse(m_Intake.stowCommand().alongWith(m_Indexer.stopIndexerCommand()));
+            AutoAlignCommands.autoAlignSourceCommand(drive, driver)
+                .onlyIf(isInSourceWing)
+                .andThen(rumbleControllers())
+                .onlyIf(isNOTinSourceWing));
 
-    // intake to amp command
-    driver
-        .leftTrigger()
-        .whileTrue(
-            Commands.parallel(m_Intake.autoAmpIntake(), m_Indexer.runIndexerUntilBeamBreak()));
-    driver.leftTrigger().onFalse(m_Intake.stowCommand().alongWith(m_Indexer.stopIndexerCommand()));
+    // driver
+    //     .leftBumper()
+    //     .whileTrue(
+    //         Commands.parallel(m_Intake.autoSpeakerIntake(),
+    // m_Indexer.runIndexerUntilBeamBreak()));
+    // driver.leftBumper().onFalse(m_Intake.stowCommand().alongWith(m_Indexer.stopIndexerCommand()));
+
+    // // intake to amp command
+    // driver
+    //     .leftTrigger()
+    //     .whileTrue(
+    //         Commands.parallel(m_Intake.autoAmpIntake(), m_Indexer.runIndexerUntilBeamBreak()));
+    // driver.leftTrigger().onFalse(m_Intake.stowCommand().alongWith(m_Indexer.stopIndexerCommand()));
 
     // intake source
     // driver
@@ -228,8 +240,8 @@ public class RobotContainer {
 
     operator.a().whileTrue(m_Indexer.runIndexerStartEnd());
     operator.b().whileTrue(m_Indexer.runIndexerBackwardsStartEnd());
-    operator.x().whileTrue(m_Intake.runIntakeFwdCMD());
-    operator.y().whileTrue(m_Intake.runIntakeBackCMD());
+    // operator.x().whileTrue(m_Intake.runIntakeFwdCMD());
+    // operator.y().whileTrue(m_Intake.runIntakeBackCMD());
 
     // operator.povLeft().onTrue(m_DriveTrain.resetSubwoofer(() -> 0.0));
     // operator.povUp().onTrue(m_DriveTrain.resetSubwoofer(() -> 1.0));
@@ -312,7 +324,64 @@ public class RobotContainer {
     //     .back()
     //     .whileTrue(m_Shooter.forwardsFeederStartEnd().alongWith(m_Indexer.runIndexerStartEnd()));
   }
+  // Returns the estimated transformation over the next tick (The change in
+  // position)
+  public Command rumbleControllers() {
+    return new StartEndCommand(
+            () -> driver.getHID().setRumble(RumbleType.kBothRumble, 1),
+            () -> driver.getHID().setRumble(RumbleType.kBothRumble, 0))
+        .alongWith(
+            new StartEndCommand(
+                () -> operator.getHID().setRumble(RumbleType.kBothRumble, 1),
+                () -> operator.getHID().setRumble(RumbleType.kBothRumble, 0)));
+  }
 
+  private Transform2d getEstimatedTransform() {
+    return new Transform2d(
+        new Translation2d(
+            drive.getFieldVelocity().vxMetersPerSecond * 0.02,
+            drive.getFieldVelocity().vyMetersPerSecond * 0.02),
+        new Rotation2d(0.0));
+  }
+
+  // Returns the estimated robot position
+  private Pose2d getEstimatedPosition() {
+    return drive.getPose().plus(getEstimatedTransform().inverse());
+  }
+
+  // Returns the distance between the robot's next estimated position and the
+  // speaker position
+  @AutoLogOutput(key = "DistanceAway")
+  private double getEstimatedDistance() {
+    Transform2d targetTransform =
+        getEstimatedPosition()
+            .minus(
+                AllianceFlipUtil.apply(
+                    new Pose2d(
+                        -0.2,
+                        AutoAlignCommands.autoAlignSpeakerPoseSetter(drive),
+                        new Rotation2d(0))));
+    return targetTransform.getTranslation().getNorm();
+  }
+
+  @AutoLogOutput(key = "PointedAtSpeaker")
+  public boolean isPointedAtSpeaker() {
+    return AutoAlignCommands.pointedAtSpeaker(drive);
+  }
+
+  @AutoLogOutput(key = "AimedAtSpeaker")
+  public boolean isAimedAtSpeaker() {
+    return AutoAlignCommands.pointedAtSpeaker(drive) && wrist.atSetpoint();
+  }
+
+  // Gets angle based on distance from speaker, taking into account the actual
+  // shooting position
+  @AutoLogOutput(key = "ShootAnywhereAngle")
+  private double getAngle() {
+    double angle = Lookup.getWristAngle(getEstimatedDistance());
+    Logger.recordOutput("ShootAnywhereAngle", angle);
+    return angle;
+  }
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
    *
@@ -344,17 +413,6 @@ public class RobotContainer {
   //                     .andThen(Commands.waitSeconds(0.1))
   //                     .andThen(m_Shooter.forwardsFeederStartEnd().withTimeout(2.5))),
   //         rumbleControllers());
-  //   }
-
-  //   public Command rumbleControllers() {
-  //     // wtf
-  //     return new StartEndCommand(
-  //             () -> driver.getHID().setRumble(RumbleType.kBothRumble, 1),
-  //             () -> driver.getHID().setRumble(RumbleType.kBothRumble, 0))
-  //         .alongWith(
-  //             new StartEndCommand(
-  //                 () -> operator.getHID().setRumble(RumbleType.kBothRumble, 1),
-  //                 () -> operator.getHID().setRumble(RumbleType.kBothRumble, 0)));
   //   }
 
   //   public Command scoreAmp() {

@@ -1,10 +1,11 @@
-package frc.robot.subsystems.shooter.wrist;
+package frc.robot.subsystems.intake.wrist;
 
 import org.littletonrobotics.junction.AutoLog;
 
-public interface WristIO {
+public interface IntakeWristIO {
+
   @AutoLog
-  public static class WristIOInputs {
+  public static class IntakeWristIOInputs {
     public double angleRads = 0.0;
     public double angVelocityRadsPerSec = 0.0;
     public double appliedVolts = 0.0;
@@ -14,7 +15,7 @@ public interface WristIO {
   }
 
   /** Updates the set of loggable inputs. */
-  public default void updateInputs(WristIOInputs inputs) {}
+  public default void updateInputs(IntakeWristIOInputs inputs) {}
 
   /** Run open loop at the specified voltage. */
   public default void setVoltage(double motorVolts) {}

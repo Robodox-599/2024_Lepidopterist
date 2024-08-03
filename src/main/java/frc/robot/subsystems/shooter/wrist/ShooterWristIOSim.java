@@ -8,7 +8,7 @@ import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.simulation.EncoderSim;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 
-public class WristIOSim implements WristIO {
+public class ShooterWristIOSim implements ShooterWristIO {
   // from here
   //
   // https://github.com/wpilibsuite/allwpilib/blob/main/wpilibjExamples/src/main/java/edu/wpi/first/wpilibj/examples/armsimulation/subsystems/Arm.java
@@ -30,38 +30,39 @@ public class WristIOSim implements WristIO {
   private SingleJointedArmSim sim =
       new SingleJointedArmSim(
           m_armGearbox,
-          WristConstants.PivotArmSimConstants.kArmReduction,
+          ShooterWristConstants.PivotArmSimConstants.kArmReduction,
           SingleJointedArmSim.estimateMOI(
-              WristConstants.PivotArmSimConstants.kArmLength,
-              WristConstants.PivotArmSimConstants.kArmMass),
-          WristConstants.PivotArmSimConstants.kArmLength,
-          WristConstants.PivotArmSimConstants.kMinAngleRads,
-          WristConstants.PivotArmSimConstants.kMaxAngleRads,
+              ShooterWristConstants.PivotArmSimConstants.kArmLength,
+              ShooterWristConstants.PivotArmSimConstants.kArmMass),
+          ShooterWristConstants.PivotArmSimConstants.kArmLength,
+          ShooterWristConstants.PivotArmSimConstants.kMinAngleRads,
+          ShooterWristConstants.PivotArmSimConstants.kMaxAngleRads,
           true, // change this to true later
           0.1);
 
   private final EncoderSim m_encoderSim;
 
-  public WristIOSim() {
+  public ShooterWristIOSim() {
     m_encoder =
         new Encoder(
-            WristConstants.PivotArmSimConstants.kEncoderAChannel,
-            WristConstants.PivotArmSimConstants.kEncoderBChannel);
+            ShooterWristConstants.PivotArmSimConstants.kEncoderAChannel,
+            ShooterWristConstants.PivotArmSimConstants.kEncoderBChannel);
     m_encoderSim = new EncoderSim(m_encoder);
 
-    m_encoderSim.setDistancePerPulse(WristConstants.PivotArmSimConstants.kArmEncoderDistPerPulse);
+    m_encoderSim.setDistancePerPulse(
+        ShooterWristConstants.PivotArmSimConstants.kArmEncoderDistPerPulse);
     m_controller =
         new ProfiledPIDController(
-            WristConstants.PivotArmSimConstants.kPivotSimPID[0],
-            WristConstants.PivotArmSimConstants.kPivotSimPID[1],
-            WristConstants.PivotArmSimConstants.kPivotSimPID[2],
+            ShooterWristConstants.PivotArmSimConstants.kPivotSimPID[0],
+            ShooterWristConstants.PivotArmSimConstants.kPivotSimPID[1],
+            ShooterWristConstants.PivotArmSimConstants.kPivotSimPID[2],
             new TrapezoidProfile.Constraints(2.45, 2.45));
 
     m_controller.setTolerance(0.1, 0.05);
   }
 
   @Override
-  public void updateInputs(WristIOInputs inputs) {
+  public void updateInputs(ShooterWristIOInputs inputs) {
     sim.update(0.02);
     inputs.angleRads = getAngle();
     inputs.angVelocityRadsPerSec = sim.getVelocityRadPerSec();

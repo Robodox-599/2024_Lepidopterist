@@ -1,10 +1,9 @@
-package frc.robot.subsystems.shooter.wrist;
+package frc.robot.subsystems.intake.wrist;
 
 import static edu.wpi.first.units.MutableMeasure.mutable;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Volts;
-import static frc.robot.subsystems.shooter.wrist.WristConstants.*;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -23,20 +22,9 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import java.util.function.DoubleSupplier;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
-import org.littletonrobotics.junction.networktables.LoggedDashboardNumber;
 
-public class Wrist extends SubsystemBase {
-  private final WristIOInputsAutoLogged inputs = new WristIOInputsAutoLogged();
-
-  private LoggedDashboardNumber logP;
-  private LoggedDashboardNumber logI;
-  private LoggedDashboardNumber logD;
-  private LoggedDashboardNumber logFF;
-
-  private LoggedDashboardNumber logkS;
-  private LoggedDashboardNumber logkG;
-  private LoggedDashboardNumber logkV;
-  private LoggedDashboardNumber logkA;
+public class IntakeWrist extends SubsystemBase {
+  private final IntakeWristIOInputsAutoLogged inputs = new IntakeWristIOInputsAutoLogged();
 
   // Mutable holder for unit-safe voltage values, persisted to avoid reallocation.
   private final MutableMeasure<Voltage> m_appliedVoltage = mutable(Volts.of(0));
@@ -47,25 +35,14 @@ public class Wrist extends SubsystemBase {
 
   private double setpoint = 0;
 
-  private final WristIO io;
+  private final IntakeWristIO io;
 
   // Create a Mechanism2d visualization of the arm
-  private MechanismLigament2d armMechanism = getArmMechanism();
+  private MechanismLigament2d wristMechanism = getArmMechanism();
 
-  public Wrist(WristIO io) {
+  public IntakeWrist(IntakeWristIO io) {
     this.io = io;
-
     SmartDashboard.putData(getName(), this);
-
-    logP = new LoggedDashboardNumber("PivotArm/P", io.getP());
-    logI = new LoggedDashboardNumber("PivotArm/I", io.getI());
-    logD = new LoggedDashboardNumber("PivotArm/D", io.getD());
-    logFF = new LoggedDashboardNumber("PivotArm/FF", io.getFF());
-
-    logkS = new LoggedDashboardNumber("PivotArm/kS", io.getkS());
-    logkG = new LoggedDashboardNumber("PivotArm/kG", io.getkG());
-    logkV = new LoggedDashboardNumber("PivotArm/kV", io.getkV());
-    logkA = new LoggedDashboardNumber("PivotArm/kG", io.getkA());
   }
 
   @Override
@@ -73,31 +50,10 @@ public class Wrist extends SubsystemBase {
     io.updateInputs(inputs);
     Logger.processInputs("PivotArm", inputs);
 
-    armMechanism.setAngle(Units.radiansToDegrees(inputs.angleRads));
-
-    // Update the PID constants if they have changed
-    if (logP.get() != io.getP()) io.setP(logP.get());
-
-    if (logI.get() != io.getI()) io.setI(logI.get());
-
-    if (logD.get() != io.getD()) io.setD(logD.get());
-
-    if (logFF.get() != io.getFF()) io.setFF(logFF.get());
-
-    if (logkS.get() != io.getkS()) io.setkS(logkS.get());
-
-    if (logkG.get() != io.getkG()) io.setkG(logkG.get());
-
-    if (logkV.get() != io.getkV()) io.setkV(logkV.get());
-
-    if (logkA.get() != io.getkA()) io.setkG(logkA.get());
+    wristMechanism.setAngle(Units.radiansToDegrees(inputs.angleRads));
 
     // Log Inputs
     Logger.processInputs("PivotArm", inputs);
-
-    Logger.recordOutput(
-        "PivotArm/PivotAbsoluteEncoderConnected",
-        inputs.angleRads != WristConstants.PIVOT_ARM_OFFSET);
   }
 
   public void setBrake(boolean brake) {
@@ -107,14 +63,14 @@ public class Wrist extends SubsystemBase {
   @AutoLogOutput(key = "PivotArm/Close")
   public boolean isVoltageClose(double setVoltage) {
     double voltageDifference = Math.abs(setVoltage - inputs.appliedVolts);
-    return voltageDifference <= WristConstants.PIVOT_ARM_TOLERANCE;
+    return voltageDifference <= IntakeWristConstants.PIVOT_ARM_TOLERANCE;
   }
 
   public void setVoltage(double motorVolts) {
     // limit the arm if its past the limit
-    if (io.getAngle() > WristConstants.PIVOT_ARM_MAX_ANGLE && motorVolts > 0) {
+    if (io.getAngle() > IntakeWristConstants.PIVOT_ARM_MAX_ANGLE && motorVolts > 0) {
       motorVolts = 0;
-    } else if (io.getAngle() < WristConstants.PIVOT_ARM_MIN_ANGLE && motorVolts < 0) {
+    } else if (io.getAngle() < IntakeWristConstants.PIVOT_ARM_MIN_ANGLE && motorVolts < 0) {
       motorVolts = 0;
     }
     io.setVoltage(motorVolts);
@@ -142,18 +98,20 @@ public class Wrist extends SubsystemBase {
     this.setpoint += setpointAdd;
     this.setpoint =
         MathUtil.clamp(
-            this.setpoint, WristConstants.PIVOT_ARM_MIN_ANGLE, WristConstants.PIVOT_ARM_MAX_ANGLE);
+            this.setpoint,
+            IntakeWristConstants.PIVOT_ARM_MIN_ANGLE,
+            IntakeWristConstants.PIVOT_ARM_MAX_ANGLE);
 
     Logger.recordOutput("PivotArm/Setpoint", setpoint);
   }
 
   public boolean atSetpoint() {
-    return Math.abs(io.getAngle() - setpoint) < WristConstants.PIVOT_ARM_PID_TOLERANCE
-        && Math.abs(getVelocity()) < WristConstants.PIVOT_ARM_PID_VELOCITY_TOLERANCE;
+    return Math.abs(io.getAngle() - setpoint) < IntakeWristConstants.PIVOT_ARM_PID_TOLERANCE
+        && Math.abs(getVelocity()) < IntakeWristConstants.PIVOT_ARM_PID_VELOCITY_TOLERANCE;
   }
 
   public void setMechanism(MechanismLigament2d mechanism) {
-    armMechanism = mechanism;
+    wristMechanism = mechanism;
   }
 
   public Rotation2d getAngle() {
@@ -169,11 +127,11 @@ public class Wrist extends SubsystemBase {
   }
 
   public MechanismLigament2d append(MechanismLigament2d mechanism) {
-    return armMechanism.append(mechanism);
+    return wristMechanism.append(mechanism);
   }
 
   public MechanismLigament2d getArmMechanism() {
-    return new MechanismLigament2d("Pivot Arm", 0.4, 0, 5, new Color8Bit(Color.kAqua));
+    return new MechanismLigament2d("Wrist", 0.4, 0, 5, new Color8Bit(Color.kAqua));
   }
 
   public Command PIDCommand(double setpoint) {
@@ -233,21 +191,5 @@ public class Wrist extends SubsystemBase {
   public Command stop() {
     return new FunctionalCommand(
         () -> {}, () -> io.setVoltage(0), (stop) -> io.stop(), () -> false, this);
-  }
-
-  public Command bringDownCommand() {
-    return new FunctionalCommand(
-        () -> {},
-        () -> {
-          move(-1);
-          setpoint = 0;
-        },
-        (interrupted) -> {
-          move(0);
-        },
-        () -> {
-          return io.getAngle() < 0.1;
-        },
-        this);
   }
 }

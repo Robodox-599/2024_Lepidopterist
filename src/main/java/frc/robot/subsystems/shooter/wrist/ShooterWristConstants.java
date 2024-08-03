@@ -2,7 +2,7 @@ package frc.robot.subsystems.shooter.wrist;
 
 import edu.wpi.first.math.util.Units;
 
-public class WristConstants {
+public class ShooterWristConstants {
   public static final int wristMotorID = 1; // TODO: change later
   public static final String wristMotorCANBus = "LunaDriveCANivore"; // TODO: change later
   public static final double POSITION_CONVERSION_FACTOR = 21.0 / 35.0;

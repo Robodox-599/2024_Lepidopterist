@@ -1,7 +1,6 @@
-package frc.robot.subsystems.shooter.wrist;
+package frc.robot.subsystems.intake.wrist;
 
-import static frc.robot.subsystems.shooter.wrist.WristConstants.wristMotorCANBus;
-import static frc.robot.subsystems.shooter.wrist.WristConstants.wristMotorID;
+import static frc.robot.subsystems.intake.IntakeConstants.*;
 
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
@@ -10,10 +9,9 @@ import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
-// import frc.robot.Constants.ElectricalLayout;
 import org.littletonrobotics.junction.Logger;
 
-public class WristIOTalonFX implements WristIO {
+public class IntakeWristIOTalonFX implements IntakeWristIO {
   // Motor and Encoders
   private TalonFX pivotMotor;
   private final ProfiledPIDController pidController;
@@ -21,40 +19,33 @@ public class WristIOTalonFX implements WristIO {
   private double setpoint = 0;
   private double motorEncoder;
 
-  public WristIOTalonFX() {
-    pivotMotor = new TalonFX(wristMotorID, wristMotorCANBus);
+  public IntakeWristIOTalonFX() {
+    pivotMotor = new TalonFX(intakeWristMotorID, intakeWristMotorCANbus);
     setBrake(true);
     pidController =
         new ProfiledPIDController(
-            WristConstants.PIVOT_ARM_PID_REAL[0],
-            WristConstants.PIVOT_ARM_PID_REAL[1],
-            WristConstants.PIVOT_ARM_PID_REAL[2],
+            IntakeWristConstants.PIVOT_ARM_PID_REAL[0],
+            IntakeWristConstants.PIVOT_ARM_PID_REAL[1],
+            IntakeWristConstants.PIVOT_ARM_PID_REAL[2],
             new TrapezoidProfile.Constraints(2.45, 2.45));
     pidController.setTolerance(
-        WristConstants.PIVOT_ARM_PID_TOLERANCE, WristConstants.PIVOT_ARM_PID_VELOCITY_TOLERANCE);
+        IntakeWristConstants.PIVOT_ARM_PID_TOLERANCE,
+        IntakeWristConstants.PIVOT_ARM_PID_VELOCITY_TOLERANCE);
     motorEncoder = pivotMotor.getPosition().getValueAsDouble();
     configurePID();
-    configureFeedForward();
   }
 
   private void configurePID() {
-    pidController.setP(WristConstants.PIVOT_ARM_PID_REAL[0]);
-    pidController.setI(WristConstants.PIVOT_ARM_PID_REAL[1]);
-    pidController.setD(WristConstants.PIVOT_ARM_PID_REAL[2]);
+    pidController.setP(IntakeWristConstants.PIVOT_ARM_PID_REAL[0]);
+    pidController.setI(IntakeWristConstants.PIVOT_ARM_PID_REAL[1]);
+    pidController.setD(IntakeWristConstants.PIVOT_ARM_PID_REAL[2]);
     pidController.enableContinuousInput(
-        WristConstants.PIVOT_ARM_MIN_ANGLE, WristConstants.PIVOT_ARM_MAX_ANGLE);
-  }
-
-  private void configureFeedForward() {
-    setkS(WristConstants.PIVOT_ARM_FEEDFORWARD_REAL[0]);
-    setkG(WristConstants.PIVOT_ARM_FEEDFORWARD_REAL[1]);
-    setkV(WristConstants.PIVOT_ARM_FEEDFORWARD_REAL[2]);
-    setkA(WristConstants.PIVOT_ARM_FEEDFORWARD_REAL[3]);
+        IntakeWristConstants.PIVOT_ARM_MIN_ANGLE, IntakeWristConstants.PIVOT_ARM_MAX_ANGLE);
   }
 
   /** Updates the set of loggable inputs. */
   @Override
-  public void updateInputs(WristIOInputs inputs) {
+  public void updateInputs(IntakeWristIOInputs inputs) {
     inputs.angleRads = getAngle();
     inputs.angVelocityRadsPerSec = pivotMotor.getVelocity().getValueAsDouble();
     inputs.appliedVolts =
@@ -63,13 +54,13 @@ public class WristIOTalonFX implements WristIO {
     inputs.currentAmps = new double[] {pivotMotor.getSupplyCurrent().getValueAsDouble()};
     inputs.tempCelsius = new double[] {pivotMotor.getDeviceTemp().getValueAsDouble()};
     inputs.setpointAngleRads = setpoint;
-    Logger.recordOutput("PivotArm/MotorEncoder", motorEncoder);
+    Logger.recordOutput("IntakeWrist/MotorEncoder", motorEncoder);
   }
 
   /** Run open loop at the specified voltage. */
   @Override
   public void setVoltage(double motorVolts) {
-    Logger.recordOutput("PivotArm/AppliedVolts", motorVolts);
+    Logger.recordOutput("IntakeWrist/AppliedVolts", motorVolts);
     pivotMotor.setVoltage(motorVolts);
   }
 
@@ -88,10 +79,10 @@ public class WristIOTalonFX implements WristIO {
     double feedforwardOutput =
         feedforward.calculate(getAngle(), pidController.getSetpoint().velocity);
 
-    Logger.recordOutput("PivotArm/FeedforwardOutput", feedforwardOutput);
-    Logger.recordOutput("PivotArm/PIDOutput", pidOutput);
+    Logger.recordOutput("IntakeWrist/FeedforwardOutput", feedforwardOutput);
+    Logger.recordOutput("IntakeWrist/PIDOutput", pidOutput);
 
-    Logger.recordOutput("PivotArm/VelocityError", pidController.getVelocityError());
+    Logger.recordOutput("IntakeWrist/VelocityError", pidController.getVelocityError());
 
     setVoltage(MathUtil.clamp(pidOutput + feedforwardOutput, -4, 4));
   }
@@ -110,7 +101,7 @@ public class WristIOTalonFX implements WristIO {
 
   @Override
   public boolean atSetpoint() {
-    return Math.abs(getAngle() - setpoint) < WristConstants.PIVOT_ARM_PID_TOLERANCE;
+    return Math.abs(getAngle() - setpoint) < IntakeWristConstants.PIVOT_ARM_PID_TOLERANCE;
   }
 
   @Override
