@@ -51,6 +51,9 @@
     }
   },
   "NetworkTables": {
+    "Persistent Values": {
+      "open": false
+    },
     "transitory": {
       "photonvision": {
         "FR Camera": {
