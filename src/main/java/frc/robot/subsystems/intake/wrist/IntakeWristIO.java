@@ -19,7 +19,6 @@ public interface IntakeWristIO {
 
   /** Run open loop at the specified voltage. */
   public default void setVoltage(double motorVolts) {}
-
   /** Returns the current distance measurement. */
   public default double getAngle() {
     return 0.0;

@@ -1,11 +1,11 @@
-package frc.robot.subsystems.intake.rollers;
+package frc.robot.subsystems.indexer;
 
 import org.littletonrobotics.junction.AutoLog;
 
-public interface RollersIO {
+public interface IndexerIO {
 
   @AutoLog
-  public static class RollersIOInputs {
+  public static class IndexerIOInputs {
     public double velocityRadsPerSec = 0.0;
     public double appliedVoltage = 0.0;
     public double speedSetpoint = 0.0;
@@ -14,7 +14,7 @@ public interface RollersIO {
   }
 
   /** updates inputs from robot */
-  public default void updateInputs(RollersIOInputs inputs) {}
+  public default void updateInputs(IndexerIOInputs inputs) {}
   /** sets voltage to run motor if necessary */
   public default void setVoltage(double voltage) {}
 

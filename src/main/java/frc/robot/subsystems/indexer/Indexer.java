@@ -1,4 +1,4 @@
-package frc.robot.subsystems.intake.rollers;
+package frc.robot.subsystems.indexer;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -9,11 +9,11 @@ import org.littletonrobotics.junction.Logger;
 
 // testing live share :O
 
-public class Rollers extends SubsystemBase {
-  private final RollersIO io;
-  RollersIOInputsAutoLogged inputs = new RollersIOInputsAutoLogged();
+public class Indexer extends SubsystemBase {
+  private final IndexerIO io;
+  IndexerIOInputsAutoLogged inputs = new IndexerIOInputsAutoLogged();
 
-  public Rollers(RollersIO io) {
+  public Indexer(IndexerIO io) {
     this.io = io;
     SmartDashboard.putData(getName(), this);
   }

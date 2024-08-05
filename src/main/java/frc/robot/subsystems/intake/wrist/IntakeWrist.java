@@ -4,6 +4,7 @@ import static edu.wpi.first.units.MutableMeasure.mutable;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Volts;
+import static frc.robot.subsystems.intake.IntakeConstants.*;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -25,7 +26,9 @@ import org.littletonrobotics.junction.Logger;
 
 public class IntakeWrist extends SubsystemBase {
   private final IntakeWristIOInputsAutoLogged inputs = new IntakeWristIOInputsAutoLogged();
-
+  private double motorEncoder;
+  private double m_DesiredWristPos;
+  private int m_WristSlot;
   // Mutable holder for unit-safe voltage values, persisted to avoid reallocation.
   private final MutableMeasure<Voltage> m_appliedVoltage = mutable(Volts.of(0));
   // Mutable holder for unit-safe linear distance values, persisted to avoid reallocation.

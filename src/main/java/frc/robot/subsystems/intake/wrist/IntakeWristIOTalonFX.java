@@ -18,6 +18,8 @@ public class IntakeWristIOTalonFX implements IntakeWristIO {
   private ArmFeedforward feedforward = new ArmFeedforward(0, 0, 0, 0);
   private double setpoint = 0;
   private double motorEncoder;
+  private double m_DesiredWristPos;
+  private int m_WristSlot;
 
   public IntakeWristIOTalonFX() {
     pivotMotor = new TalonFX(intakeWristMotorID, intakeWristMotorCANbus);
@@ -31,8 +33,10 @@ public class IntakeWristIOTalonFX implements IntakeWristIO {
     pidController.setTolerance(
         IntakeWristConstants.PIVOT_ARM_PID_TOLERANCE,
         IntakeWristConstants.PIVOT_ARM_PID_VELOCITY_TOLERANCE);
+    pivotMotor.setPosition(0.0);
     motorEncoder = pivotMotor.getPosition().getValueAsDouble();
     configurePID();
+    m_WristSlot = 0;
   }
 
   private void configurePID() {

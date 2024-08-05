@@ -1,17 +1,17 @@
-package frc.robot.subsystems.intake.rollers;
+package frc.robot.subsystems.indexer;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import frc.robot.subsystems.intake.IntakeConstants.RollerMotorConstants;
 
-public class RollersIOTalonFX implements RollersIO {
-  private TalonFX intakeRollerMotor;
+public class IndexerIOTalonFX implements IndexerIO {
+  private TalonFX indexerMotor;
   TalonFXConfiguration intakeRollerConfig;
   private double desiredSpeed;
 
-  public RollersIOTalonFX() {
-    intakeRollerMotor = new TalonFX(RollerMotorConstants.intakeRollersMotorID, "rio");
+  public IndexerIOTalonFX() {
+    indexerMotor = new TalonFX(RollerMotorConstants.intakeRollersMotorID, "rio");
     intakeRollerConfig = new TalonFXConfiguration();
     intakeRollerConfig.Slot0.kP = RollerMotorConstants.kP;
     intakeRollerConfig.Slot0.kI = RollerMotorConstants.kI;
@@ -28,32 +28,32 @@ public class RollersIOTalonFX implements RollersIO {
 
   /** updates inputs from robot */
   @Override
-  public void updateInputs(RollersIOInputs inputs) {
+  public void updateInputs(IndexerIOInputs inputs) {
     inputs.appliedVoltage =
-        (intakeRollerMotor.getClosedLoopOutput().getValueAsDouble())
-            * (intakeRollerMotor.getSupplyVoltage().getValueAsDouble());
-    inputs.currentAmps = new double[] {(intakeRollerMotor.getSupplyCurrent()).getValueAsDouble()};
-    inputs.tempCelcius = new double[] {(intakeRollerMotor.getDeviceTemp()).getValueAsDouble()};
-    inputs.velocityRadsPerSec = intakeRollerMotor.getVelocity().getValueAsDouble();
+        (indexerMotor.getClosedLoopOutput().getValueAsDouble())
+            * (indexerMotor.getSupplyVoltage().getValueAsDouble());
+    inputs.currentAmps = new double[] {(indexerMotor.getSupplyCurrent()).getValueAsDouble()};
+    inputs.tempCelcius = new double[] {(indexerMotor.getDeviceTemp()).getValueAsDouble()};
+    inputs.velocityRadsPerSec = indexerMotor.getVelocity().getValueAsDouble();
     inputs.speedSetpoint = desiredSpeed;
   }
 
   /** sets voltage to run motor if necessary */
   @Override
   public void setVoltage(double voltage) {
-    intakeRollerMotor.setVoltage(voltage);
+    indexerMotor.setVoltage(voltage);
   }
 
   /** sets brake mode to stop */
   @Override
   public void setBrake(boolean brake) {
-    intakeRollerMotor.setNeutralMode(brake ? NeutralModeValue.Brake : NeutralModeValue.Coast);
+    indexerMotor.setNeutralMode(brake ? NeutralModeValue.Brake : NeutralModeValue.Coast);
   }
 
   /** sets speed of motor */
   @Override
   public void setSpeed(double speed) {
     desiredSpeed = speed;
-    intakeRollerMotor.set(speed);
+    indexerMotor.set(speed);
   }
 }

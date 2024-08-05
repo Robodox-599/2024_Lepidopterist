@@ -21,4 +21,7 @@ public class FlywheelConstants {
   public static final double realFlywheelFeedBackkD = 0.0; // TODO: assign later
 
   public static final double FLYWHEEL_GEAR_RATIO = 0.0; // TODO: assign later
+
+  public static final double SHOOTER_FULL_VOLTAGE = 11;
+  public static final double SHOOTER_TOLERANCE = 1.0;
 }

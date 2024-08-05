@@ -7,6 +7,7 @@ package frc.robot;
 import static frc.robot.FieldConstants.*;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -14,6 +15,7 @@ import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -26,7 +28,16 @@ import frc.robot.subsystems.drive.GyroIOPigeon2;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
+import frc.robot.subsystems.indexer.Indexer;
+import frc.robot.subsystems.indexer.IndexerConstants;
 import frc.robot.subsystems.indexer.subsystem_Indexer;
+import frc.robot.subsystems.intake.rollers.Rollers;
+import frc.robot.subsystems.intake.wrist.IntakeWrist;
+import frc.robot.subsystems.shooter.flywheel.Flywheel;
+import frc.robot.subsystems.shooter.flywheel.FlywheelConstants;
+import frc.robot.subsystems.shooter.flywheel.FlywheelIO;
+import frc.robot.subsystems.shooter.flywheel.FlywheelIOSim;
+import frc.robot.subsystems.shooter.flywheel.FlywheelIOTalonFX;
 import frc.robot.subsystems.shooter.wrist.ShooterWrist;
 import frc.robot.subsystems.shooter.wrist.ShooterWristIO;
 import frc.robot.subsystems.shooter.wrist.ShooterWristIOSim;
@@ -49,7 +60,11 @@ public class RobotContainer {
 
   /* Subsystems */
   private Drive drive;
-  private ShooterWrist wrist;
+  private ShooterWrist shooterWrist;
+  private Flywheel flywheels;
+  private Rollers rollers;
+  private IntakeWrist intakeWrist;
+  private Indexer indexer;
   //   private final VisionSubsystem vision = new VisionSubsystem)(;
   //   private final subsystem_Vision m_Vision = new subsystem_Vision();
   //   private final subsystem_Shooter m_Shooter = new subsystem_Shooter();
@@ -76,7 +91,8 @@ public class RobotContainer {
 
     switch (Constants.getRobot()) {
       case REALBOT -> {
-        wrist = new ShooterWrist(new ShooterWristIOTalonFX());
+        shooterWrist = new ShooterWrist(new ShooterWristIOTalonFX());
+        flywheels = new Flywheel(new FlywheelIOTalonFX());
         drive =
             new Drive(
                 new GyroIOPigeon2(true),
@@ -88,7 +104,8 @@ public class RobotContainer {
       }
 
       case SIMBOT -> {
-        wrist = new ShooterWrist(new ShooterWristIOSim());
+        shooterWrist = new ShooterWrist(new ShooterWristIOSim());
+        flywheels = new Flywheel(new FlywheelIOSim());
         drive =
             new Drive(
                 new GyroIO() {},
@@ -101,7 +118,8 @@ public class RobotContainer {
 
         // Replayed robot, disable IO implementations
       case REPLAYBOT -> {
-        wrist = new ShooterWrist(new ShooterWristIO() {});
+        shooterWrist = new ShooterWrist(new ShooterWristIO() {});
+        flywheels = new Flywheel(new FlywheelIO() {});
         drive =
             new Drive(
                 new GyroIO() {},
@@ -151,6 +169,8 @@ public class RobotContainer {
     //                 m_Indexer.runIndexerShootStartEnd().withTimeout(2.0)),
     //             m_Shooter.stowShooter()) // TODO: Set timeout to 0.75 after indexer re-attached
     //         );
+    NamedCommands.registerCommand("AutoAlignShoot", Commands.sequence());
+
     m_Chooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
     configureBindings();
   }
@@ -173,20 +193,23 @@ public class RobotContainer {
     drive.setDefaultCommand(
         DriveCommands.joystickDrive(
             drive, () -> -driver.getLeftY(), () -> -driver.getLeftX(), () -> -driver.getRightX()));
-    final boolean speakerWingVal = isInSpeakerWing(drive);
-    final boolean sourceWingVal = isInSpeakerWing(drive);
-    BooleanSupplier isInSpeakerWing = () -> speakerWingVal;
-    BooleanSupplier isInSourceWing = () -> sourceWingVal;
-    BooleanSupplier isNOTinSpeakerWing = () -> !speakerWingVal;
-    BooleanSupplier isNOTinSourceWing = () -> !sourceWingVal;
+    BooleanSupplier isInSpeakerWing = () -> isInSpeakerWing(drive);
+    BooleanSupplier isInSourceWing = () -> isInSpeakerWing(drive);
+    BooleanSupplier isNOTinSpeakerWing = () -> !isInSpeakerWing(drive);
+    BooleanSupplier isNOTinSourceWing = () -> !isInSpeakerWing(drive);
 
     driver
         .y()
         .whileTrue(
-            AutoAlignCommands.autoAlignSpeakerCommand(drive, driver)
-                .onlyIf(isInSpeakerWing)
-                .andThen(rumbleControllers())
-                .onlyIf(isNOTinSpeakerWing));
+            Commands.sequence(
+                AutoAlignCommands.autoAlignSpeakerCommand(drive, driver)
+                    .onlyIf(isInSpeakerWing)
+                    .andThen(rumbleControllers())
+                    .onlyIf(isNOTinSpeakerWing),
+                flywheels
+                    .runVoltage(FlywheelConstants.SHOOTER_FULL_VOLTAGE)
+                    .onlyIf(() -> AutoAlignCommands.pointedAtSpeaker(drive)),
+                indexer.speedCommand(() -> IndexerConstants.FEEDSPEED)));
 
     driver
         .x()
@@ -195,7 +218,6 @@ public class RobotContainer {
                 .onlyIf(isInSourceWing)
                 .andThen(rumbleControllers())
                 .onlyIf(isNOTinSourceWing));
-
     // driver
     //     .leftBumper()
     //     .whileTrue(
@@ -326,6 +348,7 @@ public class RobotContainer {
   }
   // Returns the estimated transformation over the next tick (The change in
   // position)
+
   public Command rumbleControllers() {
     return new StartEndCommand(
             () -> driver.getHID().setRumble(RumbleType.kBothRumble, 1),
@@ -334,6 +357,10 @@ public class RobotContainer {
             new StartEndCommand(
                 () -> operator.getHID().setRumble(RumbleType.kBothRumble, 1),
                 () -> operator.getHID().setRumble(RumbleType.kBothRumble, 0)));
+  }
+
+  public Command wristToSpeakerForever() {
+    return shooterWrist.PIDCommandForever(this::getAngle);
   }
 
   private Transform2d getEstimatedTransform() {
@@ -371,7 +398,7 @@ public class RobotContainer {
 
   @AutoLogOutput(key = "AimedAtSpeaker")
   public boolean isAimedAtSpeaker() {
-    return AutoAlignCommands.pointedAtSpeaker(drive) && wrist.atSetpoint();
+    return AutoAlignCommands.pointedAtSpeaker(drive) && shooterWrist.atSetpoint();
   }
 
   // Gets angle based on distance from speaker, taking into account the actual
