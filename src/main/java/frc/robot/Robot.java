@@ -112,12 +112,10 @@ public class Robot extends LoggedRobot {
   /** This function is called once each time the robot enters Disabled mode. */
   @Override
   public void disabledInit() {
-    // checkDSUpdate();
   }
 
   @Override
   public void disabledPeriodic() {
-    // checkDSUpdate();
   }
 
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
@@ -125,36 +123,22 @@ public class Robot extends LoggedRobot {
   public void autonomousInit() {
     autonomousInitRan = true;
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
-    // Optional<Alliance> ally = DriverStation.getAlliance();
-    // if (ally.get() == Alliance.Red) {
-    //   isred = ally;
-    // }
-    // schedule the autonomous command (example)
-    // checkDSUpdate();
+
     if (m_autonomousCommand != null) {
       m_autonomousCommand.schedule();
     }
-    // checkDSUpdate();
   }
 
   /** This function is called periodically during autonomous. */
   @Override
   public void autonomousPeriodic() {
-    // checkDSUpdate();
   }
 
   @Override
   public void teleopInit() {
     if (!autonomousInitRan) {
       System.out.println("Autonomous Init didn't before Teleop Init");
-      // Optional<Alliance> ally = DriverStation.getAlliance();
-      // isred = ally;
     }
-    // checkDSUpdate();
-    // if (RobotConstants.robotColor == Alliance.Red){
-    //   m_robotContainer.m_DriveTrain.SertGyro();
-    // }
-
     // This makes sure that the autonomous stops running when
     // teleop starts running. If you want the autonomous to
     // continue until interrupted by another command, remove
@@ -167,20 +151,17 @@ public class Robot extends LoggedRobot {
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
-    // checkDSUpdate();
   }
 
   @Override
   public void testInit() {
     // Cancels all running commands at the start of test mode.
     CommandScheduler.getInstance().cancelAll();
-    // checkDSUpdate();
   }
 
   /** This function is called periodically during test mode. */
   @Override
   public void testPeriodic() {
-    // checkDSUpdate();
   }
 
   /** This function is called once when the robot is first started up. */
@@ -192,6 +173,5 @@ public class Robot extends LoggedRobot {
   /** This function is called periodically whilst in simulation. */
   @Override
   public void simulationPeriodic() {
-    // checkDSUpdate();
   }
 }

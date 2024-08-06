@@ -30,7 +30,6 @@ import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
 import frc.robot.subsystems.indexer.Indexer;
 import frc.robot.subsystems.indexer.IndexerConstants;
-import frc.robot.subsystems.indexer.subsystem_Indexer;
 import frc.robot.subsystems.intake.rollers.Rollers;
 import frc.robot.subsystems.intake.wrist.IntakeWrist;
 import frc.robot.subsystems.shooter.flywheel.Flywheel;
@@ -48,6 +47,9 @@ import java.util.function.BooleanSupplier;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
+import static frc.robot.commands.IntakeCommands.*;
+import static frc.robot.commands.IndexerCommands.*;
+
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -65,11 +67,6 @@ public class RobotContainer {
   private Rollers rollers;
   private IntakeWrist intakeWrist;
   private Indexer indexer;
-  //   private final VisionSubsystem vision = new VisionSubsystem)(;
-  //   private final subsystem_Vision m_Vision = new subsystem_Vision();
-  //   private final subsystem_Shooter m_Shooter = new subsystem_Shooter();
-  private final subsystem_Indexer m_Indexer = new subsystem_Indexer();
-  // private final subsystem_Intake m_Intake = new subsystem_Intake();
 
   /* Controllers */
   private final CommandXboxController driver =
@@ -77,18 +74,14 @@ public class RobotContainer {
   private final CommandXboxController operator =
       new CommandXboxController(ControllerConstants.xboxOperatorID);
 
-  /* Sendable Chooser */
-  // private final LoggedDashboardChooser<Command> m_Chooser;
-  // private final SendableChooser<Command> m_Chooser = new SendableChooser<>();
-  // new LoggedDashboardChooser<>("Auto Choices");
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   private final LoggedDashboardChooser<Command> m_Chooser;
+  BooleanSupplier isInSpeakerWing = () -> isInSpeakerWing(drive);
+  BooleanSupplier isInSourceWing = () -> isInSpeakerWing(drive);
+  BooleanSupplier isNOTinSpeakerWing = () -> !isInSpeakerWing(drive);
+  BooleanSupplier isNOTinSourceWing = () -> !isInSpeakerWing(drive);
 
   public RobotContainer() {
-    // vision = new VisionSubsystem(new VisionIO[] {});
-    CameraServer.startAutomaticCapture(0);
-    // m_Chooser = new LoggedDashboardChooser<>("Auto Choices");
-
     switch (Constants.getRobot()) {
       case REALBOT -> {
         shooterWrist = new ShooterWrist(new ShooterWristIOTalonFX());
@@ -133,46 +126,12 @@ public class RobotContainer {
         break;
       }
     }
-    // Configure the trigger bindings
-    // m_DriveTrain.setDefaultCommand(
-    //     new command_DriveTeleop(
-    //         m_DriveTrain,
-    //         m_Vision,
-    //         () -> -driver.getLeftY(),
-    //         () -> -driver.getLeftX(),
-    //         () -> -driver.getRightX(),
-    //         () -> SwerveConstants.isFieldRelative,
-    //         () -> SwerveConstants.isOpenLoop));
 
-    // m_Intake.setDefaultCommand(new command_ManualIntakeWrist(m_Intake, () ->
-    // -operator.getRightY()));
-
-    //     m_Shooter.setDefaultCommand(new command_ManualShooter(m_Shooter, () ->
-    // -operator.getLeftY()));
-
-    //     // LOGGED DASHBOARD NOW CALLS THE AUTOS IN AUTOBUILDER. THAT THEN LOOKS FOR THE AUTOS AND
-    // SENDS
-    //     // THEM TO THE LOGGED DASHBOARD. :)
-    //     NamedCommands.registerCommand(
-    //         "Shoot Subwoofer",
-    //         Commands.sequence(
-    //             // Autos.runAutoPath(drive, "Taxi Auto"),
-    //             m_Shooter.initialSetWristAngle(),
-    //             drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward),
-    //             new command_ToWristAndSpeed(
-    //                 m_Shooter,
-    //                 () -> ShooterConstants.WristSepoints.testSpeakerWrist,
-    //                 () -> ShooterConstants.FlywheelSetpoints.SpeakerSpeed),
-    //             new WaitUntilCommand(m_Shooter.isReadyToShoot()),
-    //             Commands.parallel(
-    //                 m_Shooter.forwardsFeederStartEnd().withTimeout(2.0),
-    //                 m_Indexer.runIndexerShootStartEnd().withTimeout(2.0)),
-    //             m_Shooter.stowShooter()) // TODO: Set timeout to 0.75 after indexer re-attached
-    //         );
-    NamedCommands.registerCommand("AutoAlignShoot", Commands.sequence());
-
+    NamedCommands.registerCommand("AutoAlignShoot", AutoAlignShootAnywhereCommand());
+    NamedCommands.registerCommand("Intake", intakeStartEnd(intakeWrist, rollers, indexer, 2));
     m_Chooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
     configureBindings();
+    
   }
 
   // private final SendableChooser<Command> m_Chooser = AutoBuilder.buildAutoChooser();
@@ -193,23 +152,10 @@ public class RobotContainer {
     drive.setDefaultCommand(
         DriveCommands.joystickDrive(
             drive, () -> -driver.getLeftY(), () -> -driver.getLeftX(), () -> -driver.getRightX()));
-    BooleanSupplier isInSpeakerWing = () -> isInSpeakerWing(drive);
-    BooleanSupplier isInSourceWing = () -> isInSpeakerWing(drive);
-    BooleanSupplier isNOTinSpeakerWing = () -> !isInSpeakerWing(drive);
-    BooleanSupplier isNOTinSourceWing = () -> !isInSpeakerWing(drive);
 
     driver
-        .y()
-        .whileTrue(
-            Commands.sequence(
-                AutoAlignCommands.autoAlignSpeakerCommand(drive, driver)
-                    .onlyIf(isInSpeakerWing)
-                    .andThen(rumbleControllers())
-                    .onlyIf(isNOTinSpeakerWing),
-                flywheels
-                    .runVoltage(FlywheelConstants.SHOOTER_FULL_VOLTAGE)
-                    .onlyIf(() -> AutoAlignCommands.pointedAtSpeaker(drive)),
-                indexer.speedCommand(() -> IndexerConstants.FEEDSPEED)));
+        .rightBumper()
+        .whileTrue(AutoAlignShootAnywhereCommand());
 
     driver
         .x()
@@ -218,136 +164,50 @@ public class RobotContainer {
                 .onlyIf(isInSourceWing)
                 .andThen(rumbleControllers())
                 .onlyIf(isNOTinSourceWing));
-    // driver
-    //     .leftBumper()
-    //     .whileTrue(
-    //         Commands.parallel(m_Intake.autoSpeakerIntake(),
-    // m_Indexer.runIndexerUntilBeamBreak()));
-    // driver.leftBumper().onFalse(m_Intake.stowCommand().alongWith(m_Indexer.stopIndexerCommand()));
 
-    // // intake to amp command
-    // driver
-    //     .leftTrigger()
-    //     .whileTrue(
-    //         Commands.parallel(m_Intake.autoAmpIntake(), m_Indexer.runIndexerUntilBeamBreak()));
-    // driver.leftTrigger().onFalse(m_Intake.stowCommand().alongWith(m_Indexer.stopIndexerCommand()));
+    driver.leftBumper().whileTrue( new StartEndCommand(()->
+      intakeDeployAndIntake(intakeWrist, rollers, indexer), ()->rumbleControllers()));
 
-    // intake source
-    // driver
-    //     .rightBumper()
-    //     .whileTrue(
-    //         Commands.sequence(
-    //             m_Shooter.autoSourceShooter().alongWith(m_Indexer.sourceIndexer()),
-    //             new InstantCommand(() -> m_Shooter.stopFeeder(), m_Shooter)));
-    // driver
-    //     .rightBumper()
-    //     .onFalse(
-    //         m_Shooter
-    //             .stowAndStopShooter()
-    //             .andThen(m_Indexer.sourceIndexer())
-    //             .withTimeout(0.5)
-    //             .andThen(m_Shooter.stowShooter()));
-
-    // // stow all
-    // driver
-    //     .start()
-    //     .onTrue(
-    //         Commands.parallel(
-    //             m_Intake.stowCommand(), m_Indexer.stopIndexerCommand(),
-    // m_Shooter.stowShooter()));
+    driver.leftBumper().onFalse(Commands.parallel(
+      stowCommand(intakeWrist),
+      stopIndexer(indexer),
+      stopRollers(rollers)
+    ));
 
     /*  ---------------------
       Operator Controls
     ---------------------  */
 
-    operator.a().whileTrue(m_Indexer.runIndexerStartEnd());
-    operator.b().whileTrue(m_Indexer.runIndexerBackwardsStartEnd());
-    // operator.x().whileTrue(m_Intake.runIntakeFwdCMD());
-    // operator.y().whileTrue(m_Intake.runIntakeBackCMD());
-
-    // operator.povLeft().onTrue(m_DriveTrain.resetSubwoofer(() -> 0.0));
-    // operator.povUp().onTrue(m_DriveTrain.resetSubwoofer(() -> 1.0));
-    // operator.povRight().onTrue(m_DriveTrain.resetSubwoofer(() -> 2.0));
-    // operator.povLeft().onTrue(m_DriveTrain.resetSubwoofer(subwooferSide.LEFT));
-    // operator.povUp().onTrue(m_DriveTrain.resetSubwoofer(subwooferSide.CENTER);
-    // operator.povRight().onTrue(m_DriveTrain.resetSubwoofer(subwooferSide.RIGHT);
-
-    // arm speaker
-    // operator.leftTrigger().and(operator.rightTrigger().negate()).whileTrue(
-    //                                               new command_AutoSpeaker(m_DriveTrain,
-    // m_Shooter, () -> false));
-
-    // //shoot when ready
-    // operator.leftTrigger().and(operator.rightTrigger()).onTrue(
-    //                                               m_Shooter.waitUntilReady().andThen(
-    //                                                 shootSequence(m_Indexer,
-    // m_Shooter).withTimeout(1.0)));
-
-    // operator
-    //     .leftTrigger()
-    //     .and(operator.rightTrigger().negate())
-    //     .whileTrue(scoreAmp().withTimeout(1.0));
-    // operator.leftTrigger().and(operator.rightTrigger().negate()).onFalse(m_Shooter.stowShooter());
-
-    // // manual shoot
-    // operator
-    //     .leftTrigger()
-    //     .negate()
-    //     .and(operator.rightTrigger())
-    //     .whileTrue(shootSequence(m_Indexer, m_Shooter));
-    // //
-    // driver.leftTrigger().negate().and(driver.rightTrigger()).whileTrue(shootSequence(m_Indexer,
-    // // m_Shooter));
-
-    // // auto Stow
-    // operator
-    //     .leftTrigger()
-    //     .negate()
-    //     .and(operator.rightTrigger().negate())
-    //     .onTrue(m_Shooter.stowShooter());
-
-    // // Amp Score
-    // // operator.leftBumper().whileTrue(m_Intake.ampScoreCommand());
-    // // operator.leftBumper().onFalse(m_Intake.stowCommand());
-    // // operator.povDownRight().whileTrue(m_Intake.ampFling());
-    // // operator.povDown().onTrue(m_DriveTrain.flipBotCommand());
-
-    // // subwoofer setpoint
-    // operator
-    //     .leftBumper()
-    //     .and(operator.rightBumper().negate())
-    //     .whileTrue(
-    //         new command_ToWristAndSpeed(
-    //             m_Shooter,
-    //             () -> ShooterConstants.WristSepoints.testSpeakerWrist,
-    //             () -> ShooterConstants.FlywheelSetpoints.SpeakerSpeed));
-    // operator
-    //     .leftBumper()
-    //     .and(operator.rightBumper())
-    //     .whileTrue(
-    //         m_Shooter
-    //             .waitUntilReady()
-    //             .andThen(shootSequence(m_Indexer, m_Shooter).withTimeout(1.0)));
-    // operator
-    //     .leftBumper()
-    //     .negate()
-    //     .and(operator.rightBumper().negate())
-    //     .onTrue(m_Shooter.stowShooter());
-
-    // // Stow All
-    // operator
-    //     .start()
-    //     .onTrue(
-    //         Commands.parallel(
-    //             m_Intake.stowCommand(), m_Indexer.stopIndexerCommand(),
-    // m_Shooter.stowShooter()));
-
-    // operator
-    //     .back()
-    //     .whileTrue(m_Shooter.forwardsFeederStartEnd().alongWith(m_Indexer.runIndexerStartEnd()));
+    operator.a().whileTrue(runIndexerStartEnd());
+    operator.b().whileTrue(runIndexerStartEndBackwards());
+    operator.x().whileTrue(runIntakeFwdCMD(rollers));
+    operator.y().whileTrue(runIntakeBackCMD(rollers));
   }
-  // Returns the estimated transformation over the next tick (The change in
-  // position)
+  public Command stowRumble(){
+    return Commands.parallel(
+      stowCommand(intakeWrist), 
+      rumbleControllers()
+    );
+  }
+
+  public Command runIndexerStartEnd() {
+    return new StartEndCommand(() -> runIndexer(indexer, 0.4), () -> stopIndexer(indexer));
+  }
+  public Command runIndexerStartEndBackwards() {
+    return new StartEndCommand(() -> runIndexer(indexer, -0.4), () -> stopIndexer(indexer));
+  }
+  public Command AutoAlignShootAnywhereCommand(){
+      return Commands.sequence(
+                AutoAlignCommands.autoAlignSpeakerCommand(drive, driver)
+                    .onlyIf(isInSpeakerWing)
+                    .andThen(rumbleControllers())
+                    .onlyIf(isNOTinSpeakerWing), 
+                    wristToSpeakerForever(),
+                flywheels
+                    .runVoltage(FlywheelConstants.SHOOTER_FULL_VOLTAGE)
+                    .onlyIf(() -> AutoAlignCommands.pointedAtSpeaker(drive)),
+                indexer.speedCommand(() -> IndexerConstants.FEEDSPEED));
+  }
 
   public Command rumbleControllers() {
     return new StartEndCommand(
@@ -409,6 +269,7 @@ public class RobotContainer {
     Logger.recordOutput("ShootAnywhereAngle", angle);
     return angle;
   }
+
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
    *
@@ -417,37 +278,4 @@ public class RobotContainer {
   public Command getAutonomousCommand() {
     return m_Chooser.get();
   }
-
-  //   public Command shootSequence(subsystem_Indexer indexer, subsystem_Shooter shooter) {
-  //     return m_Shooter
-  //         .setFlywheelSpeedCommand(() -> FlywheelSetpoints.testFlywheelSetpoint)
-  //         .andThen(m_Shooter.waitUntilReady())
-  //         .andThen(
-  //             Commands.parallel(
-  //                 m_Indexer.runIndexerShootStartEnd(),
-  //                 m_Shooter.forwardsFeederStartEnd(),
-  //                 rumbleControllers()));
-  //   }
-
-  //   public Command ampShootSequence(subsystem_Indexer indexer, subsystem_Shooter shooter) {
-  //     return Commands.parallel(
-  //         m_Indexer.runIndexerShootStartEnd(),
-  //         m_Shooter
-  //             .forwardsFeederStartEnd()
-  //             .withTimeout(0.1)
-  //             .andThen(
-  //                 new InstantCommand(() -> m_Shooter.stopFeeder(), m_Shooter)
-  //                     .andThen(Commands.waitSeconds(0.1))
-  //                     .andThen(m_Shooter.forwardsFeederStartEnd().withTimeout(2.5))),
-  //         rumbleControllers());
-  //   }
-
-  //   public Command scoreAmp() {
-  //     return Commands.sequence(
-  //         new InstantCommand(() -> m_Shooter.setDesiredShootAngle(WristSepoints.ampWrist),
-  // m_Shooter),
-  //         m_Shooter.setFlywheelSpeedCommand(() -> FlywheelSetpoints.AmpSpeed),
-  //         m_Shooter.waitUntilReady(),
-  //         ampShootSequence(m_Indexer, m_Shooter));
-  //   }
 }
