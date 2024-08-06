@@ -5,10 +5,11 @@
 package frc.robot;
 
 import static frc.robot.FieldConstants.*;
+import static frc.robot.commands.IndexerCommands.*;
+import static frc.robot.commands.IntakeCommands.*;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
-import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
@@ -30,8 +31,17 @@ import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
 import frc.robot.subsystems.indexer.Indexer;
 import frc.robot.subsystems.indexer.IndexerConstants;
+import frc.robot.subsystems.indexer.IndexerIO;
+import frc.robot.subsystems.indexer.IndexerIOSim;
+import frc.robot.subsystems.indexer.IndexerIOTalonFX;
 import frc.robot.subsystems.intake.rollers.Rollers;
+import frc.robot.subsystems.intake.rollers.RollersIO;
+import frc.robot.subsystems.intake.rollers.RollersIOSim;
+import frc.robot.subsystems.intake.rollers.RollersIOTalonFX;
 import frc.robot.subsystems.intake.wrist.IntakeWrist;
+import frc.robot.subsystems.intake.wrist.IntakeWristIO;
+import frc.robot.subsystems.intake.wrist.IntakeWristIOSim;
+import frc.robot.subsystems.intake.wrist.IntakeWristIOTalonFX;
 import frc.robot.subsystems.shooter.flywheel.Flywheel;
 import frc.robot.subsystems.shooter.flywheel.FlywheelConstants;
 import frc.robot.subsystems.shooter.flywheel.FlywheelIO;
@@ -47,9 +57,6 @@ import java.util.function.BooleanSupplier;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
-import static frc.robot.commands.IntakeCommands.*;
-import static frc.robot.commands.IndexerCommands.*;
-
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -76,6 +83,7 @@ public class RobotContainer {
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   private final LoggedDashboardChooser<Command> m_Chooser;
+
   BooleanSupplier isInSpeakerWing = () -> isInSpeakerWing(drive);
   BooleanSupplier isInSourceWing = () -> isInSpeakerWing(drive);
   BooleanSupplier isNOTinSpeakerWing = () -> !isInSpeakerWing(drive);
@@ -86,6 +94,9 @@ public class RobotContainer {
       case REALBOT -> {
         shooterWrist = new ShooterWrist(new ShooterWristIOTalonFX());
         flywheels = new Flywheel(new FlywheelIOTalonFX());
+        rollers = new Rollers(new RollersIOTalonFX());
+        intakeWrist = new IntakeWrist(new IntakeWristIOTalonFX());
+        indexer = new Indexer(new IndexerIOTalonFX());
         drive =
             new Drive(
                 new GyroIOPigeon2(true),
@@ -99,6 +110,9 @@ public class RobotContainer {
       case SIMBOT -> {
         shooterWrist = new ShooterWrist(new ShooterWristIOSim());
         flywheels = new Flywheel(new FlywheelIOSim());
+        rollers = new Rollers(new RollersIOSim());
+        intakeWrist = new IntakeWrist(new IntakeWristIOSim());
+        indexer = new Indexer(new IndexerIOSim());
         drive =
             new Drive(
                 new GyroIO() {},
@@ -113,6 +127,9 @@ public class RobotContainer {
       case REPLAYBOT -> {
         shooterWrist = new ShooterWrist(new ShooterWristIO() {});
         flywheels = new Flywheel(new FlywheelIO() {});
+        rollers = new Rollers(new RollersIO() {});
+        intakeWrist = new IntakeWrist(new IntakeWristIO() {});
+        indexer = new Indexer(new IndexerIO() {});
         drive =
             new Drive(
                 new GyroIO() {},
@@ -131,7 +148,6 @@ public class RobotContainer {
     NamedCommands.registerCommand("Intake", intakeStartEnd(intakeWrist, rollers, indexer, 2));
     m_Chooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
     configureBindings();
-    
   }
 
   // private final SendableChooser<Command> m_Chooser = AutoBuilder.buildAutoChooser();
@@ -153,9 +169,7 @@ public class RobotContainer {
         DriveCommands.joystickDrive(
             drive, () -> -driver.getLeftY(), () -> -driver.getLeftX(), () -> -driver.getRightX()));
 
-    driver
-        .rightBumper()
-        .whileTrue(AutoAlignShootAnywhereCommand());
+    driver.rightBumper().whileTrue(AutoAlignShootAnywhereCommand());
 
     driver
         .x()
@@ -165,14 +179,18 @@ public class RobotContainer {
                 .andThen(rumbleControllers())
                 .onlyIf(isNOTinSourceWing));
 
-    driver.leftBumper().whileTrue( new StartEndCommand(()->
-      intakeDeployAndIntake(intakeWrist, rollers, indexer), ()->rumbleControllers()));
+    driver
+        .leftBumper()
+        .whileTrue(
+            new StartEndCommand(
+                () -> intakeDeployAndIntake(intakeWrist, rollers, indexer),
+                () -> rumbleControllers()));
 
-    driver.leftBumper().onFalse(Commands.parallel(
-      stowCommand(intakeWrist),
-      stopIndexer(indexer),
-      stopRollers(rollers)
-    ));
+    driver
+        .leftBumper()
+        .onFalse(
+            Commands.parallel(
+                stowCommand(intakeWrist), stopIndexer(indexer), stopRollers(rollers)));
 
     /*  ---------------------
       Operator Controls
@@ -183,30 +201,30 @@ public class RobotContainer {
     operator.x().whileTrue(runIntakeFwdCMD(rollers));
     operator.y().whileTrue(runIntakeBackCMD(rollers));
   }
-  public Command stowRumble(){
-    return Commands.parallel(
-      stowCommand(intakeWrist), 
-      rumbleControllers()
-    );
+
+  public Command stowRumble() {
+    return Commands.parallel(stowCommand(intakeWrist), rumbleControllers());
   }
 
   public Command runIndexerStartEnd() {
     return new StartEndCommand(() -> runIndexer(indexer, 0.4), () -> stopIndexer(indexer));
   }
+
   public Command runIndexerStartEndBackwards() {
     return new StartEndCommand(() -> runIndexer(indexer, -0.4), () -> stopIndexer(indexer));
   }
-  public Command AutoAlignShootAnywhereCommand(){
-      return Commands.sequence(
-                AutoAlignCommands.autoAlignSpeakerCommand(drive, driver)
-                    .onlyIf(isInSpeakerWing)
-                    .andThen(rumbleControllers())
-                    .onlyIf(isNOTinSpeakerWing), 
-                    wristToSpeakerForever(),
-                flywheels
-                    .runVoltage(FlywheelConstants.SHOOTER_FULL_VOLTAGE)
-                    .onlyIf(() -> AutoAlignCommands.pointedAtSpeaker(drive)),
-                indexer.speedCommand(() -> IndexerConstants.FEEDSPEED));
+
+  public Command AutoAlignShootAnywhereCommand() {
+    return Commands.sequence(
+        AutoAlignCommands.autoAlignSpeakerCommand(drive, driver)
+            .onlyIf(isInSpeakerWing)
+            .andThen(rumbleControllers())
+            .onlyIf(isNOTinSpeakerWing),
+        wristToSpeakerForever(),
+        flywheels
+            .runVoltage(FlywheelConstants.SHOOTER_FULL_VOLTAGE)
+            .onlyIf(() -> AutoAlignCommands.pointedAtSpeaker(drive)),
+        runIndexer(indexer, IndexerConstants.FEEDSPEED));
   }
 
   public Command rumbleControllers() {

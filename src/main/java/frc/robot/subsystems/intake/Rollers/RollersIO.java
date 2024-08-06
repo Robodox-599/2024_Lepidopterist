@@ -3,7 +3,6 @@ package frc.robot.subsystems.intake.rollers;
 import org.littletonrobotics.junction.AutoLog;
 
 public interface RollersIO {
-
   @AutoLog
   public static class RollersIOInputs {
     public double velocityRadsPerSec = 0.0;

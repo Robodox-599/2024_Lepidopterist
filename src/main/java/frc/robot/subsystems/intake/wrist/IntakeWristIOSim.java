@@ -18,7 +18,6 @@ public class IntakeWristIOSim implements IntakeWristIO {
 
   private final ProfiledPIDController m_controller;
   private SimpleMotorFeedforward m_feedforward = new SimpleMotorFeedforward(0, 0);
-  private final Encoder m_encoder;
 
   private SingleJointedArmSim sim =
       new SingleJointedArmSim(
@@ -36,11 +35,11 @@ public class IntakeWristIOSim implements IntakeWristIO {
   private final EncoderSim m_encoderSim;
 
   public IntakeWristIOSim() {
-    m_encoder =
-        new Encoder(
-            IntakeWristConstants.PivotArmSimConstants.kEncoderAChannel,
-            IntakeWristConstants.PivotArmSimConstants.kEncoderBChannel);
-    m_encoderSim = new EncoderSim(m_encoder);
+    m_encoderSim =
+        new EncoderSim(
+            new Encoder(
+                IntakeWristConstants.PivotArmSimConstants.kEncoderAChannel,
+                IntakeWristConstants.PivotArmSimConstants.kEncoderBChannel));
 
     m_encoderSim.setDistancePerPulse(
         IntakeWristConstants.PivotArmSimConstants.kArmEncoderDistPerPulse);

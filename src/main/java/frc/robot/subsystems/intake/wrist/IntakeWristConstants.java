@@ -36,8 +36,8 @@ public class IntakeWristConstants {
     public static final double[] kPivotSimPID = {15, 0, 0, 0};
 
     public static final int kMotorPort = 2;
-    public static final int kEncoderAChannel = 2;
-    public static final int kEncoderBChannel = 3;
+    public static final int kEncoderAChannel = 4;
+    public static final int kEncoderBChannel = 5;
 
     // The P gain for the PID controller that drives this arm.
     public static final double kDefaultArmSetpointDegrees = Units.degreesToRadians(75.0);

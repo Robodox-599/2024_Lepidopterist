@@ -6,14 +6,14 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 
-public class IndxerIOSim implements IndexerIO {
+public class IndexerIOSim implements IndexerIO {
   private final DCMotorSim sim = new DCMotorSim(DCMotor.getNEO(1), 1.2, 2);
   private PIDController controller = new PIDController(0, 0, 0);
 
   private double appliedVoltage = 0.0;
   private double desiredSpeed;
 
-  public IndxerIOSim() {
+  public IndexerIOSim() {
     setPIDConstants(RollerMotorConstants.kP, RollerMotorConstants.kI, RollerMotorConstants.kD);
   }
 
