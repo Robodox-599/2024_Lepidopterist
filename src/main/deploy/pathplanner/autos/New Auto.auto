@@ -2,28 +2,15 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 1.3126474618911743,
-      "y": 4.436619281768799
+      "x": 0.8643583059310913,
+      "y": 4.500506401062012
     },
-    "rotation": 136.73567372528427
+    "rotation": 125.38027889381438
   },
   "command": {
     "type": "sequential",
     "data": {
-      "commands": [
-        {
-          "type": "named",
-          "data": {
-            "name": null
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "five note rush.1"
-          }
-        }
-      ]
+      "commands": []
     }
   },
   "folder": null,
