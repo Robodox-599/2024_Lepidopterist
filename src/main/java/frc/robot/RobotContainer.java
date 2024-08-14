@@ -34,10 +34,10 @@ import frc.robot.subsystems.indexer.IndexerConstants;
 import frc.robot.subsystems.indexer.IndexerIO;
 import frc.robot.subsystems.indexer.IndexerIOSim;
 import frc.robot.subsystems.indexer.IndexerIOTalonFX;
-import frc.robot.subsystems.intake.rollers.Rollers;
-import frc.robot.subsystems.intake.rollers.RollersIO;
-import frc.robot.subsystems.intake.rollers.RollersIOSim;
-import frc.robot.subsystems.intake.rollers.RollersIOTalonFX;
+import frc.robot.subsystems.intake.Rollers.Rollers;
+import frc.robot.subsystems.intake.Rollers.RollersIO;
+import frc.robot.subsystems.intake.Rollers.RollersIOSim;
+import frc.robot.subsystems.intake.Rollers.RollersIOTalonFX;
 import frc.robot.subsystems.intake.wrist.IntakeWrist;
 import frc.robot.subsystems.intake.wrist.IntakeWristIO;
 import frc.robot.subsystems.intake.wrist.IntakeWristIOSim;
@@ -53,7 +53,6 @@ import frc.robot.subsystems.shooter.wrist.ShooterWristIOSim;
 import frc.robot.subsystems.shooter.wrist.ShooterWristIOTalonFX;
 import frc.robot.util.AllianceFlipUtil;
 import frc.robot.util.Lookup;
-import java.util.function.BooleanSupplier;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
@@ -83,11 +82,6 @@ public class RobotContainer {
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   private final LoggedDashboardChooser<Command> m_Chooser;
-
-  BooleanSupplier isInSpeakerWing = () -> isInSpeakerWing(drive);
-  BooleanSupplier isInSourceWing = () -> isInSpeakerWing(drive);
-  BooleanSupplier isNOTinSpeakerWing = () -> !isInSpeakerWing(drive);
-  BooleanSupplier isNOTinSourceWing = () -> !isInSpeakerWing(drive);
 
   public RobotContainer() {
     switch (Constants.getRobot()) {
@@ -169,15 +163,15 @@ public class RobotContainer {
         DriveCommands.joystickDrive(
             drive, () -> -driver.getLeftY(), () -> -driver.getLeftX(), () -> -driver.getRightX()));
 
-    driver.rightBumper().whileTrue(AutoAlignShootAnywhereCommand());
+    driver.y().whileTrue(AutoAlignShootAnywhereCommand());
 
     driver
         .x()
         .whileTrue(
             AutoAlignCommands.autoAlignSourceCommand(drive, driver)
-                .onlyIf(isInSourceWing)
+                .onlyIf(() -> isInSourceWing(drive))
                 .andThen(rumbleControllers())
-                .onlyIf(isNOTinSourceWing));
+                .onlyIf(() -> !isInSourceWing(drive)));
 
     driver
         .leftBumper()
@@ -217,9 +211,9 @@ public class RobotContainer {
   public Command AutoAlignShootAnywhereCommand() {
     return Commands.sequence(
         AutoAlignCommands.autoAlignSpeakerCommand(drive, driver)
-            .onlyIf(isInSpeakerWing)
+            .onlyIf(() -> isInSpeakerWing(drive))
             .andThen(rumbleControllers())
-            .onlyIf(isNOTinSpeakerWing),
+            .onlyIf(() -> !isInSpeakerWing(drive)),
         wristToSpeakerForever(),
         flywheels
             .runVoltage(FlywheelConstants.SHOOTER_FULL_VOLTAGE)
