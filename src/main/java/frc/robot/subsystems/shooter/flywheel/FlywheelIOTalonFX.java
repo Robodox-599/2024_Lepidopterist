@@ -19,7 +19,6 @@ import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -27,56 +26,104 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.util.Units;
 
 public class FlywheelIOTalonFX implements FlywheelIO {
-  private final TalonFX leader = new TalonFX(flywheelMotor1Id);
-  private final TalonFX follower = new TalonFX(flywheelMotor2Id);
+  private final TalonFX topFlywheel = new TalonFX(flywheelTopMotorId);
+  private final TalonFX bottomFlywheel = new TalonFX(flywheelTopMotorId);
 
-  private final StatusSignal<Double> leaderPosition = leader.getPosition();
-  private final StatusSignal<Double> leaderVelocity = leader.getVelocity();
-  private final StatusSignal<Double> leaderAppliedVolts = leader.getMotorVoltage();
-  private final StatusSignal<Double> leaderCurrent = leader.getSupplyCurrent();
-  private final StatusSignal<Double> followerCurrent = follower.getSupplyCurrent();
+  private final StatusSignal<Double> topFlywheelPosition = topFlywheel.getPosition();
+  private final StatusSignal<Double> topFlywheelVelocity = topFlywheel.getVelocity();
+  private final StatusSignal<Double> topFlywheelAppliedVolts = topFlywheel.getMotorVoltage();
+  private final StatusSignal<Double> topFlywheelCurrent = topFlywheel.getSupplyCurrent();
+
+  private final StatusSignal<Double> bottomFlywheelPosition = bottomFlywheel.getPosition();
+  private final StatusSignal<Double> bottomFlywheelVelocity = bottomFlywheel.getVelocity();
+  private final StatusSignal<Double> bottomFlywheelAppliedVolts = bottomFlywheel.getMotorVoltage();
+  private final StatusSignal<Double> bottomFlywheelCurrent = bottomFlywheel.getSupplyCurrent();
 
   public FlywheelIOTalonFX() {
     var config = new TalonFXConfiguration();
+
     config.CurrentLimits.SupplyCurrentLimit = 30.0;
     config.CurrentLimits.SupplyCurrentLimitEnable = true;
     config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
-    leader.getConfigurator().apply(config);
-    follower.getConfigurator().apply(config);
-    follower.setControl(new Follower(leader.getDeviceID(), false));
+
+    topFlywheel.getConfigurator().apply(config);
+    bottomFlywheel.getConfigurator().apply(config);
 
     BaseStatusSignal.setUpdateFrequencyForAll(
-        50.0, leaderPosition, leaderVelocity, leaderAppliedVolts, leaderCurrent, followerCurrent);
-    leader.optimizeBusUtilization();
-    follower.optimizeBusUtilization();
+        50.0,
+        topFlywheelPosition,
+        topFlywheelVelocity,
+        topFlywheelAppliedVolts,
+        topFlywheelCurrent,
+        bottomFlywheelPosition,
+        bottomFlywheelVelocity,
+        bottomFlywheelAppliedVolts,
+        bottomFlywheelCurrent);
+    topFlywheel.optimizeBusUtilization();
+    bottomFlywheel.optimizeBusUtilization();
   }
 
   @Override
   public void updateInputs(FlywheelIOInputs inputs) {
-    BaseStatusSignal.refreshAll(
-        leaderPosition, leaderVelocity, leaderAppliedVolts, leaderCurrent, followerCurrent);
+    BaseStatusSignal.setUpdateFrequencyForAll(
+        50.0,
+        topFlywheelPosition,
+        topFlywheelVelocity,
+        topFlywheelAppliedVolts,
+        topFlywheelCurrent,
+        bottomFlywheelPosition,
+        bottomFlywheelVelocity,
+        bottomFlywheelAppliedVolts,
+        bottomFlywheelCurrent);
     inputs.positionRad =
-        Units.rotationsToRadians(leaderPosition.getValueAsDouble()) / FLYWHEEL_GEAR_RATIO;
+        new double[] {
+          Units.rotationsToRadians(topFlywheelPosition.getValueAsDouble()) / FLYWHEEL_GEAR_RATIO,
+          Units.rotationsToRadians(bottomFlywheelPosition.getValueAsDouble()) / FLYWHEEL_GEAR_RATIO
+        };
     inputs.velocityRadPerSec =
-        Units.rotationsToRadians(leaderVelocity.getValueAsDouble()) / FLYWHEEL_GEAR_RATIO;
-    inputs.appliedVolts = leaderAppliedVolts.getValueAsDouble();
+        new double[] {
+          Units.rotationsToRadians(topFlywheelVelocity.getValueAsDouble()) / FLYWHEEL_GEAR_RATIO,
+          Units.rotationsToRadians(bottomFlywheelVelocity.getValueAsDouble()) / FLYWHEEL_GEAR_RATIO
+        };
+    inputs.appliedVolts =
+        new double[] {
+          topFlywheelAppliedVolts.getValueAsDouble(), bottomFlywheelAppliedVolts.getValueAsDouble()
+        };
     inputs.currentAmps =
-        new double[] {leaderCurrent.getValueAsDouble(), followerCurrent.getValueAsDouble()};
+        new double[] {
+          topFlywheelCurrent.getValueAsDouble(), bottomFlywheelCurrent.getValueAsDouble()
+        };
   }
 
   @Override
   public void setVoltage(double volts) {
-    leader.setControl(new VoltageOut(volts));
+    topFlywheel.setControl(new VoltageOut(volts));
+    bottomFlywheel.setControl(new VoltageOut(volts));
   }
 
   @Override
-  public void setVelocity(double velocityRadPerSec, double ffVolts) {
-    leader.setControl(
+  public void setVelocity(
+      double topVelocityRadPerSec,
+      double topFFVolts,
+      double bottomVelocityRadPerSec,
+      double bottomFFVolts) {
+    topFlywheel.setControl(
         new VelocityVoltage(
-            Units.radiansToRotations(velocityRadPerSec),
+            Units.radiansToRotations(topVelocityRadPerSec),
             0.0,
             true,
-            ffVolts,
+            topFFVolts,
+            0,
+            false,
+            false,
+            false));
+
+    bottomFlywheel.setControl(
+        new VelocityVoltage(
+            Units.radiansToRotations(bottomVelocityRadPerSec),
+            0.0,
+            true,
+            bottomFFVolts,
             0,
             false,
             false,
@@ -85,7 +132,8 @@ public class FlywheelIOTalonFX implements FlywheelIO {
 
   @Override
   public void stop() {
-    leader.stopMotor();
+    topFlywheel.stopMotor();
+    bottomFlywheel.stopMotor();
   }
 
   @Override
@@ -94,6 +142,7 @@ public class FlywheelIOTalonFX implements FlywheelIO {
     config.kP = kP;
     config.kI = kI;
     config.kD = kD;
-    leader.getConfigurator().apply(config);
+    topFlywheel.getConfigurator().apply(config);
+    bottomFlywheel.getConfigurator().apply(config);
   }
 }

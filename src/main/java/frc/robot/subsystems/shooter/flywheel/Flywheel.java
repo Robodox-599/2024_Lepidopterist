@@ -75,12 +75,18 @@ public class Flywheel extends SubsystemBase {
   }
 
   /** Run closed loop at the specified velocity. */
-  public void runVelocity(double velocityRPM) {
-    var velocityRadPerSec = Units.rotationsPerMinuteToRadiansPerSecond(velocityRPM);
-    io.setVelocity(velocityRadPerSec, ffModel.calculate(velocityRadPerSec));
+  public void runVelocity(double topVelocityRPM, double bottomVelocityRPM) {
+    var topVelocityRadPerSec = Units.rotationsPerMinuteToRadiansPerSecond(topVelocityRPM);
+    var bottomVelocityRadPerSec = Units.rotationsPerMinuteToRadiansPerSecond(bottomVelocityRPM);
+    io.setVelocity(
+        topVelocityRadPerSec,
+        ffModel.calculate(topVelocityRadPerSec),
+        bottomVelocityRPM,
+        ffModel.calculate(bottomVelocityRadPerSec));
 
     // Log flywheel setpoint
-    Logger.recordOutput("Flywheel/SetpointRPM", velocityRPM);
+    Logger.recordOutput("Flywheel/TopSetpointRPM", topVelocityRPM);
+    Logger.recordOutput("Flywheel/BottomSetpointRPM", bottomVelocityRPM);
   }
 
   /** Stops the flywheel. */
@@ -89,15 +95,15 @@ public class Flywheel extends SubsystemBase {
   }
   /** Returns the current velocity in RPM. */
   @AutoLogOutput
-  public double getVelocityRPM() {
-    return Units.radiansPerSecondToRotationsPerMinute(inputs.velocityRadPerSec);
+  public double[] getVelocityRPM() {
+    return inputs.velocityRadPerSec;
   }
 
   public void setVoltage(double volts) {
     setVoltage(() -> volts);
   }
   /** Returns the current velocity in radians per second. */
-  public double getCharacterizationVelocity() {
+  public double[] getCharacterizationVelocity() {
     return inputs.velocityRadPerSec;
   }
 

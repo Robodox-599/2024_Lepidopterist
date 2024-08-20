@@ -38,9 +38,9 @@ public class FlywheelIOSim implements FlywheelIO {
 
     sim.update(0.02);
 
-    inputs.positionRad = 0.0;
-    inputs.velocityRadPerSec = sim.getAngularVelocityRadPerSec();
-    inputs.appliedVolts = appliedVolts;
+    inputs.positionRad = new double[] {0.0};
+    inputs.velocityRadPerSec = new double[] {sim.getAngularVelocityRadPerSec()};
+    inputs.appliedVolts = new double[] {appliedVolts};
     inputs.currentAmps = new double[] {sim.getCurrentDrawAmps()};
   }
 
@@ -52,10 +52,14 @@ public class FlywheelIOSim implements FlywheelIO {
   }
 
   @Override
-  public void setVelocity(double velocityRadPerSec, double ffVolts) {
+  public void setVelocity(
+      double topVelocityRadPerSec,
+      double topFFVolts,
+      double bottomVelocityRadPerSec,
+      double bottomFFVolts) {
     closedLoop = true;
-    pid.setSetpoint(velocityRadPerSec);
-    this.ffVolts = ffVolts;
+    pid.setSetpoint(topVelocityRadPerSec);
+    this.ffVolts = topFFVolts;
   }
 
   @Override
