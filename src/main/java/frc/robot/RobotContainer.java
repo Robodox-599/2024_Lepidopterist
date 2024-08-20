@@ -34,10 +34,10 @@ import frc.robot.subsystems.indexer.IndexerConstants;
 import frc.robot.subsystems.indexer.IndexerIO;
 import frc.robot.subsystems.indexer.IndexerIOSim;
 import frc.robot.subsystems.indexer.IndexerIOTalonFX;
-import frc.robot.subsystems.intake.Rollers.Rollers;
-import frc.robot.subsystems.intake.Rollers.RollersIO;
-import frc.robot.subsystems.intake.Rollers.RollersIOSim;
-import frc.robot.subsystems.intake.Rollers.RollersIOTalonFX;
+import frc.robot.subsystems.intake.rollers.Rollers;
+import frc.robot.subsystems.intake.rollers.RollersIO;
+import frc.robot.subsystems.intake.rollers.RollersIOSim;
+import frc.robot.subsystems.intake.rollers.RollersIOTalonFX;
 import frc.robot.subsystems.intake.wrist.IntakeWrist;
 import frc.robot.subsystems.intake.wrist.IntakeWristIO;
 import frc.robot.subsystems.intake.wrist.IntakeWristIOSim;
@@ -216,7 +216,9 @@ public class RobotContainer {
             .onlyIf(() -> !isInSpeakerWing(drive)),
         wristToSpeakerForever(),
         flywheels
-            .runVoltage(FlywheelConstants.SHOOTER_FULL_VOLTAGE)
+            .runFlywheelVelocity(
+                FlywheelConstants.topFlywheelVelocityRPM,
+                FlywheelConstants.bottomFlywheelVelocityRPM)
             .onlyIf(() -> AutoAlignCommands.pointedAtSpeaker(drive)),
         runIndexer(indexer, IndexerConstants.FEEDSPEED));
   }

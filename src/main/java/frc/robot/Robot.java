@@ -14,6 +14,7 @@ import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
+import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -57,11 +58,11 @@ public class Robot extends LoggedRobot {
     if (DriverStation.isFMSAttached()) {
       // Only turn on logs if we are attached to FMS, but disable NTtables.
       // Logger.addDataReceiver(new WPILOGWriter());
-      // Logger.addDataReceiver(new WPILOGWriter());
+      Logger.addDataReceiver(new WPILOGWriter());
     } else {
       // Otherwise, enable NT tables.
       Logger.addDataReceiver(new NT4Publisher());
-      // Logger.addDataReceiver(new WPILOGWriter());
+      Logger.addDataReceiver(new WPILOGWriter());
     }
 
     if (Constants.getMode() == Constants.Mode.REPLAY) {

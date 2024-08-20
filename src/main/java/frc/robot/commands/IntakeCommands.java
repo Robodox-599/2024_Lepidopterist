@@ -9,7 +9,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.subsystems.indexer.Indexer;
-import frc.robot.subsystems.intake.Rollers.Rollers;
+import frc.robot.subsystems.intake.rollers.Rollers;
 import frc.robot.subsystems.intake.wrist.IntakeWrist;
 
 public class IntakeCommands extends Command {
@@ -44,7 +44,7 @@ public class IntakeCommands extends Command {
   }
 
   public static Command intakeDeployAndIntake(IntakeWrist wrist, Rollers rollers, Indexer indexer) {
-    return Commands.sequence(
+    return Commands.parallel(
         extendCommand(wrist), runIndexerUntilBeamBreak(indexer), runIntakeuntilBeamBreak(rollers));
   }
 

@@ -146,4 +146,19 @@ public class Flywheel extends SubsystemBase {
   public Command runVoltage(double volts) {
     return runVoltage(() -> volts);
   }
+
+  public Command runFlywheelVelocity(double topVelo, double bottomVelo) {
+    return new FunctionalCommand(
+        () -> runVelocity(topVelo, bottomVelo),
+        () -> {
+          runVelocity(topVelo, bottomVelo);
+        },
+        (interrupted) -> {
+          if (interrupted) {
+            io.stop();
+          }
+        },
+        () -> false,
+        this);
+  }
 }

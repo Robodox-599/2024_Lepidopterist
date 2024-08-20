@@ -59,9 +59,6 @@
     },
     "transitory": {
       "photonvision": {
-        "FR Camera": {
-          "open": true
-        },
         "open": true
       }
     }

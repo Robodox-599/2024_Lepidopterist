@@ -19,7 +19,7 @@ import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.VelocityVoltage;
+import com.ctre.phoenix6.controls.VelocityDutyCycle;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
@@ -45,6 +45,10 @@ public class FlywheelIOTalonFX implements FlywheelIO {
     config.CurrentLimits.SupplyCurrentLimit = 30.0;
     config.CurrentLimits.SupplyCurrentLimitEnable = true;
     config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+
+    config.Slot0.kP = realFlywheelFeedBackkP;
+    config.Slot0.kI = realFlywheelFeedBackkI;
+    config.Slot0.kD = realFlywheelFeedBackkD;
 
     topFlywheel.getConfigurator().apply(config);
     bottomFlywheel.getConfigurator().apply(config);
@@ -101,33 +105,44 @@ public class FlywheelIOTalonFX implements FlywheelIO {
     bottomFlywheel.setControl(new VoltageOut(volts));
   }
 
+  public double errorCalc(StatusSignal<Double> inputVelocityRadPerSec, double target) {
+    double currentRPM = inputVelocityRadPerSec.getValueAsDouble() * 60; // Convert to RPM
+    double targetRPM = Units.radiansToRotations(target) * 60; // Convert to RPM
+    double error = targetRPM - currentRPM; // Calc error
+    return error; // return error
+  }
+
   @Override
   public void setVelocity(
       double topVelocityRadPerSec,
       double topFFVolts,
       double bottomVelocityRadPerSec,
       double bottomFFVolts) {
-    topFlywheel.setControl(
-        new VelocityVoltage(
-            Units.radiansToRotations(topVelocityRadPerSec),
-            0.0,
-            true,
-            topFFVolts,
-            0,
-            false,
-            false,
-            false));
-
-    bottomFlywheel.setControl(
-        new VelocityVoltage(
-            Units.radiansToRotations(bottomVelocityRadPerSec),
-            0.0,
-            true,
-            bottomFFVolts,
-            0,
-            false,
-            false,
-            false));
+    // Apply control only if the RPM is outside the acceptable error range
+    if (Math.abs(errorCalc(topFlywheelVelocity, topVelocityRadPerSec)) > acceptableErrorRPM) {
+      topFlywheel.setControl(
+          new VelocityDutyCycle(
+              Units.radiansToRotations(topVelocityRadPerSec),
+              0.0,
+              false,
+              topFFVolts,
+              0,
+              false,
+              false,
+              false));
+    }
+    if (Math.abs(errorCalc(bottomFlywheelVelocity, bottomVelocityRadPerSec)) > acceptableErrorRPM) {
+      bottomFlywheel.setControl(
+          new VelocityDutyCycle(
+              Units.radiansToRotations(bottomVelocityRadPerSec),
+              0.0,
+              false,
+              bottomFFVolts,
+              0,
+              false,
+              false,
+              false));
+    }
   }
 
   @Override
