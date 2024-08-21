@@ -2,7 +2,6 @@ package frc.robot.subsystems.intake;
 
 public class IntakeConstants {
 
-  public static final int intakeWristMotorID = 0; // TODO: fixy
   public static final String intakeWristMotorCANbus = "rio"; // TODO: fixy
   public static final double kIntakeBackfeedSpeed = -0.5;
 
@@ -53,6 +52,8 @@ public class IntakeConstants {
 
   public static class RollerMotorConstants {
     public static final int intakeRollersMotorID = 19;
+    public static String intakeRollersMotorCANbus = "rio";
+
     public static final double kP = 1.0;
     public static final double kI = 0.0;
     public static final double kD = 0.0;

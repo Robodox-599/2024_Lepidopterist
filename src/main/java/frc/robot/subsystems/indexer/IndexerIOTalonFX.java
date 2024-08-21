@@ -3,6 +3,7 @@ package frc.robot.subsystems.indexer;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import frc.robot.Constants.IndexerConstants;
 import frc.robot.subsystems.intake.IntakeConstants.RollerMotorConstants;
 
 public class IndexerIOTalonFX implements IndexerIO {
@@ -11,7 +12,10 @@ public class IndexerIOTalonFX implements IndexerIO {
   private double desiredSpeed;
 
   public IndexerIOTalonFX() {
-    indexerMotor = new TalonFX(RollerMotorConstants.intakeRollersMotorID, "rio");
+    indexerMotor =
+        new TalonFX(
+            IndexerConstants.motorID,
+            frc.robot.subsystems.indexer.IndexerConstants.indexerMotorCANBus);
     intakeRollerConfig = new TalonFXConfiguration();
     intakeRollerConfig.Slot0.kP = RollerMotorConstants.kP;
     intakeRollerConfig.Slot0.kI = RollerMotorConstants.kI;

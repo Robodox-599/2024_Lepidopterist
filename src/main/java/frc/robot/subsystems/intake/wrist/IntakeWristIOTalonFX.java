@@ -2,6 +2,7 @@ package frc.robot.subsystems.intake.wrist;
 
 import static frc.robot.subsystems.intake.IntakeConstants.*;
 
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.MathUtil;
@@ -9,6 +10,7 @@ import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
+import frc.robot.subsystems.shooter.wrist.ShooterWristConstants;
 import org.littletonrobotics.junction.Logger;
 
 public class IntakeWristIOTalonFX implements IntakeWristIO {
@@ -18,25 +20,32 @@ public class IntakeWristIOTalonFX implements IntakeWristIO {
   private ArmFeedforward feedforward = new ArmFeedforward(0, 0, 0, 0);
   private double setpoint = 0;
   private double motorEncoder;
-  private double m_DesiredWristPos;
-  private int m_WristSlot;
 
   public IntakeWristIOTalonFX() {
-    pivotMotor = new TalonFX(intakeWristMotorID, intakeWristMotorCANbus);
+    pivotMotor =
+        new TalonFX(IntakeWristConstants.wristMotorID, IntakeWristConstants.wristMotorCANBus);
+
+    var config = new TalonFXConfiguration();
+
+    config.CurrentLimits.SupplyCurrentLimit = 30.0;
+    config.CurrentLimits.SupplyCurrentLimitEnable = true;
+    config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+
+    pivotMotor.getConfigurator().apply(config);
+
     setBrake(true);
     pidController =
         new ProfiledPIDController(
-            IntakeWristConstants.PIVOT_ARM_PID_REAL[0],
-            IntakeWristConstants.PIVOT_ARM_PID_REAL[1],
-            IntakeWristConstants.PIVOT_ARM_PID_REAL[2],
+            ShooterWristConstants.PIVOT_ARM_PID_REAL[0],
+            ShooterWristConstants.PIVOT_ARM_PID_REAL[1],
+            ShooterWristConstants.PIVOT_ARM_PID_REAL[2],
             new TrapezoidProfile.Constraints(2.45, 2.45));
+
     pidController.setTolerance(
-        IntakeWristConstants.PIVOT_ARM_PID_TOLERANCE,
-        IntakeWristConstants.PIVOT_ARM_PID_VELOCITY_TOLERANCE);
-    pivotMotor.setPosition(0.0);
+        ShooterWristConstants.PIVOT_ARM_PID_TOLERANCE,
+        ShooterWristConstants.PIVOT_ARM_PID_VELOCITY_TOLERANCE);
     motorEncoder = pivotMotor.getPosition().getValueAsDouble();
     configurePID();
-    m_WristSlot = 0;
   }
 
   private void configurePID() {

@@ -11,7 +11,11 @@ public class RollersIOTalonFX implements RollersIO {
   private double desiredSpeed;
 
   public RollersIOTalonFX() {
-    intakeRollerMotor = new TalonFX(RollerMotorConstants.intakeRollersMotorID, "rio");
+    intakeRollerMotor =
+        new TalonFX(
+            RollerMotorConstants.intakeRollersMotorID,
+            RollerMotorConstants.intakeRollersMotorCANbus);
+
     intakeRollerConfig = new TalonFXConfiguration();
     intakeRollerConfig.Slot0.kP = RollerMotorConstants.kP;
     intakeRollerConfig.Slot0.kI = RollerMotorConstants.kI;

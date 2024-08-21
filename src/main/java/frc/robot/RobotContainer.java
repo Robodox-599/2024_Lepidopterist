@@ -9,14 +9,12 @@ import static frc.robot.commands.IndexerCommands.*;
 import static frc.robot.commands.IntakeCommands.*;
 
 import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -29,28 +27,6 @@ import frc.robot.subsystems.drive.GyroIOPigeon2;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
-import frc.robot.subsystems.indexer.Indexer;
-import frc.robot.subsystems.indexer.IndexerConstants;
-import frc.robot.subsystems.indexer.IndexerIO;
-import frc.robot.subsystems.indexer.IndexerIOSim;
-import frc.robot.subsystems.indexer.IndexerIOTalonFX;
-import frc.robot.subsystems.intake.rollers.Rollers;
-import frc.robot.subsystems.intake.rollers.RollersIO;
-import frc.robot.subsystems.intake.rollers.RollersIOSim;
-import frc.robot.subsystems.intake.rollers.RollersIOTalonFX;
-import frc.robot.subsystems.intake.wrist.IntakeWrist;
-import frc.robot.subsystems.intake.wrist.IntakeWristIO;
-import frc.robot.subsystems.intake.wrist.IntakeWristIOSim;
-import frc.robot.subsystems.intake.wrist.IntakeWristIOTalonFX;
-import frc.robot.subsystems.shooter.flywheel.Flywheel;
-import frc.robot.subsystems.shooter.flywheel.FlywheelConstants;
-import frc.robot.subsystems.shooter.flywheel.FlywheelIO;
-import frc.robot.subsystems.shooter.flywheel.FlywheelIOSim;
-import frc.robot.subsystems.shooter.flywheel.FlywheelIOTalonFX;
-import frc.robot.subsystems.shooter.wrist.ShooterWrist;
-import frc.robot.subsystems.shooter.wrist.ShooterWristIO;
-import frc.robot.subsystems.shooter.wrist.ShooterWristIOSim;
-import frc.robot.subsystems.shooter.wrist.ShooterWristIOTalonFX;
 import frc.robot.util.AllianceFlipUtil;
 import frc.robot.util.Lookup;
 import org.littletonrobotics.junction.AutoLogOutput;
@@ -68,11 +44,11 @@ public class RobotContainer {
 
   /* Subsystems */
   private Drive drive;
-  private ShooterWrist shooterWrist;
-  private Flywheel flywheels;
-  private Rollers rollers;
-  private IntakeWrist intakeWrist;
-  private Indexer indexer;
+  // private ShooterWrist shooterWrist;
+  // private Flywheel flywheels;
+  // private Rollers rollers;
+  // private IntakeWrist intakeWrist;
+  // private Indexer indexer;
 
   /* Controllers */
   private final CommandXboxController driver =
@@ -86,11 +62,11 @@ public class RobotContainer {
   public RobotContainer() {
     switch (Constants.getRobot()) {
       case REALBOT -> {
-        shooterWrist = new ShooterWrist(new ShooterWristIOTalonFX());
-        flywheels = new Flywheel(new FlywheelIOTalonFX());
-        rollers = new Rollers(new RollersIOTalonFX());
-        intakeWrist = new IntakeWrist(new IntakeWristIOTalonFX());
-        indexer = new Indexer(new IndexerIOTalonFX());
+        // shooterWrist = new ShooterWrist(new ShooterWristIOTalonFX());
+        // flywheels = new Flywheel(new FlywheelIOTalonFX());
+        // rollers = new Rollers(new RollersIOTalonFX());
+        // intakeWrist = new IntakeWrist(new IntakeWristIOTalonFX());
+        // indexer = new Indexer(new IndexerIOTalonFX());
         drive =
             new Drive(
                 new GyroIOPigeon2(true),
@@ -102,11 +78,11 @@ public class RobotContainer {
       }
 
       case SIMBOT -> {
-        shooterWrist = new ShooterWrist(new ShooterWristIOSim());
-        flywheels = new Flywheel(new FlywheelIOSim());
-        rollers = new Rollers(new RollersIOSim());
-        intakeWrist = new IntakeWrist(new IntakeWristIOSim());
-        indexer = new Indexer(new IndexerIOSim());
+        // shooterWrist = new ShooterWrist(new ShooterWristIOSim());
+        // flywheels = new Flywheel(new FlywheelIOSim());
+        // rollers = new Rollers(new RollersIOSim());
+        // intakeWrist = new IntakeWrist(new IntakeWristIOSim());
+        // indexer = new Indexer(new IndexerIOSim());
         drive =
             new Drive(
                 new GyroIO() {},
@@ -119,11 +95,11 @@ public class RobotContainer {
 
         // Replayed robot, disable IO implementations
       case REPLAYBOT -> {
-        shooterWrist = new ShooterWrist(new ShooterWristIO() {});
-        flywheels = new Flywheel(new FlywheelIO() {});
-        rollers = new Rollers(new RollersIO() {});
-        intakeWrist = new IntakeWrist(new IntakeWristIO() {});
-        indexer = new Indexer(new IndexerIO() {});
+        // shooterWrist = new ShooterWrist(new ShooterWristIO() {});
+        // flywheels = new Flywheel(new FlywheelIO() {});
+        // rollers = new Rollers(new RollersIO() {});
+        // intakeWrist = new IntakeWrist(new IntakeWristIO() {});
+        // indexer = new Indexer(new IndexerIO() {});
         drive =
             new Drive(
                 new GyroIO() {},
@@ -138,8 +114,8 @@ public class RobotContainer {
       }
     }
 
-    NamedCommands.registerCommand("AutoAlignShoot", AutoAlignShootAnywhereCommand());
-    NamedCommands.registerCommand("Intake", intakeStartEnd(intakeWrist, rollers, indexer, 2));
+    // NamedCommands.registerCommand("AutoAlignShoot", AutoAlignShootAnywhereCommand());
+    // NamedCommands.registerCommand("Intake", intakeStartEnd(intakeWrist, rollers, indexer, 2));
     m_Chooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
     configureBindings();
   }
@@ -163,65 +139,69 @@ public class RobotContainer {
         DriveCommands.joystickDrive(
             drive, () -> -driver.getLeftY(), () -> -driver.getLeftX(), () -> -driver.getRightX()));
 
-    driver.y().whileTrue(AutoAlignShootAnywhereCommand());
+    // driver.y().whileTrue(drive.sysIdDynamic(Direction.kForward));
+    // driver.a().whileTrue(drive.sysIdDynamic(Direction.kReverse));
 
-    driver
-        .x()
-        .whileTrue(
-            AutoAlignCommands.autoAlignSourceCommand(drive, driver)
-                .onlyIf(() -> isInSourceWing(drive))
-                .andThen(rumbleControllers())
-                .onlyIf(() -> !isInSourceWing(drive)));
+    // driver.x().whileTrue(drive.sysIdQuasistatic(Direction.kForward));
+    // driver.b().whileTrue(drive.sysIdQuasistatic(Direction.kReverse));
 
-    driver
-        .leftBumper()
-        .whileTrue(
-            new StartEndCommand(
-                () -> intakeDeployAndIntake(intakeWrist, rollers, indexer),
-                () -> rumbleControllers()));
+    // driver
+    //     .x()
+    //     .whileTrue(
+    //         AutoAlignCommands.autoAlignSourceCommand(drive, driver)
+    //             .onlyIf(() -> isInSourceWing(drive))
+    //             .andThen(rumbleControllers())
+    //             .onlyIf(() -> !isInSourceWing(drive)));
 
-    driver
-        .leftBumper()
-        .onFalse(
-            Commands.parallel(
-                stowCommand(intakeWrist), stopIndexer(indexer), stopRollers(rollers)));
+    // driver
+    //     .leftBumper()
+    //     .whileTrue(
+    //         new StartEndCommand(
+    //             () -> intakeDeployAndIntake(intakeWrist, rollers, indexer),
+    //             () -> rumbleControllers()));
+
+    // driver
+    //     .leftBumper()
+    //     .onFalse(
+    //         Commands.parallel(
+    //             stowCommand(intakeWrist), stopIndexer(indexer), stopRollers(rollers)));
 
     /*  ---------------------
       Operator Controls
     ---------------------  */
 
-    operator.a().whileTrue(runIndexerStartEnd());
-    operator.b().whileTrue(runIndexerStartEndBackwards());
-    operator.x().whileTrue(runIntakeFwdCMD(rollers));
-    operator.y().whileTrue(runIntakeBackCMD(rollers));
+    // operator.a().whileTrue(runIndexerStartEnd());
+    // operator.b().whileTrue(runIndexerStartEndBackwards());
+    // operator.x().whileTrue(runIntakeFwdCMD(rollers));
+    // operator.y().whileTrue(runIntakeBackCMD(rollers));
   }
 
-  public Command stowRumble() {
-    return Commands.parallel(stowCommand(intakeWrist), rumbleControllers());
-  }
+  // public Command stowRumble() {
+  //   return Commands.parallel(stowCommand(intakeWrist), rumbleControllers());
+  // }
 
-  public Command runIndexerStartEnd() {
-    return new StartEndCommand(() -> runIndexer(indexer, 0.4), () -> stopIndexer(indexer));
-  }
+  // public Command runIndexerStartEnd() {
+  // return new StartEndCommand(() -> runIndexer(indexer, 0.4), () -> stopIndexer(indexer));
+  // }
 
-  public Command runIndexerStartEndBackwards() {
-    return new StartEndCommand(() -> runIndexer(indexer, -0.4), () -> stopIndexer(indexer));
-  }
+  // public Command runIndexerStartEndBackwards() {
+  // return new StartEndCommand(() -> runIndexer(indexer, -0.4), () -> stopIndexer(indexer));
+  // }
 
-  public Command AutoAlignShootAnywhereCommand() {
-    return Commands.sequence(
-        AutoAlignCommands.autoAlignSpeakerCommand(drive, driver)
-            .onlyIf(() -> isInSpeakerWing(drive))
-            .andThen(rumbleControllers())
-            .onlyIf(() -> !isInSpeakerWing(drive)),
-        wristToSpeakerForever(),
-        flywheels
-            .runFlywheelVelocity(
-                FlywheelConstants.topFlywheelVelocityRPM,
-                FlywheelConstants.bottomFlywheelVelocityRPM)
-            .onlyIf(() -> AutoAlignCommands.pointedAtSpeaker(drive)),
-        runIndexer(indexer, IndexerConstants.FEEDSPEED));
-  }
+  // public Command AutoAlignShootAnywhereCommand() {
+  //   return Commands.sequence(
+  //       AutoAlignCommands.autoAlignSpeakerCommand(drive, driver)
+  //           .onlyIf(() -> isInSpeakerWing(drive))
+  //           .andThen(rumbleControllers())
+  //           .onlyIf(() -> !isInSpeakerWing(drive)),
+  //       wristToSpeakerForever(),
+  //       flywheels
+  //           .runFlywheelVelocity(
+  //               FlywheelConstants.topFlywheelVelocityRPM,
+  //               FlywheelConstants.bottomFlywheelVelocityRPM)
+  //           .onlyIf(() -> AutoAlignCommands.pointedAtSpeaker(drive)),
+  //       runIndexer(indexer, IndexerConstants.FEEDSPEED));
+  // }
 
   public Command rumbleControllers() {
     return new StartEndCommand(
@@ -233,9 +213,9 @@ public class RobotContainer {
                 () -> operator.getHID().setRumble(RumbleType.kBothRumble, 0)));
   }
 
-  public Command wristToSpeakerForever() {
-    return shooterWrist.PIDCommandForever(this::getAngle);
-  }
+  // public Command wristToSpeakerForever() {
+  // return shooterWrist.PIDCommandForever(this::getAngle);
+  // }
 
   private Transform2d getEstimatedTransform() {
     return new Transform2d(
@@ -270,10 +250,10 @@ public class RobotContainer {
     return AutoAlignCommands.pointedAtSpeaker(drive);
   }
 
-  @AutoLogOutput(key = "AimedAtSpeaker")
-  public boolean isAimedAtSpeaker() {
-    return AutoAlignCommands.pointedAtSpeaker(drive) && shooterWrist.atSetpoint();
-  }
+  // @AutoLogOutput(key = "AimedAtSpeaker")
+  // public boolean isAimedAtSpeaker() {
+  //   // return AutoAlignCommands.pointedAtSpeaker(drive) && shooterWrist.atSetpoint();
+  // }
 
   // Gets angle based on distance from speaker, taking into account the actual
   // shooting position

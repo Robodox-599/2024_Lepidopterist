@@ -3,6 +3,7 @@ package frc.robot.subsystems.shooter.wrist;
 import static frc.robot.subsystems.shooter.wrist.ShooterWristConstants.wristMotorCANBus;
 import static frc.robot.subsystems.shooter.wrist.ShooterWristConstants.wristMotorID;
 
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.MathUtil;
@@ -23,6 +24,15 @@ public class ShooterWristIOTalonFX implements ShooterWristIO {
 
   public ShooterWristIOTalonFX() {
     pivotMotor = new TalonFX(wristMotorID, wristMotorCANBus);
+
+    var config = new TalonFXConfiguration();
+
+    config.CurrentLimits.SupplyCurrentLimit = 30.0;
+    config.CurrentLimits.SupplyCurrentLimitEnable = true;
+    config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+
+    pivotMotor.getConfigurator().apply(config);
+
     setBrake(true);
     pidController =
         new ProfiledPIDController(
@@ -30,6 +40,7 @@ public class ShooterWristIOTalonFX implements ShooterWristIO {
             ShooterWristConstants.PIVOT_ARM_PID_REAL[1],
             ShooterWristConstants.PIVOT_ARM_PID_REAL[2],
             new TrapezoidProfile.Constraints(2.45, 2.45));
+
     pidController.setTolerance(
         ShooterWristConstants.PIVOT_ARM_PID_TOLERANCE,
         ShooterWristConstants.PIVOT_ARM_PID_VELOCITY_TOLERANCE);
