@@ -22,13 +22,13 @@ public class IntakeWristIOSim implements IntakeWristIO {
   private SingleJointedArmSim sim =
       new SingleJointedArmSim(
           wristGearbox,
-          IntakeWristConstants.PivotArmSimConstants.kArmReduction,
+          IntakeWristConstants.IntakeWristSimConstants.kArmReduction,
           SingleJointedArmSim.estimateMOI(
-              IntakeWristConstants.PivotArmSimConstants.kArmLength,
-              IntakeWristConstants.PivotArmSimConstants.kArmMass),
-          IntakeWristConstants.PivotArmSimConstants.kArmLength,
-          IntakeWristConstants.PivotArmSimConstants.kMinAngleRads,
-          IntakeWristConstants.PivotArmSimConstants.kMaxAngleRads,
+              IntakeWristConstants.IntakeWristSimConstants.kArmLength,
+              IntakeWristConstants.IntakeWristSimConstants.kArmMass),
+          IntakeWristConstants.IntakeWristSimConstants.kArmLength,
+          IntakeWristConstants.IntakeWristSimConstants.kMinAngleRads,
+          IntakeWristConstants.IntakeWristSimConstants.kMaxAngleRads,
           true, // change this to true later
           0.1);
 
@@ -38,16 +38,16 @@ public class IntakeWristIOSim implements IntakeWristIO {
     m_encoderSim =
         new EncoderSim(
             new Encoder(
-                IntakeWristConstants.PivotArmSimConstants.kEncoderAChannel,
-                IntakeWristConstants.PivotArmSimConstants.kEncoderBChannel));
+                IntakeWristConstants.IntakeWristSimConstants.kEncoderAChannel,
+                IntakeWristConstants.IntakeWristSimConstants.kEncoderBChannel));
 
     m_encoderSim.setDistancePerPulse(
-        IntakeWristConstants.PivotArmSimConstants.kArmEncoderDistPerPulse);
+        IntakeWristConstants.IntakeWristSimConstants.kArmEncoderDistPerPulse);
     m_controller =
         new ProfiledPIDController(
-            IntakeWristConstants.PivotArmSimConstants.kPivotSimPID[0],
-            IntakeWristConstants.PivotArmSimConstants.kPivotSimPID[1],
-            IntakeWristConstants.PivotArmSimConstants.kPivotSimPID[2],
+            IntakeWristConstants.IntakeWristSimConstants.kPivotSimPID[0],
+            IntakeWristConstants.IntakeWristSimConstants.kPivotSimPID[1],
+            IntakeWristConstants.IntakeWristSimConstants.kPivotSimPID[2],
             new TrapezoidProfile.Constraints(2.45, 2.45));
 
     m_controller.setTolerance(0.1, 0.05);

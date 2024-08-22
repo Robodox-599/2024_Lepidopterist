@@ -21,6 +21,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
@@ -29,9 +30,11 @@ public class Flywheel extends SubsystemBase {
   private final FlywheelIO io;
   private final FlywheelIOInputsAutoLogged inputs = new FlywheelIOInputsAutoLogged();
   private final SimpleMotorFeedforward ffModel;
+  private double topGoalVelocityRPM = 0;
+  private double bottomGoalVelocityRPM = 0;
 
   private double motorVoltage = 0;
-
+  public BooleanSupplier spunUp = () -> false;
   /** Creates a new Flywheel. */
   public Flywheel(FlywheelIO io) {
     this.io = io;
@@ -67,8 +70,30 @@ public class Flywheel extends SubsystemBase {
   public void periodic() {
     io.updateInputs(inputs);
     Logger.processInputs("Flywheel", inputs);
+    Logger.recordOutput("Flywheel/SpunUp?", flywheelsSpunUp());
+    spunUp = () -> flywheelsSpunUp();
   }
 
+  public synchronized boolean flywheelsSpunUp() {
+    return bottomFlywheelSpunUp(bottomGoalVelocityRPM) && topFlywheelSpunUp(topGoalVelocityRPM);
+  }
+
+  private boolean topFlywheelSpunUp(double goalVelocity) {
+    return inDeadBand(
+        getTopVelocityRPM(), Units.rotationsPerMinuteToRadiansPerSecond(goalVelocity));
+  }
+
+  private boolean bottomFlywheelSpunUp(double goalVelocity) {
+    return inDeadBand(
+        getBottomVelocityRPM(), Units.rotationsPerMinuteToRadiansPerSecond(goalVelocity));
+  }
+
+  private boolean inDeadBand(double currentVelocityRadPerSec, double goalVelocityRadPerSec) {
+    double currentRPM = Units.radiansPerSecondToRotationsPerMinute(currentVelocityRadPerSec);
+    double targetRPM = Units.radiansPerSecondToRotationsPerMinute(goalVelocityRadPerSec);
+    double error = targetRPM - currentRPM;
+    return (Math.abs(error) > acceptableErrorRPM);
+  }
   /** Run open loop at the specified voltage. */
   public void runVolts(double volts) {
     io.setVoltage(volts);
@@ -81,9 +106,10 @@ public class Flywheel extends SubsystemBase {
     io.setVelocity(
         topVelocityRadPerSec,
         ffModel.calculate(topVelocityRadPerSec),
-        bottomVelocityRPM,
+        bottomVelocityRadPerSec,
         ffModel.calculate(bottomVelocityRadPerSec));
-
+    topGoalVelocityRPM = topVelocityRPM;
+    bottomGoalVelocityRPM = bottomVelocityRPM;
     // Log flywheel setpoint
     Logger.recordOutput("Flywheel/TopSetpointRPM", topVelocityRPM);
     Logger.recordOutput("Flywheel/BottomSetpointRPM", bottomVelocityRPM);
@@ -95,16 +121,26 @@ public class Flywheel extends SubsystemBase {
   }
   /** Returns the current velocity in RPM. */
   @AutoLogOutput
-  public double[] getVelocityRPM() {
-    return inputs.velocityRadPerSec;
+  public double getTopVelocityRPM() {
+    return inputs.upperFlywheelVelocityRadPerSec;
+  }
+
+  @AutoLogOutput
+  public double getBottomVelocityRPM() {
+    return inputs.lowerFlywheelVelocityRadPerSec;
   }
 
   public void setVoltage(double volts) {
     setVoltage(() -> volts);
   }
+
   /** Returns the current velocity in radians per second. */
-  public double[] getCharacterizationVelocity() {
-    return inputs.velocityRadPerSec;
+  public double getTopCharacterizationVelocity() {
+    return inputs.upperFlywheelVelocityRadPerSec;
+  }
+
+  public double getBottomCharacterizationVelocity() {
+    return inputs.lowerFlywheelVelocityRadPerSec;
   }
 
   public Command runVoltage(DoubleSupplier volts) {

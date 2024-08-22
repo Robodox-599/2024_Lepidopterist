@@ -64,14 +64,14 @@ public class ShooterWrist extends SubsystemBase {
   @AutoLogOutput(key = "Wrist/Close")
   public boolean isVoltageClose(double setVoltage) {
     double voltageDifference = Math.abs(setVoltage - inputs.appliedVolts);
-    return voltageDifference <= ShooterWristConstants.PIVOT_ARM_TOLERANCE;
+    return voltageDifference <= ShooterWristConstants.shooterWristPIDTolerance;
   }
 
   public void setVoltage(double motorVolts) {
     // limit the wrist if its past the limit
-    if (io.getAngle() > ShooterWristConstants.PIVOT_ARM_MAX_ANGLE && motorVolts > 0) {
+    if (io.getAngle() > ShooterWristConstants.shooterWristMaxAngle && motorVolts > 0) {
       motorVolts = 0;
-    } else if (io.getAngle() < ShooterWristConstants.PIVOT_ARM_MIN_ANGLE && motorVolts < 0) {
+    } else if (io.getAngle() < ShooterWristConstants.shooterWristMinAngle && motorVolts < 0) {
       motorVolts = 0;
     }
     io.setVoltage(motorVolts);
@@ -100,15 +100,15 @@ public class ShooterWrist extends SubsystemBase {
     this.setpoint =
         MathUtil.clamp(
             this.setpoint,
-            ShooterWristConstants.PIVOT_ARM_MIN_ANGLE,
-            ShooterWristConstants.PIVOT_ARM_MAX_ANGLE);
+            ShooterWristConstants.shooterWristMinAngle,
+            ShooterWristConstants.shooterWristMaxAngle);
 
     Logger.recordOutput("Wrist/Setpoint", setpoint);
   }
 
   public boolean atSetpoint() {
-    return Math.abs(io.getAngle() - setpoint) < ShooterWristConstants.PIVOT_ARM_PID_TOLERANCE
-        && Math.abs(getVelocity()) < ShooterWristConstants.PIVOT_ARM_PID_VELOCITY_TOLERANCE;
+    return Math.abs(io.getAngle() - setpoint) < ShooterWristConstants.shooterWristPIDTolerance
+        && Math.abs(getVelocity()) < ShooterWristConstants.shooterWristVelocityTolerance;
   }
 
   public void setMechanism(MechanismLigament2d mechanism) {

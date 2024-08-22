@@ -79,24 +79,20 @@ public class FlywheelIOTalonFX implements FlywheelIO {
         bottomFlywheelVelocity,
         bottomFlywheelAppliedVolts,
         bottomFlywheelCurrent);
-    inputs.positionRad =
-        new double[] {
-          Units.rotationsToRadians(topFlywheelPosition.getValueAsDouble()) / FLYWHEEL_GEAR_RATIO,
-          Units.rotationsToRadians(bottomFlywheelPosition.getValueAsDouble()) / FLYWHEEL_GEAR_RATIO
-        };
-    inputs.velocityRadPerSec =
-        new double[] {
-          Units.rotationsToRadians(topFlywheelVelocity.getValueAsDouble()) / FLYWHEEL_GEAR_RATIO,
-          Units.rotationsToRadians(bottomFlywheelVelocity.getValueAsDouble()) / FLYWHEEL_GEAR_RATIO
-        };
-    inputs.appliedVolts =
-        new double[] {
-          topFlywheelAppliedVolts.getValueAsDouble(), bottomFlywheelAppliedVolts.getValueAsDouble()
-        };
-    inputs.currentAmps =
-        new double[] {
-          topFlywheelCurrent.getValueAsDouble(), bottomFlywheelCurrent.getValueAsDouble()
-        };
+
+    inputs.upperFlywheelPositionRad =
+        Units.rotationsToRadians(topFlywheelPosition.getValueAsDouble()) / FLYWHEEL_GEAR_RATIO;
+    inputs.upperFlywheelVelocityRadPerSec =
+        Units.rotationsToRadians(topFlywheelVelocity.getValueAsDouble()) / FLYWHEEL_GEAR_RATIO;
+    inputs.upperFlywheelAppliedVolts = topFlywheelAppliedVolts.getValueAsDouble();
+    inputs.upperFlywheelCurrentAmps = topFlywheelCurrent.getValueAsDouble();
+
+    inputs.lowerFlywheelPositionRad =
+        Units.rotationsToRadians(bottomFlywheelPosition.getValueAsDouble()) / FLYWHEEL_GEAR_RATIO;
+    inputs.lowerFlywheelVelocityRadPerSec =
+        Units.rotationsToRadians(bottomFlywheelVelocity.getValueAsDouble()) / FLYWHEEL_GEAR_RATIO;
+    inputs.lowerFlywheelAppliedVolts = bottomFlywheelAppliedVolts.getValueAsDouble();
+    inputs.lowerFlywheelCurrentAmps = bottomFlywheelCurrent.getValueAsDouble();
   }
 
   @Override
@@ -105,44 +101,32 @@ public class FlywheelIOTalonFX implements FlywheelIO {
     bottomFlywheel.setControl(new VoltageOut(volts));
   }
 
-  public double errorCalc(StatusSignal<Double> inputVelocityRadPerSec, double target) {
-    double currentRPM = inputVelocityRadPerSec.getValueAsDouble() * 60; // Convert to RPM
-    double targetRPM = Units.radiansToRotations(target) * 60; // Convert to RPM
-    double error = targetRPM - currentRPM; // Calc error
-    return error; // return error
-  }
-
   @Override
   public void setVelocity(
       double topVelocityRadPerSec,
       double topFFVolts,
       double bottomVelocityRadPerSec,
       double bottomFFVolts) {
-    // Apply control only if the RPM is outside the acceptable error range
-    if (Math.abs(errorCalc(topFlywheelVelocity, topVelocityRadPerSec)) > acceptableErrorRPM) {
-      topFlywheel.setControl(
-          new VelocityDutyCycle(
-              Units.radiansToRotations(topVelocityRadPerSec),
-              0.0,
-              false,
-              topFFVolts,
-              0,
-              false,
-              false,
-              false));
-    }
-    if (Math.abs(errorCalc(bottomFlywheelVelocity, bottomVelocityRadPerSec)) > acceptableErrorRPM) {
-      bottomFlywheel.setControl(
-          new VelocityDutyCycle(
-              Units.radiansToRotations(bottomVelocityRadPerSec),
-              0.0,
-              false,
-              bottomFFVolts,
-              0,
-              false,
-              false,
-              false));
-    }
+    topFlywheel.setControl(
+        new VelocityDutyCycle(
+            Units.radiansToRotations(topVelocityRadPerSec),
+            0.0,
+            false,
+            topFFVolts,
+            0,
+            false,
+            false,
+            false));
+    bottomFlywheel.setControl(
+        new VelocityDutyCycle(
+            Units.radiansToRotations(bottomVelocityRadPerSec),
+            0.0,
+            false,
+            bottomFFVolts,
+            0,
+            false,
+            false,
+            false));
   }
 
   @Override

@@ -21,6 +21,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
 import org.littletonrobotics.junction.Logger;
@@ -94,11 +95,13 @@ public class Module {
     driveFeedforward = new SimpleMotorFeedforward(drivekS, drivekV, drivekA);
 
     driveFeedback = new PIDController(drivekP, drivekI, drivekD);
-    SmartDashboard.putData("Drive PID Controller", driveFeedback);
-
+    if (!DriverStation.isFMSAttached()) {
+      SmartDashboard.putData("Drive PID Controller", driveFeedback);
+    }
     turnFeedback = new PIDController(turnkP, turnkI, turnkD);
-    SmartDashboard.putData("Turn PID Controller", turnFeedback);
-
+    if (!DriverStation.isFMSAttached()) {
+      SmartDashboard.putData("Turn PID Controller", turnFeedback);
+    }
     turnFeedback.enableContinuousInput(-Math.PI, Math.PI);
     setBrakeMode(true);
   }

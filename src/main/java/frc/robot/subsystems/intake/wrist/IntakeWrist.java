@@ -4,7 +4,6 @@ import static edu.wpi.first.units.MutableMeasure.mutable;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Volts;
-import static frc.robot.subsystems.intake.IntakeConstants.*;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -66,14 +65,14 @@ public class IntakeWrist extends SubsystemBase {
   @AutoLogOutput(key = "PivotArm/Close")
   public boolean isVoltageClose(double setVoltage) {
     double voltageDifference = Math.abs(setVoltage - inputs.appliedVolts);
-    return voltageDifference <= IntakeWristConstants.PIVOT_ARM_TOLERANCE;
+    return voltageDifference <= IntakeWristConstants.intakeWristPositionTolerance;
   }
 
   public void setVoltage(double motorVolts) {
     // limit the arm if its past the limit
-    if (io.getAngle() > IntakeWristConstants.PIVOT_ARM_MAX_ANGLE && motorVolts > 0) {
+    if (io.getAngle() > IntakeWristConstants.intakeWristMaxAngle && motorVolts > 0) {
       motorVolts = 0;
-    } else if (io.getAngle() < IntakeWristConstants.PIVOT_ARM_MIN_ANGLE && motorVolts < 0) {
+    } else if (io.getAngle() < IntakeWristConstants.intakeWristMinAngle && motorVolts < 0) {
       motorVolts = 0;
     }
     io.setVoltage(motorVolts);
@@ -102,15 +101,15 @@ public class IntakeWrist extends SubsystemBase {
     this.setpoint =
         MathUtil.clamp(
             this.setpoint,
-            IntakeWristConstants.PIVOT_ARM_MIN_ANGLE,
-            IntakeWristConstants.PIVOT_ARM_MAX_ANGLE);
+            IntakeWristConstants.intakeWristMinAngle,
+            IntakeWristConstants.intakeWristMaxAngle);
 
     Logger.recordOutput("PivotArm/Setpoint", setpoint);
   }
 
   public boolean atSetpoint() {
-    return Math.abs(io.getAngle() - setpoint) < IntakeWristConstants.PIVOT_ARM_PID_TOLERANCE
-        && Math.abs(getVelocity()) < IntakeWristConstants.PIVOT_ARM_PID_VELOCITY_TOLERANCE;
+    return Math.abs(io.getAngle() - setpoint) < IntakeWristConstants.intakeWristPositionTolerance
+        && Math.abs(getVelocity()) < IntakeWristConstants.intakeWristVelocityTolerance;
   }
 
   public void setMechanism(MechanismLigament2d mechanism) {

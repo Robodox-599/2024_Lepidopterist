@@ -20,10 +20,8 @@ public class FlywheelConstants {
   public static final double realFlywheelFeedBackkI = 0.0; // TODO: assign later
   public static final double realFlywheelFeedBackkD = 0.0; // TODO: assign later
 
-  public static final double FLYWHEEL_GEAR_RATIO = 1.25;
-  public static final double topFlywheelVelocityRPM = 0.0;
-  public static final double bottomFlywheelVelocityRPM = 0.0;
-  public static final double SHOOTER_TOLERANCE = 1.0;
-
-  public static final double acceptableErrorRPM = 35;
+  public static final double FLYWHEEL_GEAR_RATIO = 1.25; // TODO: calibrate this
+  public static final double topFlywheelVelocityRPM = 0.0; // TODO: calibrate this
+  public static final double bottomFlywheelVelocityRPM = 0.0; // TODO: calibrate this
+  public static final double acceptableErrorRPM = 0.0;
 }

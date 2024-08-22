@@ -176,14 +176,15 @@ public class Drive extends SubsystemBase {
             simPathFollowRotationkP, simPathFollowRotationkI, simPathFollowRotationkD
           };
     }
-    drivekP = new LoggedTunableNumber("Translation PF P", driveConstantsArr[0]);
-    drivekI = new LoggedTunableNumber("Translation PF I", driveConstantsArr[1]);
-    drivekD = new LoggedTunableNumber("Translation PF D", driveConstantsArr[2]);
+    if (!DriverStation.isFMSAttached()) {
+      drivekP = new LoggedTunableNumber("Translation PF P", driveConstantsArr[0]);
+      drivekI = new LoggedTunableNumber("Translation PF I", driveConstantsArr[1]);
+      drivekD = new LoggedTunableNumber("Translation PF D", driveConstantsArr[2]);
 
-    turnkP = new LoggedTunableNumber("Rotation PF P", driveConstantsArr[3]);
-    turnkI = new LoggedTunableNumber("Rotation PF I", driveConstantsArr[4]);
-    turnkD = new LoggedTunableNumber("Rotation PF D", driveConstantsArr[5]);
-
+      turnkP = new LoggedTunableNumber("Rotation PF P", driveConstantsArr[3]);
+      turnkI = new LoggedTunableNumber("Rotation PF I", driveConstantsArr[4]);
+      turnkD = new LoggedTunableNumber("Rotation PF D", driveConstantsArr[5]);
+    }
     final PIDConstants drivePathFollowPID =
         new PIDConstants(drivekP.get(), drivekI.get(), drivekD.get());
     final PIDConstants turnPathFollowPID =

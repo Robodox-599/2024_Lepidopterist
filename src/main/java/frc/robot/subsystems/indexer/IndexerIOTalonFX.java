@@ -1,10 +1,11 @@
 package frc.robot.subsystems.indexer;
 
+import static frc.robot.subsystems.indexer.IndexerConstants.*;
+
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import frc.robot.Constants.IndexerConstants;
-import frc.robot.subsystems.intake.IntakeConstants.RollerMotorConstants;
 
 public class IndexerIOTalonFX implements IndexerIO {
   private TalonFX indexerMotor;
@@ -17,17 +18,15 @@ public class IndexerIOTalonFX implements IndexerIO {
             IndexerConstants.motorID,
             frc.robot.subsystems.indexer.IndexerConstants.indexerMotorCANBus);
     intakeRollerConfig = new TalonFXConfiguration();
-    intakeRollerConfig.Slot0.kP = RollerMotorConstants.kP;
-    intakeRollerConfig.Slot0.kI = RollerMotorConstants.kI;
-    intakeRollerConfig.Slot0.kD = RollerMotorConstants.kD;
-    intakeRollerConfig.Slot0.kV = RollerMotorConstants.kV;
-    intakeRollerConfig.Slot0.kS = RollerMotorConstants.kS;
-    intakeRollerConfig.CurrentLimits.SupplyCurrentLimitEnable =
-        RollerMotorConstants.EnableCurrentLimit;
-    intakeRollerConfig.CurrentLimits.SupplyCurrentLimit =
-        RollerMotorConstants.ContinuousCurrentLimit;
-    intakeRollerConfig.CurrentLimits.SupplyCurrentThreshold = RollerMotorConstants.PeakCurrentLimit;
-    intakeRollerConfig.CurrentLimits.SupplyTimeThreshold = RollerMotorConstants.PeakCurrentDuration;
+    intakeRollerConfig.Slot0.kP = kP;
+    intakeRollerConfig.Slot0.kI = kI;
+    intakeRollerConfig.Slot0.kD = kD;
+    intakeRollerConfig.Slot0.kV = kV;
+    intakeRollerConfig.Slot0.kS = kS;
+    intakeRollerConfig.CurrentLimits.SupplyCurrentLimitEnable = EnableCurrentLimit;
+    intakeRollerConfig.CurrentLimits.SupplyCurrentLimit = ContinuousCurrentLimit;
+    intakeRollerConfig.CurrentLimits.SupplyCurrentThreshold = PeakCurrentLimit;
+    intakeRollerConfig.CurrentLimits.SupplyTimeThreshold = PeakCurrentDuration;
   }
 
   /** updates inputs from robot */

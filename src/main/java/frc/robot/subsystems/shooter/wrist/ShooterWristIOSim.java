@@ -30,13 +30,13 @@ public class ShooterWristIOSim implements ShooterWristIO {
   private SingleJointedArmSim sim =
       new SingleJointedArmSim(
           m_armGearbox,
-          ShooterWristConstants.PivotArmSimConstants.kArmReduction,
+          ShooterWristConstants.ShooterWristSimConstants.kArmReduction,
           SingleJointedArmSim.estimateMOI(
-              ShooterWristConstants.PivotArmSimConstants.kArmLength,
-              ShooterWristConstants.PivotArmSimConstants.kArmMass),
-          ShooterWristConstants.PivotArmSimConstants.kArmLength,
-          ShooterWristConstants.PivotArmSimConstants.kMinAngleRads,
-          ShooterWristConstants.PivotArmSimConstants.kMaxAngleRads,
+              ShooterWristConstants.ShooterWristSimConstants.kArmLength,
+              ShooterWristConstants.ShooterWristSimConstants.kArmMass),
+          ShooterWristConstants.ShooterWristSimConstants.kArmLength,
+          ShooterWristConstants.ShooterWristSimConstants.kMinAngleRads,
+          ShooterWristConstants.ShooterWristSimConstants.kMaxAngleRads,
           true, // change this to true later
           0.1);
 
@@ -45,17 +45,17 @@ public class ShooterWristIOSim implements ShooterWristIO {
   public ShooterWristIOSim() {
     m_encoder =
         new Encoder(
-            ShooterWristConstants.PivotArmSimConstants.kEncoderAChannel,
-            ShooterWristConstants.PivotArmSimConstants.kEncoderBChannel);
+            ShooterWristConstants.ShooterWristSimConstants.kEncoderAChannel,
+            ShooterWristConstants.ShooterWristSimConstants.kEncoderBChannel);
     m_encoderSim = new EncoderSim(m_encoder);
 
     m_encoderSim.setDistancePerPulse(
-        ShooterWristConstants.PivotArmSimConstants.kArmEncoderDistPerPulse);
+        ShooterWristConstants.ShooterWristSimConstants.kArmEncoderDistPerPulse);
     m_controller =
         new ProfiledPIDController(
-            ShooterWristConstants.PivotArmSimConstants.kPivotSimPID[0],
-            ShooterWristConstants.PivotArmSimConstants.kPivotSimPID[1],
-            ShooterWristConstants.PivotArmSimConstants.kPivotSimPID[2],
+            ShooterWristConstants.ShooterWristSimConstants.kPivotSimPID[0],
+            ShooterWristConstants.ShooterWristSimConstants.kPivotSimPID[1],
+            ShooterWristConstants.ShooterWristSimConstants.kPivotSimPID[2],
             new TrapezoidProfile.Constraints(2.45, 2.45));
 
     m_controller.setTolerance(0.1, 0.05);

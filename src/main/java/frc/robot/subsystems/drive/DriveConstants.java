@@ -160,16 +160,16 @@ public final class DriveConstants {
    */
 
   // REAL: KS SIMPLE FEEDFORWARD
-  public static final double driveRealFeedFowardkS = 0.080108;
+  public static final double driveRealFeedFowardkS = 0.14422;
 
   // REAL: KP SIMPLE FEEDFORWARD
-  public static final double driveRealFeedFowardkV = 0.61952;
+  public static final double driveRealFeedFowardkV = 0.12244;
 
   // REAL: KA SIMPLE FEEDFORWARD
-  public static final double driveRealFeedFowardkA = 0.019975;
+  public static final double driveRealFeedFowardkA = 0.019679;
 
   // REAL: KP DRIVE MOTOR
-  public static final double driveRealFeedBackkP = .045;
+  public static final double driveRealFeedBackkP = 0.11786;
 
   // REAL: KI DRIVE MOTOR
   public static final double driveRealFeedBackkI = 0.0;

@@ -1,5 +1,6 @@
 package frc.robot.subsystems.shooter.wrist;
 
+import static frc.robot.subsystems.shooter.wrist.ShooterWristConstants.shooterWristMinAngle;
 import static frc.robot.subsystems.shooter.wrist.ShooterWristConstants.wristMotorCANBus;
 import static frc.robot.subsystems.shooter.wrist.ShooterWristConstants.wristMotorID;
 
@@ -36,32 +37,35 @@ public class ShooterWristIOTalonFX implements ShooterWristIO {
     setBrake(true);
     pidController =
         new ProfiledPIDController(
-            ShooterWristConstants.PIVOT_ARM_PID_REAL[0],
-            ShooterWristConstants.PIVOT_ARM_PID_REAL[1],
-            ShooterWristConstants.PIVOT_ARM_PID_REAL[2],
+            ShooterWristConstants.shooterWristPIDReal[0],
+            ShooterWristConstants.shooterWristPIDReal[1],
+            ShooterWristConstants.shooterWristPIDReal[2],
             new TrapezoidProfile.Constraints(2.45, 2.45));
 
     pidController.setTolerance(
-        ShooterWristConstants.PIVOT_ARM_PID_TOLERANCE,
-        ShooterWristConstants.PIVOT_ARM_PID_VELOCITY_TOLERANCE);
+        ShooterWristConstants.shooterWristPIDTolerance,
+        ShooterWristConstants.shooterWristVelocityTolerance);
+    pivotMotor.setPosition(
+        Units.degreesToRotations(shooterWristMinAngle)); // Assume we boot at hard stop
     motorEncoder = pivotMotor.getPosition().getValueAsDouble();
+
     configurePID();
     configureFeedForward();
   }
 
   private void configurePID() {
-    pidController.setP(ShooterWristConstants.PIVOT_ARM_PID_REAL[0]);
-    pidController.setI(ShooterWristConstants.PIVOT_ARM_PID_REAL[1]);
-    pidController.setD(ShooterWristConstants.PIVOT_ARM_PID_REAL[2]);
+    pidController.setP(ShooterWristConstants.shooterWristPIDReal[0]);
+    pidController.setI(ShooterWristConstants.shooterWristPIDReal[1]);
+    pidController.setD(ShooterWristConstants.shooterWristPIDReal[2]);
     pidController.enableContinuousInput(
-        ShooterWristConstants.PIVOT_ARM_MIN_ANGLE, ShooterWristConstants.PIVOT_ARM_MAX_ANGLE);
+        ShooterWristConstants.shooterWristMinAngle, ShooterWristConstants.shooterWristMaxAngle);
   }
 
   private void configureFeedForward() {
-    setkS(ShooterWristConstants.PIVOT_ARM_FEEDFORWARD_REAL[0]);
-    setkG(ShooterWristConstants.PIVOT_ARM_FEEDFORWARD_REAL[1]);
-    setkV(ShooterWristConstants.PIVOT_ARM_FEEDFORWARD_REAL[2]);
-    setkA(ShooterWristConstants.PIVOT_ARM_FEEDFORWARD_REAL[3]);
+    setkS(ShooterWristConstants.shooterWristFFReal[0]);
+    setkG(ShooterWristConstants.shooterWristFFReal[1]);
+    setkV(ShooterWristConstants.shooterWristFFReal[2]);
+    setkA(ShooterWristConstants.shooterWristFFReal[3]);
   }
 
   /** Updates the set of loggable inputs. */
@@ -122,7 +126,7 @@ public class ShooterWristIOTalonFX implements ShooterWristIO {
 
   @Override
   public boolean atSetpoint() {
-    return Math.abs(getAngle() - setpoint) < ShooterWristConstants.PIVOT_ARM_PID_TOLERANCE;
+    return Math.abs(getAngle() - setpoint) < ShooterWristConstants.shooterWristPIDTolerance;
   }
 
   @Override

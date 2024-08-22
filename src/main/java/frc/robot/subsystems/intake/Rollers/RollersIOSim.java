@@ -1,7 +1,5 @@
 package frc.robot.subsystems.intake.rollers;
 
-import static frc.robot.subsystems.intake.IntakeConstants.*;
-
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
@@ -14,7 +12,7 @@ public class RollersIOSim implements RollersIO {
   private double desiredSpeed;
 
   public RollersIOSim() {
-    setPIDConstants(RollerMotorConstants.kP, RollerMotorConstants.kI, RollerMotorConstants.kD);
+    setPIDConstants(RollerConstants.kP, RollerConstants.kI, RollerConstants.kD);
   }
 
   @Override

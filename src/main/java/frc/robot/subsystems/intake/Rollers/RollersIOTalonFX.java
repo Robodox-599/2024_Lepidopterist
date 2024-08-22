@@ -3,7 +3,7 @@ package frc.robot.subsystems.intake.rollers;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import frc.robot.subsystems.intake.IntakeConstants.RollerMotorConstants;
+import frc.robot.subsystems.intake.rollers.RollerConstants.*;
 
 public class RollersIOTalonFX implements RollersIO {
   private TalonFX intakeRollerMotor;
@@ -12,22 +12,18 @@ public class RollersIOTalonFX implements RollersIO {
 
   public RollersIOTalonFX() {
     intakeRollerMotor =
-        new TalonFX(
-            RollerMotorConstants.intakeRollersMotorID,
-            RollerMotorConstants.intakeRollersMotorCANbus);
+        new TalonFX(RollerConstants.intakeRollersMotorID, RollerConstants.intakeRollersMotorCANbus);
 
     intakeRollerConfig = new TalonFXConfiguration();
-    intakeRollerConfig.Slot0.kP = RollerMotorConstants.kP;
-    intakeRollerConfig.Slot0.kI = RollerMotorConstants.kI;
-    intakeRollerConfig.Slot0.kD = RollerMotorConstants.kD;
-    intakeRollerConfig.Slot0.kV = RollerMotorConstants.kV;
-    intakeRollerConfig.Slot0.kS = RollerMotorConstants.kS;
-    intakeRollerConfig.CurrentLimits.SupplyCurrentLimitEnable =
-        RollerMotorConstants.EnableCurrentLimit;
-    intakeRollerConfig.CurrentLimits.SupplyCurrentLimit =
-        RollerMotorConstants.ContinuousCurrentLimit;
-    intakeRollerConfig.CurrentLimits.SupplyCurrentThreshold = RollerMotorConstants.PeakCurrentLimit;
-    intakeRollerConfig.CurrentLimits.SupplyTimeThreshold = RollerMotorConstants.PeakCurrentDuration;
+    intakeRollerConfig.Slot0.kP = RollerConstants.kP;
+    intakeRollerConfig.Slot0.kI = RollerConstants.kI;
+    intakeRollerConfig.Slot0.kD = RollerConstants.kD;
+    intakeRollerConfig.Slot0.kV = RollerConstants.kV;
+    intakeRollerConfig.Slot0.kS = RollerConstants.kS;
+    intakeRollerConfig.CurrentLimits.SupplyCurrentLimitEnable = RollerConstants.EnableCurrentLimit;
+    intakeRollerConfig.CurrentLimits.SupplyCurrentLimit = RollerConstants.ContinuousCurrentLimit;
+    intakeRollerConfig.CurrentLimits.SupplyCurrentThreshold = RollerConstants.PeakCurrentLimit;
+    intakeRollerConfig.CurrentLimits.SupplyTimeThreshold = RollerConstants.PeakCurrentDuration;
   }
 
   /** updates inputs from robot */

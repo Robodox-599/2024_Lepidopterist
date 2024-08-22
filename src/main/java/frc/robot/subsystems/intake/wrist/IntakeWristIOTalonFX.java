@@ -1,7 +1,5 @@
 package frc.robot.subsystems.intake.wrist;
 
-import static frc.robot.subsystems.intake.IntakeConstants.*;
-
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
@@ -10,7 +8,6 @@ import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
-import frc.robot.subsystems.shooter.wrist.ShooterWristConstants;
 import org.littletonrobotics.junction.Logger;
 
 public class IntakeWristIOTalonFX implements IntakeWristIO {
@@ -36,24 +33,24 @@ public class IntakeWristIOTalonFX implements IntakeWristIO {
     setBrake(true);
     pidController =
         new ProfiledPIDController(
-            ShooterWristConstants.PIVOT_ARM_PID_REAL[0],
-            ShooterWristConstants.PIVOT_ARM_PID_REAL[1],
-            ShooterWristConstants.PIVOT_ARM_PID_REAL[2],
+            IntakeWristConstants.intakeWristPIDReal[0],
+            IntakeWristConstants.intakeWristPIDReal[1],
+            IntakeWristConstants.intakeWristPIDReal[2],
             new TrapezoidProfile.Constraints(2.45, 2.45));
 
     pidController.setTolerance(
-        ShooterWristConstants.PIVOT_ARM_PID_TOLERANCE,
-        ShooterWristConstants.PIVOT_ARM_PID_VELOCITY_TOLERANCE);
+        IntakeWristConstants.intakeWristPositionTolerance,
+        IntakeWristConstants.intakeWristVelocityTolerance);
     motorEncoder = pivotMotor.getPosition().getValueAsDouble();
     configurePID();
   }
 
   private void configurePID() {
-    pidController.setP(IntakeWristConstants.PIVOT_ARM_PID_REAL[0]);
-    pidController.setI(IntakeWristConstants.PIVOT_ARM_PID_REAL[1]);
-    pidController.setD(IntakeWristConstants.PIVOT_ARM_PID_REAL[2]);
+    pidController.setP(IntakeWristConstants.intakeWristPIDReal[0]);
+    pidController.setI(IntakeWristConstants.intakeWristPIDReal[1]);
+    pidController.setD(IntakeWristConstants.intakeWristPIDReal[2]);
     pidController.enableContinuousInput(
-        IntakeWristConstants.PIVOT_ARM_MIN_ANGLE, IntakeWristConstants.PIVOT_ARM_MAX_ANGLE);
+        IntakeWristConstants.intakeWristMaxAngle, IntakeWristConstants.intakeWristMaxAngle);
   }
 
   /** Updates the set of loggable inputs. */
@@ -114,7 +111,7 @@ public class IntakeWristIOTalonFX implements IntakeWristIO {
 
   @Override
   public boolean atSetpoint() {
-    return Math.abs(getAngle() - setpoint) < IntakeWristConstants.PIVOT_ARM_PID_TOLERANCE;
+    return Math.abs(getAngle() - setpoint) < IntakeWristConstants.intakeWristPositionTolerance;
   }
 
   @Override

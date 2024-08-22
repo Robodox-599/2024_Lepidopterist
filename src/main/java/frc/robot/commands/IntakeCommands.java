@@ -1,7 +1,8 @@
 package frc.robot.commands;
 
 import static frc.robot.commands.IndexerCommands.*;
-import static frc.robot.subsystems.intake.IntakeConstants.*;
+import static frc.robot.subsystems.intake.rollers.RollerConstants.*;
+import static frc.robot.subsystems.intake.wrist.IntakeWristConstants.*;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.Command;
