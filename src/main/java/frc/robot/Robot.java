@@ -4,7 +4,6 @@
 
 package frc.robot;
 
-import com.ctre.phoenix.sensors.PigeonIMU;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -27,9 +26,15 @@ public class Robot extends LoggedRobot {
 
   private RobotContainer m_robotContainer;
 
-  private PigeonIMU pigeonIMU;
   private Boolean autonomousInitRan = false;
 
+  public static enum RobotMode {
+    SIM,
+    REPLAY,
+    REAL
+  }
+
+  public static final RobotMode mode = Robot.isReal() ? RobotMode.REAL : RobotMode.REPLAY;
   /**
    * This function is run when the robot is first started up and should be used for any
    * initialization code.
@@ -54,29 +59,25 @@ public class Robot extends LoggedRobot {
         break;
     }
 
-    // Set up data receivers & replay source
-    if (DriverStation.isFMSAttached()) {
-      // Only turn on logs if we are attached to FMS, but disable NTtables.
-      // Logger.addDataReceiver(new WPILOGWriter());
-      Logger.addDataReceiver(new WPILOGWriter());
-    } else {
-      // Otherwise, enable NT tables.
-      Logger.addDataReceiver(new NT4Publisher());
-      Logger.addDataReceiver(new WPILOGWriter());
+    switch (mode) {
+      case REAL:
+        Logger.addDataReceiver(new WPILOGWriter("/U")); // Log to a USB stick
+        Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
+        break;
+      case REPLAY:
+        setUseTiming(false); // Run as fast as possible
+        String logPath =
+            LogFileUtil
+                .findReplayLog(); // Pull the replay log from AdvantageScope (or prompt the user)
+        Logger.setReplaySource(new WPILOGReader(logPath)); // Read replay log
+        Logger.addDataReceiver(
+            new WPILOGWriter(
+                LogFileUtil.addPathSuffix(logPath, "_sim"))); // Save outputs to a new log
+        break;
+      case SIM:
+        Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
+        break;
     }
-
-    if (Constants.getMode() == Constants.Mode.REPLAY) {
-      String replayLogPath = LogFileUtil.findReplayLog();
-
-      Logger.setReplaySource(new WPILOGReader(replayLogPath));
-    }
-
-    if (Constants.getMode() == Constants.Mode.REPLAY) {
-      setUseTiming(true);
-    }
-
-    Logger.disableDeterministicTimestamps();
-
     // See http://bit.ly/3YIzFZ6 for more information on timestamps in AdvantageKit.
     // Logger.disableDeterministicTimestamps()
 
@@ -90,7 +91,6 @@ public class Robot extends LoggedRobot {
     // autonomous chooser on the dashboard.
 
     m_robotContainer = new RobotContainer();
-    pigeonIMU = new PigeonIMU(12);
   }
 
   /**
