@@ -6,15 +6,15 @@ public class ShooterWristConstants {
   public static final int wristMotorID = 1; // TODO: change later
   public static final String wristMotorCANBus = "LunaDriveCANivore"; // TODO: change later
 
-  public static final double[] shooterWristPIDReal = {3.6, 0, 0, 0.01}; // TODO: calibrate this
-  public static final double[] shooterWristFFReal = {0, 0.45, 0, 0}; // TODO: calibrate this
+  public static final double[] shooterWristPIDReal = {0.1, 0, 0.01}; // TODO: calibrate this
+  public static final double[] shooterWristFFReal = {0, 0.45, 0}; // TODO: calibrate this
 
   public static final double shooterWristPIDTolerance =
       Units.degreesToRadians(1); // TODO: calibrate this
   public static final double shooterWristVelocityTolerance = 0.5; // TODO: calibrate this
 
   public static final double shooterWristMaxAngle =
-      Units.degreesToRadians(0.0); // TODO: calibrate this
+      Units.degreesToRadians(90); // TODO: calibrate this
   public static final double shooterWristMinAngle =
       Units.degreesToRadians(0.0); // TODO: calibrate this
 
@@ -37,6 +37,6 @@ public class ShooterWristConstants {
     public static final double kArmMass = 10.0; // Kilograms // TODO: calibrate this
     public static final double kArmLength = Units.inchesToMeters(20); // TODO: calibrate this
     public static final double kMinAngleRads = Units.degreesToRadians(0); // TODO: calibrate this
-    public static final double kMaxAngleRads = Units.degreesToRadians(180); // TODO: calibrate this
+    public static final double kMaxAngleRads = Units.degreesToRadians(90); // TODO: calibrate this
   }
 }

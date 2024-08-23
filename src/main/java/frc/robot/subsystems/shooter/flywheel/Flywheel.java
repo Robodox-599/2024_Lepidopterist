@@ -41,20 +41,20 @@ public class Flywheel extends SubsystemBase {
 
     // Switch constants based on mode (the physics simulator is treated as a
     // separate robot with different tuning)
-    switch (getMode()) {
-      case REAL:
+    switch (robotType) {
+      case REALBOT:
         ffModel =
             new SimpleMotorFeedforward(
                 simFlywheelFeedForwardkS, simFlywheelFeedForwardkV, simFlywheelFeedForwardkA);
         io.configurePID(simFlywheelFeedBackkP, simFlywheelFeedBackkI, simFlywheelFeedBackkD);
         break;
-      case REPLAY:
+      case REPLAYBOT:
         ffModel =
             new SimpleMotorFeedforward(
                 simFlywheelFeedForwardkS, simFlywheelFeedForwardkV, simFlywheelFeedForwardkA);
         io.configurePID(simFlywheelFeedBackkP, simFlywheelFeedBackkI, simFlywheelFeedBackkD);
         break;
-      case SIM:
+      case SIMBOT:
         ffModel =
             new SimpleMotorFeedforward(
                 simFlywheelFeedForwardkS, simFlywheelFeedForwardkV, simFlywheelFeedForwardkA);
@@ -70,11 +70,13 @@ public class Flywheel extends SubsystemBase {
   public void periodic() {
     io.updateInputs(inputs);
     Logger.processInputs("Flywheel", inputs);
-    Logger.recordOutput("Flywheel/SpunUp?", flywheelsSpunUp());
     spunUp = () -> flywheelsSpunUp();
+    Logger.recordOutput("Flywheel/SpunUp?", flywheelsSpunUp());
+    Logger.recordOutput("Flywheel/topGoalVelocityRPM", topGoalVelocityRPM);
+    Logger.recordOutput("Flywheel/bottomGoalVelocityRPM", bottomGoalVelocityRPM);
   }
 
-  public synchronized boolean flywheelsSpunUp() {
+  public boolean flywheelsSpunUp() {
     return bottomFlywheelSpunUp(bottomGoalVelocityRPM) && topFlywheelSpunUp(topGoalVelocityRPM);
   }
 
@@ -88,10 +90,9 @@ public class Flywheel extends SubsystemBase {
         getBottomVelocityRPM(), Units.rotationsPerMinuteToRadiansPerSecond(goalVelocity));
   }
 
-  private boolean inDeadBand(double currentVelocityRadPerSec, double goalVelocityRadPerSec) {
-    double currentRPM = Units.radiansPerSecondToRotationsPerMinute(currentVelocityRadPerSec);
+  private boolean inDeadBand(double currerntVelocityRPM, double goalVelocityRadPerSec) {
     double targetRPM = Units.radiansPerSecondToRotationsPerMinute(goalVelocityRadPerSec);
-    double error = targetRPM - currentRPM;
+    double error = targetRPM - currerntVelocityRPM;
     return (Math.abs(error) > acceptableErrorRPM);
   }
   /** Run open loop at the specified voltage. */
@@ -110,9 +111,6 @@ public class Flywheel extends SubsystemBase {
         ffModel.calculate(bottomVelocityRadPerSec));
     topGoalVelocityRPM = topVelocityRPM;
     bottomGoalVelocityRPM = bottomVelocityRPM;
-    // Log flywheel setpoint
-    Logger.recordOutput("Flywheel/TopSetpointRPM", topVelocityRPM);
-    Logger.recordOutput("Flywheel/BottomSetpointRPM", bottomVelocityRPM);
   }
 
   /** Stops the flywheel. */
@@ -122,12 +120,12 @@ public class Flywheel extends SubsystemBase {
   /** Returns the current velocity in RPM. */
   @AutoLogOutput
   public double getTopVelocityRPM() {
-    return inputs.upperFlywheelVelocityRadPerSec;
+    return Units.radiansPerSecondToRotationsPerMinute(inputs.upperFlywheelVelocityRadPerSec);
   }
 
   @AutoLogOutput
   public double getBottomVelocityRPM() {
-    return inputs.lowerFlywheelVelocityRadPerSec;
+    return Units.radiansPerSecondToRotationsPerMinute(inputs.lowerFlywheelVelocityRadPerSec);
   }
 
   public void setVoltage(double volts) {

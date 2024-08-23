@@ -18,7 +18,6 @@ import static frc.robot.subsystems.shooter.flywheel.FlywheelConstants.*;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.system.plant.DCMotor;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 
 public class FlywheelIOSim implements FlywheelIO {
@@ -48,17 +47,13 @@ public class FlywheelIOSim implements FlywheelIO {
     simTop.update(0.02);
     simBottom.update(0.02);
 
-    inputs.upperFlywheelPositionRad =
-        Units.rotationsToRadians(simTop.getAngularPositionRad()) / FLYWHEEL_GEAR_RATIO;
-    inputs.upperFlywheelVelocityRadPerSec =
-        Units.rotationsToRadians(simTop.getAngularVelocityRadPerSec()) / FLYWHEEL_GEAR_RATIO;
+    inputs.upperFlywheelPositionRad = simTop.getAngularPositionRad();
+    inputs.upperFlywheelVelocityRadPerSec = simTop.getAngularVelocityRadPerSec();
     inputs.upperFlywheelAppliedVolts = appliedVoltsTop;
     inputs.upperFlywheelCurrentAmps = simTop.getCurrentDrawAmps();
 
-    inputs.lowerFlywheelPositionRad =
-        Units.rotationsToRadians(simBottom.getAngularPositionRad()) / FLYWHEEL_GEAR_RATIO;
-    inputs.lowerFlywheelVelocityRadPerSec =
-        Units.rotationsToRadians(simBottom.getAngularVelocityRadPerSec()) / FLYWHEEL_GEAR_RATIO;
+    inputs.lowerFlywheelPositionRad = simBottom.getAngularPositionRad();
+    inputs.lowerFlywheelVelocityRadPerSec = simBottom.getAngularVelocityRadPerSec();
     inputs.lowerFlywheelAppliedVolts = appliedVoltsBottom;
     inputs.lowerFlywheelCurrentAmps = simBottom.getCurrentDrawAmps();
   }

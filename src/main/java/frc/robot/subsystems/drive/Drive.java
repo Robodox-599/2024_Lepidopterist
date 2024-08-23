@@ -16,6 +16,7 @@
 package frc.robot.subsystems.drive;
 
 import static edu.wpi.first.units.Units.Volts;
+import static frc.robot.Constants.robotType;
 import static frc.robot.subsystems.drive.DriveConstants.*;
 
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -47,7 +48,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import frc.robot.Constants;
+import frc.robot.Constants.RobotType;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.Vision.VisionConstants;
 import frc.robot.subsystems.vision.VisionHelper;
@@ -162,7 +163,7 @@ public class Drive extends SubsystemBase {
 
     double[] driveConstantsArr;
 
-    if (Constants.getMode() == Constants.Mode.SIM) {
+    if (robotType == RobotType.REALBOT) {
       driveConstantsArr =
           new double[] {
             realPathFollowTranslationkP, realPathFollowTranslationkI, realPathFollowTranslationkD,

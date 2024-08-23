@@ -21,7 +21,7 @@ public class Indexer extends SubsystemBase {
   public void periodic() {
     io.updateInputs(inputs);
 
-    Logger.processInputs("Rollers", inputs);
+    Logger.processInputs("Indexer", inputs);
   }
 
   public void setVoltage(double voltage) {

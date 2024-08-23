@@ -1,6 +1,6 @@
 package frc.robot.commands;
 
-import static frc.robot.Constants.getMode;
+import static frc.robot.Constants.*;
 import static frc.robot.Constants.shouldFlip;
 import static frc.robot.FieldConstants.wingX;
 import static frc.robot.commands.CommandConstants.*;
@@ -15,7 +15,6 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.robot.Constants.Mode;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.util.AllianceFlipUtil;
 import org.littletonrobotics.junction.Logger;
@@ -43,7 +42,7 @@ public class AutoAlignCommands extends Command {
   }
 
   public static double[] setAutoAlignConstants() {
-    if (getMode() == Mode.SIM || getMode() == Mode.REPLAY) {
+    if (robotType == RobotType.SIMBOT || robotType == RobotType.REPLAYBOT) {
       double[] arr;
       arr = new double[] {simAutoTurnSpeakerkP, simAutoTurnSpeakerkI, simAutoTurnSpeakerkD};
       return (arr);

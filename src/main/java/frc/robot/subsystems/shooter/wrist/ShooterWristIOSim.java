@@ -19,7 +19,7 @@ public class ShooterWristIOSim implements ShooterWristIO {
 
   // Standard classes for controlling our arm
   private final ProfiledPIDController m_controller;
-  private SimpleMotorFeedforward m_feedforward = new SimpleMotorFeedforward(0, 0);
+  private SimpleMotorFeedforward m_feedforward = new SimpleMotorFeedforward(0.1, 0);
   private final Encoder m_encoder;
 
   // Simulation classes help us simulate what's going on, including gravity.

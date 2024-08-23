@@ -7,7 +7,6 @@ package frc.robot;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.RobotBase;
-import frc.robot.util.LoggedTunableNumber;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
@@ -19,7 +18,8 @@ import frc.robot.util.LoggedTunableNumber;
  */
 public final class Constants {
 
-  LoggedTunableNumber shooterWristLUTValue = new LoggedTunableNumber("Shooter Wrist Value ", 0.0);
+  // LoggedTunableNumber shooterWristLUTValue = new LoggedTunableNumber("Shooter Wrist Value ",
+  // 0.0);
 
   public static boolean shouldFlip() {
     return DriverStation.getAlliance().isPresent()
@@ -29,37 +29,13 @@ public final class Constants {
   // public static final boolean isblue = DriverStation.getAlliance().get() == Alliance.Blue;
   // public static Optional<Alliance> isred;
 
-  private static final boolean isReplayMode = false; // MAKE TRUE IF REPLAY MODE IS DESIRED
+  public static final boolean isReplayMode = false; // MAKE TRUE IF REPLAY MODE IS DESIRED
   public static final boolean tuningMode = true;
 
-  private static RobotType robotType =
+  public static RobotType robotType =
       isReplayMode
           ? RobotType.REPLAYBOT
           : RobotBase.isReal() ? RobotType.REALBOT : RobotType.SIMBOT;
-
-  public static RobotType getRobot() {
-    if (RobotBase.isReal() && robotType == RobotType.SIMBOT) {
-
-      robotType = RobotType.REALBOT;
-    }
-    return robotType;
-  }
-
-  public static Mode getMode() {
-    return switch (robotType) {
-      case REALBOT -> Mode.REAL;
-      case SIMBOT -> Mode.SIM;
-      case REPLAYBOT -> Mode.REPLAY;
-    };
-  }
-
-  public enum Mode {
-    REAL,
-
-    SIM,
-
-    REPLAY
-  }
 
   public enum RobotType {
     SIMBOT,

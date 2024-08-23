@@ -49,19 +49,19 @@ public class ShooterWrist extends SubsystemBase {
   @Override
   public void periodic() {
     io.updateInputs(inputs);
-    Logger.processInputs("Wrist", inputs);
+    Logger.processInputs("ShooterWrist", inputs);
 
     armMechanism.setAngle(Units.radiansToDegrees(inputs.angleRads));
 
     // Log Inputs
-    Logger.processInputs("Wrist", inputs);
+    Logger.processInputs("ShooterWrist", inputs);
   }
 
   public void setBrake(boolean brake) {
     io.setBrake(brake);
   }
 
-  @AutoLogOutput(key = "Wrist/Close")
+  @AutoLogOutput(key = "ShooterWrist/Close")
   public boolean isVoltageClose(double setVoltage) {
     double voltageDifference = Math.abs(setVoltage - inputs.appliedVolts);
     return voltageDifference <= ShooterWristConstants.shooterWristPIDTolerance;
@@ -92,7 +92,7 @@ public class ShooterWrist extends SubsystemBase {
 
   public void setPID(double setpoint) {
     this.setpoint = setpoint;
-    Logger.recordOutput("Wrist/Setpoint", setpoint);
+    Logger.recordOutput("ShooterWrist/Setpoint", setpoint);
   }
 
   public void addPID(double setpointAdd) {
@@ -103,7 +103,7 @@ public class ShooterWrist extends SubsystemBase {
             ShooterWristConstants.shooterWristMinAngle,
             ShooterWristConstants.shooterWristMaxAngle);
 
-    Logger.recordOutput("Wrist/Setpoint", setpoint);
+    Logger.recordOutput("ShooterWrist/Setpoint", setpoint);
   }
 
   public boolean atSetpoint() {
@@ -132,7 +132,7 @@ public class ShooterWrist extends SubsystemBase {
   }
 
   public MechanismLigament2d getArmMechanism() {
-    return new MechanismLigament2d("Wrist", 0.4, 0, 5, new Color8Bit(Color.kAqua));
+    return new MechanismLigament2d("ShooterWrist", 0.4, 0, 5, new Color8Bit(Color.kAqua));
   }
 
   public Command PIDCommand(double setpoint) {
@@ -170,7 +170,7 @@ public class ShooterWrist extends SubsystemBase {
     return new FunctionalCommand(
         () -> setPID(setpointSupplier.getAsDouble()),
         () -> {
-          Logger.recordOutput("WristSpeakerAngle", setpointSupplier.getAsDouble());
+          Logger.recordOutput("ShooterWrist/SpeakerAngle", setpointSupplier.getAsDouble());
           setPID(setpointSupplier.getAsDouble());
           runPID();
         },

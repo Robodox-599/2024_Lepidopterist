@@ -58,6 +58,9 @@
       "open": false
     },
     "transitory": {
+      "AdvantageKit": {
+        "open": true
+      },
       "photonvision": {
         "open": true
       }

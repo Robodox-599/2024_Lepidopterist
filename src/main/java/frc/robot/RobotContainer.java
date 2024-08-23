@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import static frc.robot.Constants.robotType;
 import static frc.robot.FieldConstants.*;
 import static frc.robot.commands.IndexerCommands.*;
 import static frc.robot.commands.IntakeCommands.*;
@@ -22,7 +23,6 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.Constants.ControllerConstants;
 import frc.robot.commands.AutoAlignCommands;
 import frc.robot.commands.DriveCommands;
@@ -85,7 +85,7 @@ public class RobotContainer {
   private final LoggedDashboardChooser<Command> m_Chooser;
 
   public RobotContainer() {
-    switch (Constants.getRobot()) {
+    switch (robotType) {
       case REALBOT -> {
         shooterWrist = new ShooterWrist(new ShooterWristIOTalonFX());
         flywheels = new Flywheel(new FlywheelIOTalonFX());
@@ -164,21 +164,22 @@ public class RobotContainer {
         DriveCommands.joystickDrive(
             drive, () -> -driver.getLeftY(), () -> -driver.getLeftX(), () -> -driver.getRightX()));
 
-    driver.y().whileTrue(drive.sysIdDynamic(Direction.kForward));
-    driver.a().whileTrue(drive.sysIdDynamic(Direction.kReverse));
+    // driver.y().whileTrue(drive.sysIdDynamic(Direction.kForward));
+    // driver.a().whileTrue(drive.sysIdDynamic(Direction.kReverse));
 
-    driver.x().whileTrue(drive.sysIdQuasistatic(Direction.kForward));
-    driver.b().whileTrue(drive.sysIdQuasistatic(Direction.kReverse));
+    // driver.x().whileTrue(drive.sysIdQuasistatic(Direction.kForward));
+    // driver.b().whileTrue(drive.sysIdQuasistatic(Direction.kReverse));
 
-    driver
-        .x()
-        .whileTrue(
-            AutoAlignCommands.autoAlignSourceCommand(drive, driver)
-                .onlyIf(() -> isInSourceWing(drive))
-                .andThen(rumbleControllers())
-                .onlyIf(() -> !isInSourceWing(drive)));
+    // driver
+    //     .x()
+    //     .whileTrue(
+    //         AutoAlignCommands.autoAlignSourceCommand(drive, driver)
+    //             .onlyIf(() -> isInSourceWing(drive))
+    //             .andThen(rumbleControllers())
+    //             .onlyIf(() -> !isInSourceWing(drive)));
     // test
-
+    driver.x().whileTrue(AutoAlignShootAnywhereCommand());
+    driver.y().whileTrue(shoot());
     driver
         .leftBumper()
         .whileTrue(

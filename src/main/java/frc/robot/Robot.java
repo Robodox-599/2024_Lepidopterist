@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import static frc.robot.Constants.*;
+
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -28,13 +30,6 @@ public class Robot extends LoggedRobot {
 
   private Boolean autonomousInitRan = false;
 
-  public static enum RobotMode {
-    SIM,
-    REPLAY,
-    REAL
-  }
-
-  public static final RobotMode mode = Robot.isReal() ? RobotMode.REAL : RobotMode.REPLAY;
   /**
    * This function is run when the robot is first started up and should be used for any
    * initialization code.
@@ -59,12 +54,11 @@ public class Robot extends LoggedRobot {
         break;
     }
 
-    switch (mode) {
-      case REAL:
+    switch (robotType) {
+      case REALBOT:
         Logger.addDataReceiver(new WPILOGWriter("/U")); // Log to a USB stick
         Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
-        break;
-      case REPLAY:
+      case REPLAYBOT:
         setUseTiming(false); // Run as fast as possible
         String logPath =
             LogFileUtil
@@ -73,10 +67,8 @@ public class Robot extends LoggedRobot {
         Logger.addDataReceiver(
             new WPILOGWriter(
                 LogFileUtil.addPathSuffix(logPath, "_sim"))); // Save outputs to a new log
-        break;
-      case SIM:
+      case SIMBOT:
         Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
-        break;
     }
     // See http://bit.ly/3YIzFZ6 for more information on timestamps in AdvantageKit.
     // Logger.disableDeterministicTimestamps()

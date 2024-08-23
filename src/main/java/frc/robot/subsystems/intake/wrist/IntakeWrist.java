@@ -50,12 +50,12 @@ public class IntakeWrist extends SubsystemBase {
   @Override
   public void periodic() {
     io.updateInputs(inputs);
-    Logger.processInputs("PivotArm", inputs);
+    Logger.processInputs("IntakeWrist", inputs);
 
     wristMechanism.setAngle(Units.radiansToDegrees(inputs.angleRads));
 
     // Log Inputs
-    Logger.processInputs("PivotArm", inputs);
+    Logger.processInputs("IntakeWrist", inputs);
   }
 
   public void setBrake(boolean brake) {
@@ -93,7 +93,7 @@ public class IntakeWrist extends SubsystemBase {
 
   public void setPID(double setpoint) {
     this.setpoint = setpoint;
-    Logger.recordOutput("PivotArm/Setpoint", setpoint);
+    Logger.recordOutput("IntakeWrist/Setpoint", setpoint);
   }
 
   public void addPID(double setpointAdd) {
@@ -104,7 +104,7 @@ public class IntakeWrist extends SubsystemBase {
             IntakeWristConstants.intakeWristMinAngle,
             IntakeWristConstants.intakeWristMaxAngle);
 
-    Logger.recordOutput("PivotArm/Setpoint", setpoint);
+    Logger.recordOutput("IntakeWrist/Setpoint", setpoint);
   }
 
   public boolean atSetpoint() {
@@ -133,7 +133,7 @@ public class IntakeWrist extends SubsystemBase {
   }
 
   public MechanismLigament2d getArmMechanism() {
-    return new MechanismLigament2d("Wrist", 0.4, 0, 5, new Color8Bit(Color.kAqua));
+    return new MechanismLigament2d("IntakeWrist", 0.4, 0, 5, new Color8Bit(Color.kAqua));
   }
 
   public Command PIDCommand(double setpoint) {
@@ -171,7 +171,7 @@ public class IntakeWrist extends SubsystemBase {
     return new FunctionalCommand(
         () -> setPID(setpointSupplier.getAsDouble()),
         () -> {
-          Logger.recordOutput("PivotArmSpeakerAngle", setpointSupplier.getAsDouble());
+          Logger.recordOutput("IntakeWristAngle", setpointSupplier.getAsDouble());
           setPID(setpointSupplier.getAsDouble());
           runPID();
         },

@@ -13,6 +13,7 @@
 
 package frc.robot.subsystems.drive;
 
+import static frc.robot.Constants.*;
 import static frc.robot.subsystems.drive.DriveConstants.*;
 
 import edu.wpi.first.math.controller.PIDController;
@@ -23,7 +24,6 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.Constants;
 import org.littletonrobotics.junction.Logger;
 
 public class Module {
@@ -63,7 +63,7 @@ public class Module {
 
     double[] driveConstantsArr;
 
-    if (Constants.getMode() == Constants.Mode.SIM) {
+    if (robotType == RobotType.SIMBOT || robotType == RobotType.REPLAYBOT) {
       driveConstantsArr =
           new double[] {
             driveSimFeedFowardkS, driveSimFeedFowardkV, driveSimFeedFowardkA,
