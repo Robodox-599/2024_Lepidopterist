@@ -8,12 +8,12 @@ import frc.robot.subsystems.indexer.Indexer;
 
 public class IndexerCommands extends Command {
   public static final int beakBreak2Port = 1;
-  private static DigitalInput beambreak = new DigitalInput(beakBreak2Port);
+  public static DigitalInput indexerBeambreak = new DigitalInput(beakBreak2Port);
 
   public static Command runIndexerUntilBeamBreak(Indexer indexer) {
     return Commands.sequence(
         indexer.speedCommand(() -> 0.4),
-        new WaitUntilCommand(() -> !beambreak.get()),
+        new WaitUntilCommand(() -> !indexerBeambreak.get()),
         new WaitUntilCommand(2),
         indexer.speedCommand(() -> 0));
   }

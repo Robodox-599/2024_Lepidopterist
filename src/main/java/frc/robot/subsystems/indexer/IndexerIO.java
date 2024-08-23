@@ -9,8 +9,8 @@ public interface IndexerIO {
     public double velocityRadsPerSec = 0.0;
     public double appliedVoltage = 0.0;
     public double speedSetpoint = 0.0;
-    public double[] currentAmps = new double[] {};
-    public double[] tempCelcius = new double[] {};
+    public double currentAmps = 0.0;
+    public double tempCelcius = 0.0;
   }
 
   /** updates inputs from robot */
@@ -19,8 +19,6 @@ public interface IndexerIO {
   public default void setVoltage(double voltage) {}
 
   /** sets velocity setpoint */
-  public default void setPIDConstants(double p, double i, double d) {}
-
   public default void stop() {
     setVoltage(0.0);
   }
@@ -28,4 +26,7 @@ public interface IndexerIO {
   public default void setBrake(boolean brake) {}
 
   public default void setSpeed(double speed) {}
+
+  /** Set velocity PID constants. */
+  public default void configurePID(double kP, double kI, double kD) {}
 }

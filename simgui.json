@@ -59,9 +59,12 @@
     },
     "transitory": {
       "AdvantageKit": {
-        "open": true
-      },
-      "photonvision": {
+        "DashboardInputs": {
+          "TunableNumbers": {
+            "open": true
+          },
+          "open": true
+        },
         "open": true
       }
     }
@@ -71,12 +74,6 @@
       "open": true
     },
     "Connections": {
-      "open": true
-    },
-    "Server": {
-      "Publishers": {
-        "open": true
-      },
       "open": true
     },
     "visible": true

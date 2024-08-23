@@ -197,7 +197,7 @@ public class RobotContainer {
       Operator Controls
     ---------------------  */
 
-    operator.a().whileTrue(runIndexerStartEnd());
+    driver.a().whileTrue(runIndexerStartEnd());
     operator.b().whileTrue(runIndexerStartEndBackwards());
     operator.x().whileTrue(runIntakeFwdCMD(rollers));
     operator.y().whileTrue(runIntakeBackCMD(rollers));
@@ -208,7 +208,7 @@ public class RobotContainer {
   }
 
   public Command runIndexerStartEnd() {
-    return new StartEndCommand(() -> runIndexer(indexer, 0.4), () -> stopIndexer(indexer));
+    return new StartEndCommand(() -> runIndexer(indexer, 10), () -> stopIndexer(indexer));
   }
 
   public Command runIndexerStartEndBackwards() {
@@ -222,8 +222,8 @@ public class RobotContainer {
 
   public Command AutoAlign() {
     return Commands.sequence(
-        AutoAlignCommands.autoAlignSpeakerCommand(drive, driver)
-            .onlyIf(() -> isInSpeakerWing(drive)));
+        Commands.waitUntil(() -> isInSpeakerWing(drive)),
+        AutoAlignCommands.autoAlignSpeakerCommand(drive, driver));
   }
 
   public Command rumbleIfNotSpeakerWing() {
@@ -232,8 +232,17 @@ public class RobotContainer {
 
   public Command shoot() {
     return Commands.sequence(
+        Commands.waitUntil(() -> (isPointedAtSpeaker())),
         flywheels.runFlywheelVelocity(topFlywheelVelocityRPM, bottomFlywheelVelocityRPM),
-        runIndexer(indexer, feedingSpeed).onlyIf(flywheels.spunUp));
+        Commands.waitUntil(() -> (flywheels.flywheelsSpunUp() && isPointedAtSpeaker())),
+        runIndexer(indexer, feedingSpeed),
+        Commands.waitUntil(() -> indexerBeambreak.get()),
+        stopFlywheels(),
+        stopIndexer(indexer));
+  }
+
+  public Command stopFlywheels() {
+    return flywheels.runVoltage(0);
   }
 
   public Command rumbleControllers() {
@@ -281,6 +290,11 @@ public class RobotContainer {
   @AutoLogOutput(key = "PointedAtSpeaker")
   public boolean isPointedAtSpeaker() {
     return AutoAlignCommands.pointedAtSpeaker(drive);
+  }
+
+  @AutoLogOutput(key = "FlywheelsSpunUp")
+  public boolean areSpunUp() {
+    return flywheels.flywheelsSpunUp();
   }
 
   @AutoLogOutput(key = "AimedAtSpeaker")

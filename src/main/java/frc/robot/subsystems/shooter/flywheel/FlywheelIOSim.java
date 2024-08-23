@@ -21,8 +21,8 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 
 public class FlywheelIOSim implements FlywheelIO {
-  private DCMotorSim simBottom = new DCMotorSim(DCMotor.getKrakenX60Foc(1), 1.25, 0.004);
-  private DCMotorSim simTop = new DCMotorSim(DCMotor.getKrakenX60Foc(1), 1.25, 0.004);
+  private DCMotorSim simBottom = new DCMotorSim(DCMotor.getKrakenX60Foc(1), 1, 0.004);
+  private DCMotorSim simTop = new DCMotorSim(DCMotor.getKrakenX60Foc(1), 1, 0.004);
   private PIDController pid = new PIDController(0.0, 0.0, 0.0);
 
   private boolean closedLoop = false;

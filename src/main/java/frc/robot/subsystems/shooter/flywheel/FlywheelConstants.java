@@ -4,13 +4,12 @@ public class FlywheelConstants {
   public static final int flywheelTopMotorId = 0; // TODO: assign later
   public static final int flywheelBotomMotorId = 0; // TODO: assign later
 
-  public static final double simFlywheelFeedForwardkS = 0.1; // TODO: assign later
-  public static final double simFlywheelFeedForwardkV = 0.1; // TODO: assign later
-  public static final double simFlywheelFeedForwardkA = 0.1; // TODO: assign later
-
-  public static final double simFlywheelFeedBackkP = 0.1; // TODO: assign later
-  public static final double simFlywheelFeedBackkI = 0.1; // TODO: assign later
-  public static final double simFlywheelFeedBackkD = 0.1; // TODO: assign later
+  public static final double simFlywheelFeedForwardkS = 0.0; // TODO: assign later
+  public static final double simFlywheelFeedForwardkV = 0.0; // TODO: assign later
+  public static final double simFlywheelFeedForwardkA = 0.0; // TODO: assign later
+  public static final double simFlywheelFeedBackkP = 0.08; // TODO: assign later
+  public static final double simFlywheelFeedBackkI = 0.0; // TODO: assign later
+  public static final double simFlywheelFeedBackkD = 0.0; // TODO: assign later
 
   public static final double realFlywheelFeedForwardkS = 0.0; // TODO: assign later
   public static final double realFlywheelFeedForwardkV = 0.0; // TODO: assign later

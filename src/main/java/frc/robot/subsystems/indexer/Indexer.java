@@ -1,10 +1,13 @@
 package frc.robot.subsystems.indexer;
 
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import static frc.robot.Constants.*;
+import static frc.robot.subsystems.indexer.IndexerConstants.*;
+
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import java.util.function.DoubleSupplier;
+import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 // testing live share :O
@@ -15,7 +18,17 @@ public class Indexer extends SubsystemBase {
 
   public Indexer(IndexerIO io) {
     this.io = io;
-    SmartDashboard.putData(getName(), this);
+    switch (robotType) {
+      case REALBOT:
+        io.configurePID(realkP, realkI, realkD);
+        break;
+      case REPLAYBOT:
+        io.configurePID(simkP, simkI, simkD);
+        break;
+      case SIMBOT:
+        io.configurePID(simkP, simkI, simkD);
+        break;
+    }
   }
 
   public void periodic() {
@@ -32,16 +45,33 @@ public class Indexer extends SubsystemBase {
     io.setBrake(brake);
   }
 
+  @AutoLogOutput(key = "Indexer/IndexerAppliedVoltage")
+  public double getVoltage() {
+    return inputs.appliedVoltage;
+  }
+
   public Command speedCommand(DoubleSupplier speed) {
     return new FunctionalCommand(
-        () -> {}, () -> io.setSpeed(speed.getAsDouble()), (stop) -> io.stop(), () -> false, this);
+        () -> io.setSpeed(speed.getAsDouble()),
+        () -> io.setSpeed(speed.getAsDouble()),
+        (interrupted) -> {
+          if (interrupted) {
+            io.stop();
+          }
+        },
+        () -> false,
+        this);
   }
 
   public Command manualCommand(DoubleSupplier voltage) {
     return new FunctionalCommand(
-        () -> {},
         () -> io.setVoltage(voltage.getAsDouble()),
-        (stop) -> io.stop(),
+        () -> io.setVoltage(voltage.getAsDouble()),
+        (interrupted) -> {
+          if (interrupted) {
+            io.stop();
+          }
+        },
         () -> false,
         this);
   }
@@ -52,6 +82,14 @@ public class Indexer extends SubsystemBase {
 
   public Command stop() {
     return new FunctionalCommand(
-        () -> {}, () -> io.setVoltage(0), (stop) -> io.stop(), () -> false, this);
+        () -> io.setVoltage(0),
+        () -> io.setVoltage(0),
+        (interrupted) -> {
+          if (interrupted) {
+            io.stop();
+          }
+        },
+        () -> false,
+        this);
   }
 }

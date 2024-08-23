@@ -21,7 +21,6 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
@@ -29,36 +28,38 @@ import org.littletonrobotics.junction.Logger;
 public class Flywheel extends SubsystemBase {
   private final FlywheelIO io;
   private final FlywheelIOInputsAutoLogged inputs = new FlywheelIOInputsAutoLogged();
-  private final SimpleMotorFeedforward ffModel;
+  private SimpleMotorFeedforward ffModel;
   private double topGoalVelocityRPM = 0;
   private double bottomGoalVelocityRPM = 0;
-
   private double motorVoltage = 0;
-  public BooleanSupplier spunUp = () -> false;
   /** Creates a new Flywheel. */
   public Flywheel(FlywheelIO io) {
     this.io = io;
 
     // Switch constants based on mode (the physics simulator is treated as a
     // separate robot with different tuning)
+
     switch (robotType) {
       case REALBOT:
         ffModel =
             new SimpleMotorFeedforward(
-                simFlywheelFeedForwardkS, simFlywheelFeedForwardkV, simFlywheelFeedForwardkA);
-        io.configurePID(simFlywheelFeedBackkP, simFlywheelFeedBackkI, simFlywheelFeedBackkD);
+                realFlywheelFeedForwardkS, realFlywheelFeedForwardkV, realFlywheelFeedForwardkA);
+        io.configurePID(realFlywheelFeedBackkP, realFlywheelFeedBackkI, realFlywheelFeedBackkD);
+
         break;
       case REPLAYBOT:
         ffModel =
             new SimpleMotorFeedforward(
                 simFlywheelFeedForwardkS, simFlywheelFeedForwardkV, simFlywheelFeedForwardkA);
         io.configurePID(simFlywheelFeedBackkP, simFlywheelFeedBackkI, simFlywheelFeedBackkD);
+
         break;
       case SIMBOT:
         ffModel =
             new SimpleMotorFeedforward(
                 simFlywheelFeedForwardkS, simFlywheelFeedForwardkV, simFlywheelFeedForwardkA);
         io.configurePID(simFlywheelFeedBackkP, simFlywheelFeedBackkI, simFlywheelFeedBackkD);
+
         break;
       default:
         ffModel = new SimpleMotorFeedforward(0.0, 0.0);
@@ -70,12 +71,11 @@ public class Flywheel extends SubsystemBase {
   public void periodic() {
     io.updateInputs(inputs);
     Logger.processInputs("Flywheel", inputs);
-    spunUp = () -> flywheelsSpunUp();
-    Logger.recordOutput("Flywheel/SpunUp?", flywheelsSpunUp());
     Logger.recordOutput("Flywheel/topGoalVelocityRPM", topGoalVelocityRPM);
     Logger.recordOutput("Flywheel/bottomGoalVelocityRPM", bottomGoalVelocityRPM);
   }
 
+  @AutoLogOutput
   public boolean flywheelsSpunUp() {
     return bottomFlywheelSpunUp(bottomGoalVelocityRPM) && topFlywheelSpunUp(topGoalVelocityRPM);
   }
@@ -90,10 +90,11 @@ public class Flywheel extends SubsystemBase {
         getBottomVelocityRPM(), Units.rotationsPerMinuteToRadiansPerSecond(goalVelocity));
   }
 
-  private boolean inDeadBand(double currerntVelocityRPM, double goalVelocityRadPerSec) {
+  private boolean inDeadBand(double currentVelocityRPM, double goalVelocityRadPerSec) {
     double targetRPM = Units.radiansPerSecondToRotationsPerMinute(goalVelocityRadPerSec);
-    double error = targetRPM - currerntVelocityRPM;
-    return (Math.abs(error) > acceptableErrorRPM);
+    double error = targetRPM - currentVelocityRPM;
+    Logger.recordOutput("Flywheel/ErrorRPM", Math.abs(error));
+    return (!(Math.abs(error) > acceptableErrorRPM));
   }
   /** Run open loop at the specified voltage. */
   public void runVolts(double volts) {
@@ -120,12 +121,14 @@ public class Flywheel extends SubsystemBase {
   /** Returns the current velocity in RPM. */
   @AutoLogOutput
   public double getTopVelocityRPM() {
-    return Units.radiansPerSecondToRotationsPerMinute(inputs.upperFlywheelVelocityRadPerSec);
+    return Units.radiansPerSecondToRotationsPerMinute(inputs.upperFlywheelVelocityRadPerSec)
+        * FLYWHEEL_GEAR_RATIO;
   }
 
   @AutoLogOutput
   public double getBottomVelocityRPM() {
-    return Units.radiansPerSecondToRotationsPerMinute(inputs.lowerFlywheelVelocityRadPerSec);
+    return Units.radiansPerSecondToRotationsPerMinute(inputs.lowerFlywheelVelocityRadPerSec)
+        * FLYWHEEL_GEAR_RATIO;
   }
 
   public void setVoltage(double volts) {
