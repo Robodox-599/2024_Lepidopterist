@@ -16,7 +16,7 @@ public class RollerConstants {
   public static final int PeakCurrentLimit = 50; // TODO: tune
   public static final double PeakCurrentDuration = 0.1; // TODO: tune
 
-  public static final double kSpeakerIntakeSpeed = 0.9; // TODO: tune
+  public static final double kSpeakerIntakeSpeed = 1000; // TODO: tune
   public static final double kIntakeBackfeedSpeed = 0.9; // TODO: tune
   public static final double extraIntakeTime = 2.0; // TODO: tune
   public static final int beamBreak1Port = 0; // TODO: tune

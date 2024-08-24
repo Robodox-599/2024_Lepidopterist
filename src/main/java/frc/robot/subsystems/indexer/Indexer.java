@@ -4,9 +4,8 @@ import static frc.robot.Constants.*;
 import static frc.robot.subsystems.indexer.IndexerConstants.*;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.FunctionalCommand;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import java.util.function.DoubleSupplier;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
@@ -35,6 +34,8 @@ public class Indexer extends SubsystemBase {
     io.updateInputs(inputs);
 
     Logger.processInputs("Indexer", inputs);
+    Logger.recordOutput("Indexer/Updating", true);
+    getVoltage();
   }
 
   public void setVoltage(double voltage) {
@@ -50,46 +51,17 @@ public class Indexer extends SubsystemBase {
     return inputs.appliedVoltage;
   }
 
-  public Command speedCommand(DoubleSupplier speed) {
-    return new FunctionalCommand(
-        () -> io.setSpeed(speed.getAsDouble()),
-        () -> io.setSpeed(speed.getAsDouble()),
-        (interrupted) -> {
-          if (interrupted) {
-            io.stop();
-          }
-        },
-        () -> false,
-        this);
-  }
-
-  public Command manualCommand(DoubleSupplier voltage) {
-    return new FunctionalCommand(
-        () -> io.setVoltage(voltage.getAsDouble()),
-        () -> io.setVoltage(voltage.getAsDouble()),
-        (interrupted) -> {
-          if (interrupted) {
-            io.stop();
-          }
-        },
-        () -> false,
-        this);
-  }
-
-  public Command manualCommand(double voltage) {
-    return manualCommand(() -> voltage);
+  public Command setSpeed(double speed) {
+    return Commands.run(
+        () -> {
+          io.setSpeed(speed);
+        });
   }
 
   public Command stop() {
-    return new FunctionalCommand(
-        () -> io.setVoltage(0),
-        () -> io.setVoltage(0),
-        (interrupted) -> {
-          if (interrupted) {
-            io.stop();
-          }
-        },
-        () -> false,
-        this);
+    return Commands.run(
+        () -> {
+          io.setVoltage(0);
+        });
   }
 }
