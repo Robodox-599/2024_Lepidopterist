@@ -180,12 +180,7 @@ public class RobotContainer {
     // test
     driver.x().whileTrue(AutoAlignShootAnywhereCommand());
     driver.y().whileTrue(shoot());
-    driver
-        .leftBumper()
-        .whileTrue(
-            new StartEndCommand(
-                () -> intakeDeployAndIntake(intakeWrist, rollers, indexer),
-                () -> rumbleControllers()));
+    driver.leftBumper().whileTrue(intakeDeployAndIntake(intakeWrist, rollers, indexer));
 
     driver
         .leftBumper()
@@ -193,12 +188,14 @@ public class RobotContainer {
             Commands.parallel(
                 stowCommand(intakeWrist), stopIndexer(indexer), stopRollers(rollers)));
 
+    driver.x().onFalse(Commands.parallel(stopFlywheels(), stopIndexer(indexer)));
     /*  ---------------------
       Operator Controls
     ---------------------  */
 
-    driver.a().whileTrue(runIndexerStartEnd());
-    operator.b().whileTrue(runIndexerStartEndBackwards());
+    // driver.a().whileTrue(runIndexerStartEnd());
+    // driver.a().whileTrue(runIndexer(indexer, 100));
+    // operator.b().whileTrue(runIndexer(indexer, -100));
     operator.x().whileTrue(runIntakeFwdCMD(rollers));
     operator.y().whileTrue(runIntakeBackCMD(rollers));
   }
@@ -207,15 +204,8 @@ public class RobotContainer {
     return Commands.parallel(stowCommand(intakeWrist), rumbleControllers());
   }
 
-  public Command runIndexerStartEnd() {
-    return new StartEndCommand(() -> runIndexer(indexer, 10), () -> stopIndexer(indexer));
-  }
-
-  public Command runIndexerStartEndBackwards() {
-    return new StartEndCommand(() -> runIndexer(indexer, -0.4), () -> stopIndexer(indexer));
-  }
-
   public Command AutoAlignShootAnywhereCommand() {
+    Logger.recordOutput("AutoAligning?", true);
     return Commands.parallel(
         AutoAlign(), rumbleIfNotSpeakerWing(), wristToSpeakerForever(), shoot());
   }
@@ -223,7 +213,8 @@ public class RobotContainer {
   public Command AutoAlign() {
     return Commands.sequence(
         Commands.waitUntil(() -> isInSpeakerWing(drive)),
-        AutoAlignCommands.autoAlignSpeakerCommand(drive, driver));
+        AutoAlignCommands.autoAlignSpeakerCommand(drive, driver)
+            .onlyIf(() -> isInSpeakerWing(drive)));
   }
 
   public Command rumbleIfNotSpeakerWing() {
@@ -235,7 +226,7 @@ public class RobotContainer {
         Commands.waitUntil(() -> (isPointedAtSpeaker())),
         flywheels.runFlywheelVelocity(topFlywheelVelocityRPM, bottomFlywheelVelocityRPM),
         Commands.waitUntil(() -> (flywheels.flywheelsSpunUp() && isPointedAtSpeaker())),
-        runIndexer(indexer, feedingSpeed),
+        runIndexer(indexer, 1000),
         Commands.waitUntil(() -> indexerBeambreak.get()),
         stopFlywheels(),
         stopIndexer(indexer));
