@@ -20,6 +20,8 @@ import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.PositionVoltage;
+import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -70,7 +72,7 @@ public class ModuleIOTalonFX implements ModuleIO {
   private final StatusSignal<Double> turnAppliedVolts;
   private final StatusSignal<Double> turnCurrent;
 
-  // Gear ratios for SDS MK4i L2, adjust as necessary // MATTHEW OR MEER PLEASE SETUP
+  // Gear ratios for SDS MK4i L3, adjust as necessary // MATTHEW OR MEER PLEASE SETUP
   private final double DRIVE_GEAR_RATIO = DriveGearRatioConstant;
   private final double TURN_GEAR_RATIO = TurnGearRatioConstant;
 
@@ -123,15 +125,24 @@ public class ModuleIOTalonFX implements ModuleIO {
     var driveConfig = new TalonFXConfiguration();
     driveConfig.CurrentLimits.SupplyCurrentLimit = DriveMotorSupplyCurrentLimitConstant;
     driveConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-    driveTalon.getConfigurator().apply(driveConfig);
     setDriveBrakeMode(true);
+    driveConfig.Slot0.kP = driveRealFeedBackkP;
+    driveConfig.Slot0.kI = driveRealFeedBackkI;
+    driveConfig.Slot0.kD = driveRealFeedBackkD;
+    driveConfig.Slot0.kV = driveRealFeedFowardkV;
+    driveConfig.Slot0.kS = driveRealFeedFowardkS;
+    driveTalon.getConfigurator().apply(driveConfig);
 
     // Configuration settings & current limits for turn motor
     var turnConfig = new TalonFXConfiguration();
     turnConfig.CurrentLimits.SupplyCurrentLimit = TurnMotorSupplyCurrentLimitConstant;
     turnConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-    turnTalon.getConfigurator().apply(turnConfig);
     setTurnBrakeMode(true);
+    turnConfig.Slot0.kP = turnRealFeedbackkP;
+    turnConfig.Slot0.kI = turnRealFeedbackkI;
+    turnConfig.Slot0.kD = turnRealFeedbackkD;
+    turnConfig.Slot0.kS = turnRealFeedForwardkS;
+    turnTalon.getConfigurator().apply(turnConfig);
 
     // Apply default config to CANcoder
     cancoder.getConfigurator().apply(new CANcoderConfiguration());
@@ -244,5 +255,15 @@ public class ModuleIOTalonFX implements ModuleIO {
             : InvertedValue.CounterClockwise_Positive;
     config.NeutralMode = enable ? NeutralModeValue.Coast : NeutralModeValue.Coast;
     turnTalon.getConfigurator().apply(config);
+  }
+
+  @Override
+  public void setDriveVelocity(double velocity) {
+    driveTalon.setControl(new VelocityVoltage(velocity));
+  }
+
+  @Override
+  public void setTurnPosition(double position) {
+    turnTalon.setControl(new PositionVoltage(position));
   }
 }

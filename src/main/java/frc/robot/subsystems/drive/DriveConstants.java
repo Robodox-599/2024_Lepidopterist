@@ -186,6 +186,9 @@ public final class DriveConstants {
   // REAL: KD TURN MOTOR
   public static final double turnRealFeedbackkD = 0.0;
 
+  // REAL: KS TURN MOTOR
+  public static final double turnRealFeedForwardkS = 0.0;
+
   /*
    * PID FOR SIMULATED ROBOT
    * TUNE THESE VALUES ACCORDINGLY
@@ -203,7 +206,7 @@ public final class DriveConstants {
   public static final double driveSimFeedFowardkA = 0.0;
 
   // SIM: KP DRIVE MOTOR
-  public static final double driveSimFeedBackkP = 0.1;
+  public static final double driveSimFeedBackkP = 1;
 
   // SIM: KI DRIVE MOTOR
   public static final double driveSimFeedBackkI = 0.0;
@@ -219,6 +222,9 @@ public final class DriveConstants {
 
   // SIM: KD TURN MOTOR
   public static final double turnSimFeedbackkD = 0.0;
+
+  // REAL: KS TURN MOTOR
+  public static final double turnSimFeedForwardkS = 0.0;
 
   /*
    * CONSTANTS FOR CAMERAS

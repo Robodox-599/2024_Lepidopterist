@@ -16,14 +16,10 @@ package frc.robot.subsystems.drive;
 import static frc.robot.Constants.*;
 import static frc.robot.subsystems.drive.DriveConstants.*;
 
-import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import org.littletonrobotics.junction.Logger;
 
 public class Module {
@@ -33,10 +29,6 @@ public class Module {
   private final ModuleIO io;
   private final ModuleIOInputsAutoLogged inputs = new ModuleIOInputsAutoLogged();
   private final int index;
-
-  public final SimpleMotorFeedforward driveFeedforward;
-  public final PIDController driveFeedback;
-  public final PIDController turnFeedback;
   private Rotation2d angleSetpoint = null; // Setpoint for closed loop control, null for open loop
   private Double speedSetpoint = null; // Setpoint for closed loop control, null for open loop
   private Rotation2d turnRelativeOffset = null; // Relative + Offset = Absolute
@@ -46,63 +38,6 @@ public class Module {
     this.io = io;
     this.index = index;
 
-    // Switch constants based on mode (the physics simulator is treated as a
-    // separate robot with different tuning)
-
-    final double drivekS;
-    final double drivekV;
-    final double drivekA;
-
-    final double drivekP;
-    final double drivekI;
-    final double drivekD;
-
-    final double turnkP;
-    final double turnkI;
-    final double turnkD;
-
-    double[] driveConstantsArr;
-
-    if (robotType == RobotType.SIMBOT || robotType == RobotType.REPLAYBOT) {
-      driveConstantsArr =
-          new double[] {
-            driveSimFeedFowardkS, driveSimFeedFowardkV, driveSimFeedFowardkA,
-            driveSimFeedBackkP, driveSimFeedBackkI, driveSimFeedBackkD,
-            turnSimFeedbackkP, turnSimFeedbackkI, turnSimFeedbackkD
-          };
-
-    } else {
-      driveConstantsArr =
-          new double[] {
-            driveRealFeedFowardkS, driveRealFeedFowardkV, driveRealFeedFowardkA,
-            driveRealFeedBackkP, driveRealFeedBackkI, driveRealFeedBackkD,
-            turnRealFeedbackkP, turnRealFeedbackkI, turnRealFeedbackkD
-          };
-    }
-
-    drivekS = driveConstantsArr[0];
-    drivekV = driveConstantsArr[1];
-    drivekA = driveConstantsArr[2];
-
-    drivekP = driveConstantsArr[3];
-    drivekI = driveConstantsArr[4];
-    drivekD = driveConstantsArr[5];
-
-    turnkP = driveConstantsArr[6];
-    turnkI = driveConstantsArr[7];
-    turnkD = driveConstantsArr[8];
-
-    driveFeedforward = new SimpleMotorFeedforward(drivekS, drivekV, drivekA);
-
-    driveFeedback = new PIDController(drivekP, drivekI, drivekD);
-    if (!DriverStation.isFMSAttached()) {
-      SmartDashboard.putData("Drive PID Controller", driveFeedback);
-    }
-    turnFeedback = new PIDController(turnkP, turnkI, turnkD);
-    if (!DriverStation.isFMSAttached()) {
-      SmartDashboard.putData("Turn PID Controller", turnFeedback);
-    }
-    turnFeedback.enableContinuousInput(-Math.PI, Math.PI);
     setBrakeMode(true);
   }
 
@@ -120,13 +55,16 @@ public class Module {
     // On first cycle, reset relative turn encoder
     // Wait until absolute angle is nonzero in case it wasn't initialized yet
     if (turnRelativeOffset == null && inputs.turnAbsolutePosition.getRadians() != 0.0) {
-      turnRelativeOffset = inputs.turnAbsolutePosition.minus(inputs.turnPosition);
+      Logger.recordOutput(
+          "Drive/Module" + Integer.toString(index) + "/TurninitOffset",
+          inputs.turnAbsolutePosition);
+      turnRelativeOffset = inputs.turnAbsolutePosition.plus(inputs.turnPosition);
     }
-
+    Logger.recordOutput(
+        "Drive/Module" + Integer.toString(index) + "/TurnRelativeOffset", turnRelativeOffset);
     // Run closed loop turn control
     if (angleSetpoint != null) {
-      io.setTurnVoltage(
-          turnFeedback.calculate(getAngle().getRadians(), angleSetpoint.getRadians()));
+      io.setTurnPosition(angleSetpoint.getRadians());
 
       // Run closed loop drive control
       // Only allowed if closed loop turn control is running
@@ -136,13 +74,13 @@ public class Module {
         // When the error is 90°, the velocity setpoint should be 0. As the wheel turns
         // towards the setpoint, its velocity should increase. This is achieved by
         // taking the component of the velocity in the direction of the setpoint.
-        double adjustSpeedSetpoint = speedSetpoint * Math.cos(turnFeedback.getPositionError());
+        double adjustSpeedSetpoint =
+            speedSetpoint
+                * Math.cos(Math.abs(inputs.turnPosition.getRadians() - angleSetpoint.getRadians()));
 
         // Run drive controller
         double velocityRadPerSec = adjustSpeedSetpoint / WHEEL_RADIUS;
-        io.setDriveVoltage(
-            driveFeedforward.calculate(velocityRadPerSec)
-                + driveFeedback.calculate(inputs.driveVelocityRadPerSec, velocityRadPerSec));
+        io.setDriveVelocity(velocityRadPerSec);
       }
     }
 
