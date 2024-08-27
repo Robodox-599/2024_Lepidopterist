@@ -1,7 +1,7 @@
 package frc.robot.subsystems.indexer;
 
 public class IndexerConstants {
-  public static final double feedingSpeed = -100;
+  public static final double feedingSpeed = -0.9;
   public static final int indexerMotorID = 1;
   public static final String indexerMotorCANBus = "rio";
 

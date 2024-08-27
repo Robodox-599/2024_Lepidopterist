@@ -12,10 +12,10 @@ public class IndexerCommands extends Command {
 
   public static Command runIndexerUntilBeamBreak(Indexer indexer) {
     return Commands.sequence(
-        indexer.setSpeed(1000),
+        indexer.speedCommand(() -> 0.4),
         new WaitUntilCommand(() -> !indexerBeambreak.get()),
         new WaitUntilCommand(2),
-        indexer.stop());
+        indexer.speedCommand(() -> 0));
   }
 
   public static Command stopIndexer(Indexer indexer) {
@@ -23,6 +23,6 @@ public class IndexerCommands extends Command {
   }
 
   public static Command runIndexer(Indexer indexer, double speed) {
-    return indexer.setSpeed(speed);
+    return indexer.speedCommand(() -> speed);
   }
 }

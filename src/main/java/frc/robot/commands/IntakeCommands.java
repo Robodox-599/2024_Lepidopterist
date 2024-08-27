@@ -33,7 +33,7 @@ public class IntakeCommands extends Command {
   }
 
   public static Command runIntakeFwdCMD(Rollers rollers) {
-    return rollers.speedCommand(() -> kSpeakerIntakeSpeed);
+    return rollers.speedCommand(() -> kSpeakerIntakeSpeed).finallyDo(() -> stopRollers(rollers));
   }
 
   public static Command stowCommand(IntakeWrist wrist) {
