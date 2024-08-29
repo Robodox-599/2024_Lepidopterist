@@ -215,7 +215,7 @@ public final class DriveConstants {
   public static final double driveSimFeedBackkD = 0.0;
 
   // SIM: KP TURN MOTOR
-  public static final double turnSimFeedbackkP = 10;
+  public static final double turnSimFeedbackkP = 10.5;
 
   // SIM: KI TURN MOTOR
   public static final double turnSimFeedbackkI = 0.0;

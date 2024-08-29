@@ -76,7 +76,9 @@ public class Module {
         // taking the component of the velocity in the direction of the setpoint.
         double adjustSpeedSetpoint =
             speedSetpoint
-                * Math.cos(Math.abs(inputs.turnPosition.getRadians() - angleSetpoint.getRadians()));
+                * Math.cos(
+                    Math.abs(
+                        inputs.turnAbsolutePosition.getRadians() - angleSetpoint.getRadians()));
 
         // Run drive controller
         double velocityRadPerSec = adjustSpeedSetpoint / WHEEL_RADIUS;
