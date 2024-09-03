@@ -19,7 +19,7 @@ import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.VelocityDutyCycle;
+import com.ctre.phoenix6.controls.MotionMagicVelocityDutyCycle;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
@@ -108,7 +108,7 @@ public class FlywheelIOTalonFX implements FlywheelIO {
       double bottomVelocityRadPerSec,
       double bottomFFVolts) {
     topFlywheel.setControl(
-        new VelocityDutyCycle(
+        new MotionMagicVelocityDutyCycle(
             Units.radiansToRotations(topVelocityRadPerSec),
             0.0,
             false,
@@ -118,7 +118,7 @@ public class FlywheelIOTalonFX implements FlywheelIO {
             false,
             false));
     bottomFlywheel.setControl(
-        new VelocityDutyCycle(
+        new MotionMagicVelocityDutyCycle(
             Units.radiansToRotations(bottomVelocityRadPerSec),
             0.0,
             false,
