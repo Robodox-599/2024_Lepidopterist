@@ -16,10 +16,10 @@ public class IntakeWristConstants {
   public static final double intakeWristMaxAngle =
       Units.degreesToRadians(0.0); // TODO: calibrate this
   public static final double intakeWristMinAngle =
-      Units.degreesToRadians(0.0); // TODO: calibrate this
+      Units.degreesToRadians(80); // TODO: calibrate this
 
   public static final double kWristRetractVal = 0.0; // TODO: calibrate this
-  public static final double kWristExtendVal = 0.0; // TODO: calibrate this
+  public static final double kWristExtendVal = Units.degreesToRadians(75.0); // TODO: calibrate this
 
   public static class IntakeWristSimConstants {
     public static final double[] kPivotSimPID = {15, 0, 0, 0}; // TODO: calibrate this

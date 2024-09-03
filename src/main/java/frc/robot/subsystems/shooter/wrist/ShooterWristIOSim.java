@@ -15,7 +15,7 @@ public class ShooterWristIOSim implements ShooterWristIO {
   // The P gain for the PID controller that drives this arm.
 
   // The arm gearbox represents a gearbox containing two Vex 775pro motors.
-  private final DCMotor m_armGearbox = DCMotor.getNEO(4);
+  private final DCMotor m_armGearbox = DCMotor.getKrakenX60(1);
 
   // Standard classes for controlling our arm
   private final ProfiledPIDController m_controller;

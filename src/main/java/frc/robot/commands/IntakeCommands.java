@@ -18,10 +18,7 @@ public class IntakeCommands extends Command {
 
   public static Command runIntakeuntilBeamBreak(Rollers rollers) {
     return Commands.sequence(
-        rollers.speedCommand(() -> kSpeakerIntakeSpeed),
-        new WaitUntilCommand(() -> !beambreak.get()),
-        new WaitUntilCommand(extraIntakeTime),
-        rollers.speedCommand(() -> 0));
+        runIntakeFwdCMD(rollers), new WaitUntilCommand(extraIntakeTime), stopRollers(rollers));
   }
 
   public static Command stopRollers(Rollers rollers) {
@@ -29,11 +26,11 @@ public class IntakeCommands extends Command {
   }
 
   public static Command runIntakeBackCMD(Rollers rollers) {
-    return rollers.speedCommand(() -> kIntakeBackfeedSpeed).finallyDo(() -> stopRollers(rollers));
+    return rollers.setSpeed(kIntakeBackfeedSpeed).finallyDo(() -> stopRollers(rollers));
   }
 
   public static Command runIntakeFwdCMD(Rollers rollers) {
-    return rollers.speedCommand(() -> kSpeakerIntakeSpeed);
+    return rollers.setSpeed(kSpeakerIntakeSpeed);
   }
 
   public static Command stowCommand(IntakeWrist wrist) {
@@ -46,7 +43,7 @@ public class IntakeCommands extends Command {
 
   public static Command intakeDeployAndIntake(IntakeWrist wrist, Rollers rollers, Indexer indexer) {
     return Commands.parallel(
-        extendCommand(wrist), runIndexerUntilBeamBreak(indexer), runIntakeuntilBeamBreak(rollers));
+        extendCommand(wrist), runIndexerUntilBeamBreak(indexer), runIntakeFwdCMD(rollers));
   }
 
   public static Command intakeStartEnd(

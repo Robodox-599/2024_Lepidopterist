@@ -17,6 +17,7 @@ import static frc.robot.subsystems.drive.DriveConstants.*;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.Timer;
@@ -32,8 +33,8 @@ import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 public class ModuleIOSim implements ModuleIO {
   private static final double LOOP_PERIOD_SECS = 0.02;
 
-  private DCMotorSim driveSim = new DCMotorSim(DCMotor.getNEO(1), 6.75, 0.025);
-  private DCMotorSim turnSim = new DCMotorSim(DCMotor.getNEO(1), 150.0 / 7.0, 0.004);
+  private DCMotorSim driveSim = new DCMotorSim(DCMotor.getKrakenX60(1), 6.75, 0.025);
+  private DCMotorSim turnSim = new DCMotorSim(DCMotor.getFalcon500(1), 150.0 / 7.0, 0.004);
 
   private final Rotation2d turnAbsoluteInitPosition = new Rotation2d(Math.random() * 2.0 * Math.PI);
 
@@ -43,6 +44,8 @@ public class ModuleIOSim implements ModuleIO {
       new PIDController(turnSimFeedbackkP, turnSimFeedbackkI, turnSimFeedbackkD);
   private PIDController driveController =
       new PIDController(driveSimFeedBackkP, driveSimFeedBackkI, driveSimFeedBackkD);
+  private SimpleMotorFeedforward driveFeedForward =
+      new SimpleMotorFeedforward(driveSimFeedFowardkS, driveSimFeedFowardkV, driveSimFeedFowardkA);
 
   public ModuleIOSim() {
     turnController.enableContinuousInput(-Math.PI, Math.PI);
@@ -84,7 +87,9 @@ public class ModuleIOSim implements ModuleIO {
   @Override
   public void setDriveVelocity(double velocity) {
     driveController.setSetpoint(velocity);
-    setDriveVoltage(driveController.calculate(driveSim.getAngularVelocityRadPerSec()));
+    setDriveVoltage(
+        driveFeedForward.calculate(velocity)
+            + driveController.calculate(driveSim.getAngularVelocityRadPerSec()));
   }
 
   @Override
@@ -92,6 +97,6 @@ public class ModuleIOSim implements ModuleIO {
     turnController.setSetpoint(position);
     setTurnVoltage(
         turnController.calculate(
-            turnSim.getAngularPositionRad() - (turnAbsoluteInitPosition.getRadians())));
+            turnSim.getAngularPositionRad() - turnAbsoluteInitPosition.getRadians()));
   }
 }

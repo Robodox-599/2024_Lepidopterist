@@ -14,7 +14,7 @@ public class IntakeWristIOSim implements IntakeWristIO {
   // https://github.com/wpilibsuite/allwpilib/blob/main/wpilibjExamples/src/main/java/edu/wpi/first/wpilibj/examples/armsimulation/subsystems/Arm.java
   // The P gain for the PID controller that drives this arm.
 
-  private final DCMotor wristGearbox = DCMotor.getNEO(1);
+  private final DCMotor wristGearbox = DCMotor.getKrakenX60(1);
 
   private final ProfiledPIDController m_controller;
   private SimpleMotorFeedforward m_feedforward = new SimpleMotorFeedforward(0, 0);

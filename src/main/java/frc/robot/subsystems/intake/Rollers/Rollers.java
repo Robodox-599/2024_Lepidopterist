@@ -2,6 +2,7 @@ package frc.robot.subsystems.intake.rollers;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import java.util.function.DoubleSupplier;
@@ -63,6 +64,14 @@ public class Rollers extends SubsystemBase {
   // 	}
   // 	return false;
   // }
+
+  public Command setSpeed(double speed) {
+    return Commands.run(
+        () -> {
+          io.setSpeed(speed);
+        });
+  }
+
   public Command speedCommand(DoubleSupplier speed) {
     return new FunctionalCommand(
         () -> {}, () -> io.setSpeed(speed.getAsDouble()), (stop) -> io.stop(), () -> false, this);

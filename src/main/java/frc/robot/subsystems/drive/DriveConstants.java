@@ -200,7 +200,7 @@ public final class DriveConstants {
   public static final double driveSimFeedFowardkS = 0.0;
 
   // SIM: KV SIMPLE FEEDFORWARD
-  public static final double driveSimFeedFowardkV = 0.13;
+  public static final double driveSimFeedFowardkV = 0.0;
 
   // SIM: KA SIMPLE FEEDFORWARD
   public static final double driveSimFeedFowardkA = 0.0;
@@ -212,7 +212,7 @@ public final class DriveConstants {
   public static final double driveSimFeedBackkI = 0.0;
 
   // SIM: KD DRIVE MOTOR
-  public static final double driveSimFeedBackkD = 0.0;
+  public static final double driveSimFeedBackkD = 0;
 
   // SIM: KP TURN MOTOR
   public static final double turnSimFeedbackkP = 10.5;
@@ -222,9 +222,6 @@ public final class DriveConstants {
 
   // SIM: KD TURN MOTOR
   public static final double turnSimFeedbackkD = 0.0;
-
-  // REAL: KS TURN MOTOR
-  public static final double turnSimFeedForwardkS = 0.0;
 
   /*
    * CONSTANTS FOR CAMERAS

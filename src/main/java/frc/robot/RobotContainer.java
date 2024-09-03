@@ -21,6 +21,8 @@ import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
+import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.ControllerConstants;
@@ -164,12 +166,6 @@ public class RobotContainer {
         DriveCommands.joystickDrive(
             drive, () -> -driver.getLeftY(), () -> -driver.getLeftX(), () -> -driver.getRightX()));
 
-    // driver.y().whileTrue(drive.sysIdDynamic(Direction.kForward));
-    // driver.a().whileTrue(drive.sysIdDynamic(Direction.kReverse));
-
-    // driver.x().whileTrue(drive.sysIdQuasistatic(Direction.kForward));
-    // driver.b().whileTrue(drive.sysIdQuasistatic(Direction.kReverse));
-
     // driver
     //     .x()
     //     .whileTrue(
@@ -188,7 +184,7 @@ public class RobotContainer {
             Commands.parallel(
                 stowCommand(intakeWrist), stopIndexer(indexer), stopRollers(rollers)));
 
-    driver.x().onFalse(Commands.parallel(stopFlywheels(), stopIndexer(indexer)));
+    // driver.x().onFalse(Commands.parallel(stopFlywheels(), stopIndexer(indexer)));
     /*  ---------------------
       Operator Controls
     ---------------------  */
@@ -196,7 +192,7 @@ public class RobotContainer {
     // driver.a().whileTrue(runIndexerStartEnd());
     // driver.a().whileTrue(runIndexer(indexer, 100));
     // operator.b().whileTrue(runIndexer(indexer, -100));
-    operator.x().whileTrue(runIntakeFwdCMD(rollers));
+    driver.a().whileTrue(runIntakeFwdCMD(rollers));
     operator.y().whileTrue(runIntakeBackCMD(rollers));
   }
 
@@ -205,9 +201,8 @@ public class RobotContainer {
   }
 
   public Command AutoAlignShootAnywhereCommand() {
-    Logger.recordOutput("AutoAligning?", true);
     return Commands.parallel(
-        AutoAlign(), rumbleIfNotSpeakerWing(), wristToSpeakerForever(), shoot());
+        AutoAlign(), /*rumbleIfNotSpeakerWing(),*/ wristToSpeakerForever(), shoot());
   }
 
   public Command AutoAlign() {
@@ -225,9 +220,9 @@ public class RobotContainer {
     return Commands.sequence(
         Commands.waitUntil(() -> (isPointedAtSpeaker())),
         flywheels.runFlywheelVelocity(topFlywheelVelocityRPM, bottomFlywheelVelocityRPM),
-        Commands.waitUntil(() -> (flywheels.flywheelsSpunUp() && isPointedAtSpeaker())),
-        runIndexer(indexer, 1000),
-        Commands.waitUntil(() -> indexerBeambreak.get()),
+        new WaitUntilCommand(() -> (flywheels.flywheelsSpunUp())),
+        runIndexerUntilBeamBreak(indexer),
+        new WaitCommand(1),
         stopFlywheels(),
         stopIndexer(indexer));
   }

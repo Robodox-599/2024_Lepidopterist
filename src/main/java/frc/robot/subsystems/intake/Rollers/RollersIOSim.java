@@ -5,14 +5,15 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 
 public class RollersIOSim implements RollersIO {
-  private final DCMotorSim sim = new DCMotorSim(DCMotor.getNEO(1), 1.2, 2);
-  private PIDController controller = new PIDController(0, 0, 0);
+  private final DCMotorSim sim = new DCMotorSim(DCMotor.getKrakenX60(1), 1.2, 2);
+  private PIDController controller =
+      new PIDController(RollerConstants.kP, RollerConstants.kI, RollerConstants.kD);
 
   private double appliedVoltage = 0.0;
   private double desiredSpeed;
 
   public RollersIOSim() {
-    setPIDConstants(RollerConstants.kP, RollerConstants.kI, RollerConstants.kD);
+    // setPIDConstants(RollerConstants.kP, RollerConstants.kI, RollerConstants.kD);
   }
 
   @Override
