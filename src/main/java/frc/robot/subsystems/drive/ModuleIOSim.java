@@ -99,4 +99,7 @@ public class ModuleIOSim implements ModuleIO {
         turnController.calculate(
             turnSim.getAngularPositionRad() - turnAbsoluteInitPosition.getRadians()));
   }
+
+  @Override
+  public void applyRelativeOffsets(double offset) {}
 }

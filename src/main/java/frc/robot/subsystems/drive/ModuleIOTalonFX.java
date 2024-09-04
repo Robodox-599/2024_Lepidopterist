@@ -264,6 +264,11 @@ public class ModuleIOTalonFX implements ModuleIO {
 
   @Override
   public void setTurnPosition(double position) {
-    turnTalon.setControl(new PositionVoltage(position));
+    turnTalon.setControl(new PositionVoltage(Units.radiansToRotations(position)));
+  }
+
+  @Override
+  public void applyRelativeOffsets(double offset) {
+    turnTalon.setPosition(Units.radiansToRotations(offset));
   }
 }

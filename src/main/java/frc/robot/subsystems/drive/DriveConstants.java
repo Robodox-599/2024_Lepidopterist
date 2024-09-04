@@ -58,10 +58,11 @@ public final class DriveConstants {
 
   // Absolute Encoder Offsets
 
-  public static final double Module0AbsoluteEncoderOffset = -0.655; // FL
+  public static final double Module0AbsoluteEncoderOffset = -0.647; // FL
   public static final double Module1AbsoluteEncoderOffset = -2.984; // FR
-  public static final double Module2AbsoluteEncoderOffset = 0.690; // BL
-  public static final double Module3AbsoluteEncoderOffset = -1.457; // BR
+  public static final double Module2AbsoluteEncoderOffset = 0.695; // BL
+  public static final double Module3AbsoluteEncoderOffset =
+      -1.454 + Units.degreesToRotations(20); // BR
 
   // Supply Current Limit
 
@@ -160,7 +161,7 @@ public final class DriveConstants {
    */
 
   // REAL: KS SIMPLE FEEDFORWARD
-  public static final double driveRealFeedFowardkS = 0.14422;
+  public static final double driveRealFeedFowardkS = 0.0;
 
   // REAL: KP SIMPLE FEEDFORWARD
   public static final double driveRealFeedFowardkV = 0.12244;
@@ -178,16 +179,16 @@ public final class DriveConstants {
   public static final double driveRealFeedBackkD = 0.0;
 
   // REAL: KP TURN MOTOR
-  public static final double turnRealFeedbackkP = 2;
+  public static final double turnRealFeedbackkP = 1.75;
 
   // REAL: KI TURN MOTOR
   public static final double turnRealFeedbackkI = 0.0;
 
   // REAL: KD TURN MOTOR
-  public static final double turnRealFeedbackkD = 0.0;
+  public static final double turnRealFeedbackkD = 0.125;
 
   // REAL: KS TURN MOTOR
-  public static final double turnRealFeedForwardkS = 0.0;
+  public static final double turnRealFeedForwardkS = 0.1591796875;
 
   /*
    * PID FOR SIMULATED ROBOT

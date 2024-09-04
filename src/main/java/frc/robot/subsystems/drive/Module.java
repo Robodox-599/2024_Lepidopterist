@@ -58,7 +58,9 @@ public class Module {
       Logger.recordOutput(
           "Drive/Module" + Integer.toString(index) + "/TurninitOffset",
           inputs.turnAbsolutePosition);
-      turnRelativeOffset = inputs.turnAbsolutePosition.plus(inputs.turnPosition);
+      turnRelativeOffset = inputs.turnAbsolutePosition.minus(inputs.turnPosition);
+
+      io.applyRelativeOffsets(turnRelativeOffset.getRadians());
     }
     Logger.recordOutput(
         "Drive/Module" + Integer.toString(index) + "/TurnRelativeOffset", turnRelativeOffset);

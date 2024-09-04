@@ -49,8 +49,8 @@ public class ShooterWristIOTalonFX implements ShooterWristIO {
         Units.degreesToRotations(shooterWristMinAngle)); // Assume we boot at hard stop
     motorEncoder = pivotMotor.getPosition().getValueAsDouble();
 
-    configurePID();
-    configureFeedForward();
+    // configurePID();
+    // configureFeedForward();
   }
 
   private void configurePID() {

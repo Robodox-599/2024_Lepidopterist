@@ -55,4 +55,6 @@ public interface ModuleIO {
   public default void setDriveVelocity(double velocity) {}
 
   public default void setTurnPosition(double position) {}
+
+  public default void applyRelativeOffsets(double offset) {}
 }
