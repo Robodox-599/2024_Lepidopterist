@@ -146,7 +146,6 @@ public class ModuleIOTalonFX implements ModuleIO {
 
     // Apply default config to CANcoder
     cancoder.getConfigurator().apply(new CANcoderConfiguration());
-
     // Initialize timestamp and position queues from odometry
     timestampQueue = PhoenixOdometryThread.getInstance().makeTimestampQueue();
 
