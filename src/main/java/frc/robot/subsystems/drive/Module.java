@@ -23,7 +23,7 @@ import edu.wpi.first.math.util.Units;
 import org.littletonrobotics.junction.Logger;
 
 public class Module {
-  private static final double WHEEL_RADIUS = Units.inchesToMeters(2.0);
+  public static final double WHEEL_RADIUS = Units.inchesToMeters(2.0);
   static final double ODOMETRY_FREQUENCY = 250.0;
 
   private final ModuleIO io;
@@ -33,6 +33,7 @@ public class Module {
   private Double speedSetpoint = null; // Setpoint for closed loop control, null for open loop
   private Rotation2d turnRelativeOffset = null; // Relative + Offset = Absolute
   private SwerveModulePosition[] odometryPositions = new SwerveModulePosition[] {};
+  private double lastSpeedSetpoint = 0.0;
 
   public Module(ModuleIO io, int index) {
     this.io = io;
@@ -77,14 +78,15 @@ public class Module {
         // towards the setpoint, its velocity should increase. This is achieved by
         // taking the component of the velocity in the direction of the setpoint.
         double adjustSpeedSetpoint =
-            speedSetpoint
-                * Math.cos(
-                    Math.abs(
-                        inputs.turnAbsolutePosition.getRadians() - angleSetpoint.getRadians()));
+            speedSetpoint * Math.cos(angleSetpoint.getRadians() - inputs.turnPosition.getRadians());
 
         // Run drive controller
         double velocityRadPerSec = adjustSpeedSetpoint / WHEEL_RADIUS;
-        io.setDriveVelocity(velocityRadPerSec);
+        // io.setDriveVelocity(velocityRadPerSec);
+
+        io.setDriveSetpoint(adjustSpeedSetpoint, (speedSetpoint - lastSpeedSetpoint) / 0.020);
+
+        lastSpeedSetpoint = speedSetpoint;
       }
     }
 

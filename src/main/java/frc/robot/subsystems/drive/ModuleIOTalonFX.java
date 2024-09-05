@@ -20,13 +20,14 @@ import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.PositionVoltage;
+import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import java.util.Queue;
@@ -71,7 +72,8 @@ public class ModuleIOTalonFX implements ModuleIO {
   private final StatusSignal<Double> turnVelocity;
   private final StatusSignal<Double> turnAppliedVolts;
   private final StatusSignal<Double> turnCurrent;
-
+  private final MotionMagicVoltage m_angleSetter = new MotionMagicVoltage(0);
+  private final VelocityVoltage driveCurrentVelocity = new VelocityVoltage(0.0).withSlot(0);
   // Gear ratios for SDS MK4i L3, adjust as necessary // MATTHEW OR MEER PLEASE SETUP
   private final double DRIVE_GEAR_RATIO = DriveGearRatioConstant;
   private final double TURN_GEAR_RATIO = TurnGearRatioConstant;
@@ -129,6 +131,7 @@ public class ModuleIOTalonFX implements ModuleIO {
     driveConfig.Slot0.kP = driveRealFeedBackkP;
     driveConfig.Slot0.kI = driveRealFeedBackkI;
     driveConfig.Slot0.kD = driveRealFeedBackkD;
+    driveConfig.Slot0.kA = driveRealFeedFowardkA;
     driveConfig.Slot0.kV = driveRealFeedFowardkV;
     driveConfig.Slot0.kS = driveRealFeedFowardkS;
     driveTalon.getConfigurator().apply(driveConfig);
@@ -257,13 +260,24 @@ public class ModuleIOTalonFX implements ModuleIO {
   }
 
   @Override
-  public void setDriveVelocity(double velocity) {
-    driveTalon.setControl(new VelocityVoltage(velocity));
+  public void setDriveSetpoint(final double metersPerSecond, final double metersPerSecondSquared) {
+    // Doesnt actually refresh drive velocity signal, but should be cached
+    if (metersPerSecond == 0
+        && metersPerSecondSquared == 0
+        && MathUtil.isNear(0.0, driveVelocity.getValueAsDouble(), 0.1)) {
+      setDriveVoltage(0.0);
+    } else {
+      driveTalon.setControl(
+          driveCurrentVelocity
+              .withVelocity(metersPerSecond)
+              .withFeedForward(metersPerSecondSquared * driveRealFeedFowardkA));
+    }
   }
 
   @Override
   public void setTurnPosition(double position) {
-    turnTalon.setControl(new PositionVoltage(Units.radiansToRotations(position)));
+    turnTalon.setControl(m_angleSetter.withPosition(Units.radiansToRotations(position)));
+    // m_steerMotor.setControl(m_angleSetter.withPosition(angleToSetDeg));
   }
 
   @Override
