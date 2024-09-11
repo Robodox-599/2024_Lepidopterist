@@ -13,10 +13,12 @@ import static frc.robot.subsystems.shooter.flywheel.FlywheelConstants.bottomFlyw
 import static frc.robot.subsystems.shooter.flywheel.FlywheelConstants.topFlywheelVelocityRPM;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -29,6 +31,7 @@ import frc.robot.Constants.ControllerConstants;
 import frc.robot.commands.AutoAlignCommands;
 import frc.robot.commands.DriveCommands;
 import frc.robot.subsystems.drive.Drive;
+import frc.robot.subsystems.drive.DriveConstants;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIOPigeon2;
 import frc.robot.subsystems.indexer.Indexer;
@@ -152,6 +155,15 @@ public class RobotContainer {
     //             .andThen(rumbleControllers())
     //             .onlyIf(() -> !isInSourceWing(drive)));
     // test
+    drive.setDefaultCommand(
+        drive.runVoltageTeleopFieldRelative(
+            () ->
+                new ChassisSpeeds(
+                    -joystickDeadbandApply(driver.getLeftY()) * DriveConstants.MAX_LINEAR_SPEED,
+                    -joystickDeadbandApply(driver.getLeftX()) * DriveConstants.MAX_LINEAR_SPEED,
+                    -joystickDeadbandApply(driver.getRightX())
+                        * DriveConstants.MAX_ANGULAR_SPEED)));
+
     driver.x().whileTrue(AutoAlignShootAnywhereCommand());
     driver.y().whileTrue(shoot());
     driver.leftBumper().whileTrue(intakeDeployAndIntake(intakeWrist, rollers, indexer));
@@ -282,5 +294,9 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     return m_Chooser.get();
+  }
+
+  private static double joystickDeadbandApply(double x) {
+    return MathUtil.applyDeadband(Math.abs(Math.pow(x, 2)) * Math.signum(x), 0.02);
   }
 }

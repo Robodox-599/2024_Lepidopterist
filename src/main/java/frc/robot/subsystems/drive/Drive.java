@@ -18,6 +18,7 @@ package frc.robot.subsystems.drive;
 import static frc.robot.Constants.robotType;
 import static frc.robot.subsystems.drive.DriveConstants.*;
 
+import com.google.common.collect.Streams;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.pathfinding.Pathfinding;
 import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
@@ -62,8 +63,6 @@ import java.util.function.Supplier;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 import org.photonvision.targeting.PhotonPipelineResult;
-
-// import com.google.common.collect.Streams;
 
 public class Drive extends SubsystemBase {
 
@@ -381,7 +380,7 @@ public class Drive extends SubsystemBase {
     }
   }
 
-  private void runVelocity(ChassisSpeeds speeds) {
+  public void runVelocity(ChassisSpeeds speeds) {
     // Calculate module setpoints
     ChassisSpeeds discreteSpeeds = ChassisSpeeds.discretize(speeds, 0.02);
     SwerveModuleState[] setpointStates = kinematics.toSwerveModuleStates(discreteSpeeds);
@@ -394,11 +393,10 @@ public class Drive extends SubsystemBase {
         ChassisSpeeds.fromRobotRelativeSpeeds(discreteSpeeds, getRotation()));
 
     // Send setpoints to modules
-    // SwerveModuleState[] optimizedSetpointStates =
-    //     Streams.zip(
-    //             Arrays.stream(modules), Arrays.stream(setpointStates), (m, s) ->
-    // m.runSetpoint(s))
-    //         .toArray(SwerveModuleState[]::new);
+    SwerveModuleState[] optimizedSetpointStates =
+        Streams.zip(
+                Arrays.stream(modules), Arrays.stream(setpointStates), (m, s) -> m.runSetpoint(s))
+            .toArray(SwerveModuleState[]::new);
 
     // Log setpoint states
     Logger.recordOutput("SwerveStates/Setpoints", setpointStates);
@@ -462,16 +460,16 @@ public class Drive extends SubsystemBase {
 
           // Send setpoints to modules
 
-          SwerveModuleState[] optimizedSetpointStates = null;
-          // // Streams.zip(
-          //         Arrays.stream(modules),
-          //         Arrays.stream(setpointStates),
-          //         (m, s) ->
-          //             m.runVoltageSetpoint(
-          //                 new SwerveModuleState(
-          //                     s.speedMetersPerSecond * 12.0 / MAX_LINEAR_SPEED, s.angle),
-          //                 focEnable))
-          //     .toArray(SwerveModuleState[]::new);
+          SwerveModuleState[] optimizedSetpointStates =
+              Streams.zip(
+                      Arrays.stream(modules),
+                      Arrays.stream(setpointStates),
+                      (m, s) ->
+                          m.runVoltageSetpoint(
+                              new SwerveModuleState(
+                                  s.speedMetersPerSecond * 12.0 / MAX_LINEAR_SPEED, s.angle),
+                              focEnable))
+                  .toArray(SwerveModuleState[]::new);
 
           // Log setpoint states
           Logger.recordOutput("SwerveStates/Setpoints", setpointStates);

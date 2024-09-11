@@ -10,6 +10,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -90,9 +91,9 @@ public class AutoAlignCommands extends Command {
                     MathUtil.angleModulus(targetDirection.getRadians()));
             omega = Math.copySign(omega * omega, omega); // Square the value and preserve the sign
             // Command the drive to run at the calculated angular velocity
-            // drive.runVelocity(
-            //     ChassisSpeeds.fromFieldRelativeSpeeds(
-            //         0, 0, omega * drive.getMaxAngularSpeedRadPerSec(), drive.getRotation()));
+            drive.runVelocity(
+                ChassisSpeeds.fromFieldRelativeSpeeds(
+                    0, 0, omega * drive.getMaxAngularSpeedRadPerSec(), drive.getRotation()));
             // If the robot is aligned, stop the drive and close the PID controller
             if (angleController.atSetpoint()) {
               drive.stopCmd();
@@ -157,9 +158,9 @@ public class AutoAlignCommands extends Command {
                   MathUtil.angleModulus(targetDirection.getRadians()));
           omega = Math.copySign(omega * omega, omega); // Square the value and preserve the sign
           // // Command the drive to run at the calculated angular velocity
-          // drive.runVelocity(
-          //     ChassisSpeeds.fromFieldRelativeSpeeds(
-          //         0, 0, omega * drive.getMaxAngularSpeedRadPerSec(), drive.getRotation()));
+          drive.runVelocity(
+              ChassisSpeeds.fromFieldRelativeSpeeds(
+                  0, 0, omega * drive.getMaxAngularSpeedRadPerSec(), drive.getRotation()));
           // // If the robot is aligned, stop the drive and close the PID controller
           if (angleController.atSetpoint()) {
             drive.stopCmd();
