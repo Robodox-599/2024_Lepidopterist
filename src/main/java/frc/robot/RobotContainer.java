@@ -31,9 +31,6 @@ import frc.robot.commands.DriveCommands;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIOPigeon2;
-import frc.robot.subsystems.drive.ModuleIO;
-import frc.robot.subsystems.drive.ModuleIOSim;
-import frc.robot.subsystems.drive.ModuleIOTalonFX;
 import frc.robot.subsystems.indexer.Indexer;
 import frc.robot.subsystems.indexer.IndexerIO;
 import frc.robot.subsystems.indexer.IndexerIOSim;
@@ -96,12 +93,7 @@ public class RobotContainer {
         indexer = new Indexer(new IndexerIOTalonFX());
         drive =
             new Drive(
-                new GyroIOPigeon2(true),
-                new ModuleIOTalonFX(0),
-                new ModuleIOTalonFX(1),
-                new ModuleIOTalonFX(2),
-                new ModuleIOTalonFX(3),
-                Drive.createRealCameras());
+                new GyroIOPigeon2(true), Drive.createTalonFXModules(), Drive.createRealCameras());
       }
 
       case SIMBOT -> {
@@ -110,14 +102,7 @@ public class RobotContainer {
         rollers = new Rollers(new RollersIOSim());
         intakeWrist = new IntakeWrist(new IntakeWristIOSim());
         indexer = new Indexer(new IndexerIOSim());
-        drive =
-            new Drive(
-                new GyroIO() {},
-                new ModuleIOSim(),
-                new ModuleIOSim(),
-                new ModuleIOSim(),
-                new ModuleIOSim(),
-                Drive.createSimCameras());
+        drive = new Drive(new GyroIO() {}, Drive.createSimModules(), Drive.createSimCameras());
       }
 
         // Replayed robot, disable IO implementations
@@ -127,14 +112,7 @@ public class RobotContainer {
         rollers = new Rollers(new RollersIO() {});
         intakeWrist = new IntakeWrist(new IntakeWristIO() {});
         indexer = new Indexer(new IndexerIO() {});
-        drive =
-            new Drive(
-                new GyroIO() {},
-                new ModuleIO() {},
-                new ModuleIO() {},
-                new ModuleIO() {},
-                new ModuleIO() {},
-                Drive.createSimCameras());
+        drive = new Drive(new GyroIO() {}, Drive.createSimModules(), Drive.createSimCameras());
       }
       default -> {
         break;

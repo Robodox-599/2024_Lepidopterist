@@ -52,52 +52,37 @@ public class ModuleIOSim implements ModuleIO {
   }
 
   @Override
-  public void updateInputs(ModuleIOInputs inputs) {
+  public void updateInputs(final ModuleIOInputs inputs) {
     driveSim.update(LOOP_PERIOD_SECS);
     turnSim.update(LOOP_PERIOD_SECS);
-    inputs.drivePositionRad = driveSim.getAngularPositionRad();
-    inputs.driveVelocityRadPerSec = driveSim.getAngularVelocityRadPerSec();
+
+    inputs.drivePositionMeters = driveSim.getAngularPositionRad() * Module.WHEEL_RADIUS;
+    inputs.driveVelocityMetersPerSec = driveSim.getAngularVelocityRadPerSec() * Module.WHEEL_RADIUS;
     inputs.driveAppliedVolts = driveAppliedVolts;
     inputs.driveCurrentAmps = new double[] {Math.abs(driveSim.getCurrentDrawAmps())};
 
     inputs.turnAbsolutePosition =
-        new Rotation2d(turnSim.getAngularPositionRad()).minus(turnAbsoluteInitPosition);
+        new Rotation2d(turnSim.getAngularPositionRad()).plus(turnAbsoluteInitPosition);
     inputs.turnPosition = new Rotation2d(turnSim.getAngularPositionRad());
     inputs.turnVelocityRadPerSec = turnSim.getAngularVelocityRadPerSec();
     inputs.turnAppliedVolts = turnAppliedVolts;
     inputs.turnCurrentAmps = new double[] {Math.abs(turnSim.getCurrentDrawAmps())};
 
     inputs.odometryTimestamps = new double[] {Timer.getFPGATimestamp()};
-    inputs.odometryDrivePositionsRad = new double[] {inputs.drivePositionRad};
+    inputs.odometryDrivePositionsMeters = new double[] {inputs.drivePositionMeters};
     inputs.odometryTurnPositions = new Rotation2d[] {inputs.turnPosition};
   }
 
   @Override
-  public void setDriveVoltage(double volts) {
+  public void setDriveVoltage(final double volts, final boolean focEnabled) {
     driveAppliedVolts = MathUtil.clamp(volts, -12.0, 12.0);
     driveSim.setInputVoltage(driveAppliedVolts);
   }
 
   @Override
-  public void setTurnVoltage(double volts) {
+  public void setTurnVoltage(final double volts) {
     turnAppliedVolts = MathUtil.clamp(volts, -12.0, 12.0);
     turnSim.setInputVoltage(turnAppliedVolts);
-  }
-
-  @Override
-  public void setDriveVelocity(double velocity) {
-    driveController.setSetpoint(velocity);
-    setDriveVoltage(
-        driveFeedForward.calculate(velocity)
-            + driveController.calculate(driveSim.getAngularVelocityRadPerSec()));
-  }
-
-  @Override
-  public void setTurnPosition(double position) {
-    turnController.setSetpoint(position);
-    setTurnVoltage(
-        turnController.calculate(
-            turnSim.getAngularPositionRad() - turnAbsoluteInitPosition.getRadians()));
   }
 
   @Override
@@ -109,5 +94,8 @@ public class ModuleIOSim implements ModuleIO {
   }
 
   @Override
-  public void applyRelativeOffsets(double offset) {}
+  public void setTurnSetpoint(final Rotation2d rotation) {
+    setTurnVoltage(
+        turnController.calculate(turnSim.getAngularPositionRotations(), rotation.getRotations()));
+  }
 }

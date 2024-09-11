@@ -16,6 +16,7 @@ package frc.robot.subsystems.drive;
 import static frc.robot.Constants.*;
 import static frc.robot.subsystems.drive.DriveConstants.*;
 
+import edu.wpi.first.hal.simulation.RoboRioDataJNI;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
@@ -34,12 +35,14 @@ public class Module {
   private Rotation2d turnRelativeOffset = null; // Relative + Offset = Absolute
   private SwerveModulePosition[] odometryPositions = new SwerveModulePosition[] {};
   private double lastSpeedSetpoint = 0.0;
+  public static final double DRIVE_ROTOR_TO_METERS =
+      (DriveConstants.DRIVE_GEAR_RATIO) * (1.0 / (Module.WHEEL_RADIUS * 2 * Math.PI));
+
+  private SwerveModuleState lastSetpoint = new SwerveModuleState();
 
   public Module(ModuleIO io, int index) {
     this.io = io;
     this.index = index;
-
-    setBrakeMode(true);
   }
 
   /**
@@ -51,50 +54,16 @@ public class Module {
   }
 
   public void periodic() {
-    Logger.processInputs("Drive/Module" + Integer.toString(index), inputs);
+    Logger.processInputs(String.format("Drive/%s Module", Integer.toString(index)), inputs);
 
-    // On first cycle, reset relative turn encoder
-    // Wait until absolute angle is nonzero in case it wasn't initialized yet
-    if (turnRelativeOffset == null && inputs.turnAbsolutePosition.getRadians() != 0.0) {
-      Logger.recordOutput(
-          "Drive/Module" + Integer.toString(index) + "/TurninitOffset",
-          inputs.turnAbsolutePosition);
-      turnRelativeOffset = inputs.turnAbsolutePosition.minus(inputs.turnPosition);
-
-      io.applyRelativeOffsets(turnRelativeOffset.getRadians());
-    }
     Logger.recordOutput(
-        "Drive/Module" + Integer.toString(index) + "/TurnRelativeOffset", turnRelativeOffset);
-    // Run closed loop turn control
-    if (angleSetpoint != null) {
-      io.setTurnPosition(angleSetpoint.getRadians());
-
-      // Run closed loop drive control
-      // Only allowed if closed loop turn control is running
-      if (speedSetpoint != null) {
-        // Scale velocity based on turn error
-        //
-        // When the error is 90°, the velocity setpoint should be 0. As the wheel turns
-        // towards the setpoint, its velocity should increase. This is achieved by
-        // taking the component of the velocity in the direction of the setpoint.
-        double adjustSpeedSetpoint =
-            speedSetpoint * Math.cos(angleSetpoint.getRadians() - inputs.turnPosition.getRadians());
-
-        // Run drive controller
-        double velocityRadPerSec = adjustSpeedSetpoint / WHEEL_RADIUS;
-        // io.setDriveVelocity(velocityRadPerSec);
-
-        io.setDriveSetpoint(adjustSpeedSetpoint, (speedSetpoint - lastSpeedSetpoint) / 0.020);
-
-        lastSpeedSetpoint = speedSetpoint;
-      }
-    }
-
+        String.format("Drive/%s Module/Voltage Available", Integer.toString(index)),
+        Math.abs(inputs.driveAppliedVolts - RoboRioDataJNI.getVInVoltage()));
     // Calculate positions for odometry
     int sampleCount = inputs.odometryTimestamps.length; // All signals are sampled together
     odometryPositions = new SwerveModulePosition[sampleCount];
     for (int i = 0; i < sampleCount; i++) {
-      double positionMeters = inputs.odometryDrivePositionsRad[i] * WHEEL_RADIUS;
+      double positionMeters = inputs.odometryDrivePositionsMeters[i];
       Rotation2d angle =
           inputs.odometryTurnPositions[i].plus(
               turnRelativeOffset != null ? turnRelativeOffset : new Rotation2d());
@@ -102,86 +71,107 @@ public class Module {
     }
   }
 
-  /** Runs the module with the specified setpoint state. Returns the optimized state. */
+  /** Runs the module closed loop with the specified setpoint state. Returns the optimized state. */
   public SwerveModuleState runSetpoint(SwerveModuleState state) {
     // Optimize state based on current angle
-    // Controllers run in "periodic" when the setpoint is not null
-    var optimizedState = SwerveModuleState.optimize(state, getAngle());
+    final var optimizedState = SwerveModuleState.optimize(state, getAngle());
 
-    // Update setpoints, controllers run in "periodic"
-    angleSetpoint = optimizedState.angle;
-    speedSetpoint = optimizedState.speedMetersPerSecond;
+    io.setTurnSetpoint(optimizedState.angle);
+    io.setDriveSetpoint(
+        optimizedState.speedMetersPerSecond
+            * Math.cos(optimizedState.angle.minus(inputs.turnPosition).getRadians()),
+        (optimizedState.speedMetersPerSecond - lastSetpoint.speedMetersPerSecond) / 0.020);
+
+    lastSetpoint = optimizedState;
+    return optimizedState;
+  }
+
+  /**
+   * Runs the module open loop with the specified setpoint state, velocity in volts. Returns the
+   * optimized state.
+   */
+  public SwerveModuleState runVoltageSetpoint(SwerveModuleState state, boolean focEnabled) {
+    // Optimize state based on current angle
+    final var optimizedState = SwerveModuleState.optimize(state, getAngle());
+
+    io.setTurnSetpoint(optimizedState.angle);
+    io.setDriveVoltage(
+        optimizedState.speedMetersPerSecond
+            * Math.cos(optimizedState.angle.minus(inputs.turnPosition).getRadians()),
+        focEnabled);
 
     return optimizedState;
   }
 
+  /**
+   * Runs the module open loop with the specified setpoint state, velocity in volts. Returns the
+   * optimized state.
+   */
+  public SwerveModuleState runVoltageSetpoint(SwerveModuleState state) {
+    return runVoltageSetpoint(state, true);
+  }
+
   /** Runs the module with the specified voltage while controlling to zero degrees. */
-  public void runCharacterization(double volts) {
+  public void runDriveCharacterization(double volts) {
     // Closed loop turn control
-    angleSetpoint = new Rotation2d();
+    io.setTurnSetpoint(Rotation2d.fromRotations(0.0));
 
     // Open loop drive control
     io.setDriveVoltage(volts);
-    speedSetpoint = null;
+  }
+
+  /** Runs the module angle with the specified voltage while not moving the drive motor */
+  public void runSteerCharacterization(double volts) {
+    io.setTurnVoltage(volts);
+    io.setDriveVoltage(0.0);
   }
 
   /** Disables all outputs to motors. */
   public void stop() {
     io.setTurnVoltage(0.0);
     io.setDriveVoltage(0.0);
-
-    // Disable closed loop control for turn and drive
-    angleSetpoint = null;
-    speedSetpoint = null;
   }
 
-  /** Sets whether brake mode is enabled. */
-  public void setBrakeMode(boolean enabled) {
-    io.setDriveBrakeMode(enabled);
-    io.setTurnBrakeMode(enabled);
-  }
-
-  /** Returns the current turn angle of the module. */
+  /** Returns the current turn angle of the module at normal sampling frequency. */
   public Rotation2d getAngle() {
-    if (turnRelativeOffset == null) {
-      return new Rotation2d();
-    } else {
-      return inputs.turnPosition.plus(turnRelativeOffset);
-    }
+    return inputs.turnPosition;
   }
 
-  /** Returns the current drive position of the module in meters. */
+  /** Returns the current drive position of the module in meters at normal sampling frequency. */
   public double getPositionMeters() {
-    return inputs.drivePositionRad * WHEEL_RADIUS;
+    return inputs.drivePositionMeters;
   }
 
-  /** Returns the current drive velocity of the module in meters per second. */
+  /**
+   * Returns the current drive velocity of the module in meters per second withat normal sampling
+   * frequency.
+   */
   public double getVelocityMetersPerSec() {
-    return inputs.driveVelocityRadPerSec * WHEEL_RADIUS;
+    return inputs.driveVelocityMetersPerSec;
   }
 
-  /** Returns the module position (turn angle and drive position). */
+  /** Returns the module position (turn angle and drive position) at normal sampling frequency. */
   public SwerveModulePosition getPosition() {
     return new SwerveModulePosition(getPositionMeters(), getAngle());
   }
 
-  /** Returns the module state (turn angle and drive velocity). */
+  /** Returns the module state (turn angle and drive velocity) at normal sampling frequency. */
   public SwerveModuleState getState() {
     return new SwerveModuleState(getVelocityMetersPerSec(), getAngle());
   }
 
-  /** Returns the module positions received this cycle. */
-  public SwerveModulePosition[] getOdometryPositions() {
-    return odometryPositions;
+  /** Returns the drive velocity in meters/sec. */
+  public double getCharacterizationVelocity() {
+    return inputs.driveVelocityMetersPerSec;
   }
 
-  /** Returns the timestamps of the samples received this cycle. */
+  /** Returns the timestamps of the samples received this cycle from PhoenixOdometryThread. */
   public double[] getOdometryTimestamps() {
     return inputs.odometryTimestamps;
   }
 
-  /** Returns the drive velocity in radians/sec. */
-  public double getCharacterizationVelocity() {
-    return inputs.driveVelocityRadPerSec;
+  /** Returns the module positions received this cycle from PhoenixOdometryThread. */
+  public SwerveModulePosition[] getOdometryPositions() {
+    return odometryPositions;
   }
 }

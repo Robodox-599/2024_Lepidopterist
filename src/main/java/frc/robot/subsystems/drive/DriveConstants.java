@@ -64,11 +64,6 @@ public final class DriveConstants {
   public static final double Module3AbsoluteEncoderOffset =
       -1.454 + Units.degreesToRotations(20); // BR
 
-  // Supply Current Limit
-
-  public static final int DriveMotorSupplyCurrentLimitConstant = 40;
-  public static final int TurnMotorSupplyCurrentLimitConstant = 30;
-
   /*
    * EACH SWERVE MODULE HAS A GEAR RATIO (L1, L2, L3, OR L4)
    *
@@ -78,11 +73,10 @@ public final class DriveConstants {
   // Drive and Turn Motor Gear Ratio L3
 
   // DRIVE GEAR RATIO
-  public static final double DriveGearRatioConstant =
-      ((50.0 / 14.0) * (17.0 / 27.0) * (45.0 / 15.0));
+  public static final double DRIVE_GEAR_RATIO = ((50.0 / 14.0) * (17.0 / 27.0) * (45.0 / 15.0));
 
   // TURNING GEAR RATIO
-  public static final double TurnGearRatioConstant = (150.0 / 7.0);
+  public static final double TURN_GEAR_RATIO = (150.0 / 7.0);
 
   /*
    * THESE ARE THE CONSTANTS THAT TELL THE ROBOT ITS MAXIMUM LINEAR SPEED, TRACK WIDTH, AND DRIVE BASE RADIUS

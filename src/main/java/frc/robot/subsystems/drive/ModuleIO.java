@@ -21,8 +21,8 @@ import org.littletonrobotics.junction.AutoLog;
 public interface ModuleIO {
   @AutoLog
   public static class ModuleIOInputs {
-    public double drivePositionRad = 0.0;
-    public double driveVelocityRadPerSec = 0.0;
+    public double drivePositionMeters = 0.0;
+    public double driveVelocityMetersPerSec = 0.0;
     public double driveAppliedVolts = 0.0;
     public double[] driveCurrentAmps = new double[] {};
 
@@ -33,31 +33,32 @@ public interface ModuleIO {
     public double[] turnCurrentAmps = new double[] {};
 
     public double[] odometryTimestamps = new double[] {};
-    public double[] odometryDrivePositionsRad = new double[] {};
+    public double[] odometryDrivePositionsMeters = new double[] {};
     public Rotation2d[] odometryTurnPositions = new Rotation2d[] {};
   }
 
   /** Updates the set of loggable inputs. */
-  public default void updateInputs(ModuleIOInputs inputs) {}
+  public void updateInputs(final ModuleIOInputs inputs);
 
   /** Run the drive motor at the specified voltage. */
-  public default void setDriveVoltage(double volts) {}
+  public default void setDriveVoltage(final double volts) {
+    setDriveVoltage(volts, true);
+  }
+
+  /** Run the drive motor at the specified voltage. */
+  public void setDriveVoltage(final double volts, final boolean focEnabled);
+
+  /** Use onboard PIDF to run the drive motor at the specified speed */
+  public default void setDriveSetpoint(final double metersPerSecond) {
+    setDriveSetpoint(metersPerSecond, 0.0);
+  }
+
+  /** Use onboard PIDF to run the drive motor at the specified speed */
+  public void setDriveSetpoint(final double metersPerSecond, final double metersPerSecondSquared);
 
   /** Run the turn motor at the specified voltage. */
-  public default void setTurnVoltage(double volts) {}
+  public void setTurnVoltage(final double volts);
 
-  /** Enable or disable brake mode on the drive motor. */
-  public default void setDriveBrakeMode(boolean enable) {}
-
-  /** Enable or disable brake mode on the turn motor. */
-  public default void setTurnBrakeMode(boolean enable) {}
-
-  public default void setDriveSetpoint(
-      final double metersPerSecond, final double metersPerSecondSquared) {}
-
-  public default void setDriveVelocity(double velocity) {}
-
-  public default void setTurnPosition(double position) {}
-
-  public default void applyRelativeOffsets(double offset) {}
+  /** Use onboard PIDF to run the turn motor to the specified rotation */
+  public void setTurnSetpoint(final Rotation2d rotation);
 }
