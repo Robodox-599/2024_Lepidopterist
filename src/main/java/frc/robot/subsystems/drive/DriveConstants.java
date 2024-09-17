@@ -1,8 +1,11 @@
 package frc.robot.subsystems.drive;
 
+import static frc.robot.subsystems.drive.Module.*;
+
 import edu.wpi.first.math.MatBuilder;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.Nat;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.numbers.N5;
@@ -32,37 +35,25 @@ public final class DriveConstants {
    * ! DO NOT CHANGE DURING COMP !
    */
 
-  // Module 0 (FL) Device IDs
-
-  public static final int Module0DriveTalon = 0;
-  public static final int Module0TurnTalon = 1;
-  public static final int Module0Cancoder = 2;
-
-  // Module 1 (FR) Device IDs
-
-  public static final int Module1DriveTalon = 3;
-  public static final int Module1TurnTalon = 4;
-  public static final int Module1Cancoder = 5;
-
-  // Module 2 (BL) Device IDs
-
-  public static final int Module2DriveTalon = 6;
-  public static final int Module2TurnTalon = 7;
-  public static final int Module2Cancoder = 8;
-
-  // Module 3 (BR) Device IDs
-
-  public static final int Module3DriveTalon = 9;
-  public static final int Module3TurnTalon = 10;
-  public static final int Module3Cancoder = 11;
-
   // Absolute Encoder Offsets
 
-  public static final double Module0AbsoluteEncoderOffset = -0.647; // FL
-  public static final double Module1AbsoluteEncoderOffset = -2.984; // FR
-  public static final double Module2AbsoluteEncoderOffset = 0.695; // BL
-  public static final double Module3AbsoluteEncoderOffset =
-      -1.454 + Units.degreesToRotations(20); // BR
+  public static final double Module0AbsoluteEncoderOffset = -0.624; // FL
+  public static final double Module1AbsoluteEncoderOffset = -3.004; // FR
+  public static final double Module2AbsoluteEncoderOffset = 0.727; // BL
+  public static final double Module3AbsoluteEncoderOffset = -1.513; // BR
+
+  public static final ModuleConstants frontLeft =
+      new ModuleConstants(
+          "Front Left", 0, 1, 2, Rotation2d.fromRotations(Module0AbsoluteEncoderOffset));
+  public static final ModuleConstants frontRight =
+      new ModuleConstants(
+          "Front Right", 3, 4, 5, Rotation2d.fromRotations(Module1AbsoluteEncoderOffset));
+  public static final ModuleConstants backLeft =
+      new ModuleConstants(
+          "Back Left", 6, 7, 8, Rotation2d.fromRotations(Module2AbsoluteEncoderOffset));
+  public static final ModuleConstants backRight =
+      new ModuleConstants(
+          "Back Right", 9, 10, 11, Rotation2d.fromRotations(Module3AbsoluteEncoderOffset));
 
   /*
    * EACH SWERVE MODULE HAS A GEAR RATIO (L1, L2, L3, OR L4)
