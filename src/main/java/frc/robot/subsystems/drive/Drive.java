@@ -16,7 +16,54 @@
 package frc.robot.subsystems.drive;
 
 import static frc.robot.Constants.robotType;
-import static frc.robot.subsystems.drive.DriveConstants.*;
+import static frc.robot.subsystems.drive.DriveConstants.CAMERA_ONE_DIST_COEFFS;
+import static frc.robot.subsystems.drive.DriveConstants.CAMERA_ONE_MATRIX;
+import static frc.robot.subsystems.drive.DriveConstants.CAMERA_THREE_DIST_COEFFS;
+import static frc.robot.subsystems.drive.DriveConstants.CAMERA_THREE_MATRIX;
+import static frc.robot.subsystems.drive.DriveConstants.CAMERA_TWO_DIST_COEFFS;
+import static frc.robot.subsystems.drive.DriveConstants.CAMERA_TWO_MATRIX;
+import static frc.robot.subsystems.drive.DriveConstants.DRIVE_BASE_RADIUS;
+import static frc.robot.subsystems.drive.DriveConstants.MAX_ANGULAR_SPEED;
+import static frc.robot.subsystems.drive.DriveConstants.MAX_LINEAR_SPEED;
+import static frc.robot.subsystems.drive.DriveConstants.TRACK_WIDTH_X;
+import static frc.robot.subsystems.drive.DriveConstants.TRACK_WIDTH_Y;
+import static frc.robot.subsystems.drive.DriveConstants.backLeft;
+import static frc.robot.subsystems.drive.DriveConstants.backRight;
+import static frc.robot.subsystems.drive.DriveConstants.camera1Name;
+import static frc.robot.subsystems.drive.DriveConstants.camera1PosePitch;
+import static frc.robot.subsystems.drive.DriveConstants.camera1PoseRoll;
+import static frc.robot.subsystems.drive.DriveConstants.camera1PoseX;
+import static frc.robot.subsystems.drive.DriveConstants.camera1PoseY;
+import static frc.robot.subsystems.drive.DriveConstants.camera1PoseYaw;
+import static frc.robot.subsystems.drive.DriveConstants.camera1PoseZ;
+import static frc.robot.subsystems.drive.DriveConstants.camera2Name;
+import static frc.robot.subsystems.drive.DriveConstants.camera2PosePitch;
+import static frc.robot.subsystems.drive.DriveConstants.camera2PoseRoll;
+import static frc.robot.subsystems.drive.DriveConstants.camera2PoseX;
+import static frc.robot.subsystems.drive.DriveConstants.camera2PoseY;
+import static frc.robot.subsystems.drive.DriveConstants.camera2PoseYaw;
+import static frc.robot.subsystems.drive.DriveConstants.camera2PoseZ;
+import static frc.robot.subsystems.drive.DriveConstants.camera3Name;
+import static frc.robot.subsystems.drive.DriveConstants.camera3PosePitch;
+import static frc.robot.subsystems.drive.DriveConstants.camera3PoseRoll;
+import static frc.robot.subsystems.drive.DriveConstants.camera3PoseX;
+import static frc.robot.subsystems.drive.DriveConstants.camera3PoseY;
+import static frc.robot.subsystems.drive.DriveConstants.camera3PoseYaw;
+import static frc.robot.subsystems.drive.DriveConstants.camera3PoseZ;
+import static frc.robot.subsystems.drive.DriveConstants.frontLeft;
+import static frc.robot.subsystems.drive.DriveConstants.frontRight;
+import static frc.robot.subsystems.drive.DriveConstants.realPathFollowRotationkD;
+import static frc.robot.subsystems.drive.DriveConstants.realPathFollowRotationkI;
+import static frc.robot.subsystems.drive.DriveConstants.realPathFollowRotationkP;
+import static frc.robot.subsystems.drive.DriveConstants.realPathFollowTranslationkD;
+import static frc.robot.subsystems.drive.DriveConstants.realPathFollowTranslationkI;
+import static frc.robot.subsystems.drive.DriveConstants.realPathFollowTranslationkP;
+import static frc.robot.subsystems.drive.DriveConstants.simPathFollowRotationkD;
+import static frc.robot.subsystems.drive.DriveConstants.simPathFollowRotationkI;
+import static frc.robot.subsystems.drive.DriveConstants.simPathFollowRotationkP;
+import static frc.robot.subsystems.drive.DriveConstants.simPathFollowTranslationkD;
+import static frc.robot.subsystems.drive.DriveConstants.simPathFollowTranslationkI;
+import static frc.robot.subsystems.drive.DriveConstants.simPathFollowTranslationkP;
 
 import com.google.common.collect.Streams;
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -79,9 +126,9 @@ public class Drive extends SubsystemBase {
   static final Lock odometryLock = new ReentrantLock();
   private final GyroIO gyroIO;
   private final GyroIOInputsAutoLogged gyroInputs = new GyroIOInputsAutoLogged();
-  private final Module[] modules = new Module[4]; // FL, FR, BL, BR
   private final Vision[] cameras;
   public static AprilTagFieldLayout fieldTags;
+  private final Module[] modules; // FL, FR, BL, BR
   // Drive kinematics and pose estimator for position tracking
   private SwerveDriveKinematics kinematics = new SwerveDriveKinematics(getModuleTranslations());
   private Pose2d pose = new Pose2d();
@@ -134,15 +181,14 @@ public class Drive extends SubsystemBase {
   public Drive(GyroIO gyroIO, ModuleIO[] moduleIOs, VisionIO[] visionIOs) {
     this.gyroIO = gyroIO;
     cameras = new Vision[visionIOs.length];
-    // new AutoAim();
-    // modules[0] = new Module(flModuleIO, 0);
-    // modules[1] = new Module(frModuleIO, 1);
-    // modules[2] = new Module(blModuleIO, 2);
-    // modules[3] = new Module(brModuleIO, 3);
 
-    // Start threads (no-op for each if no signals have been created) // Starting threads for
-    // hardware interface odometry
+    modules = new Module[moduleIOs.length];
+
+    for (int i = 0; i < moduleIOs.length; i++) {
+      modules[i] = new Module(moduleIOs[i]);
+    }
     PhoenixOdometryThread.getInstance().start();
+
     for (int i = 0; i < visionIOs.length; i++) {
       cameras[i] = new Vision(visionIOs[i]);
     }
@@ -233,7 +279,10 @@ public class Drive extends SubsystemBase {
    */
   public static ModuleIO[] createTalonFXModules() {
     return new ModuleIO[] {
-      new ModuleIOTalonFX(0), new ModuleIOTalonFX(1), new ModuleIOTalonFX(2), new ModuleIOTalonFX(3)
+      new ModuleIOTalonFX(frontLeft),
+      new ModuleIOTalonFX(frontRight),
+      new ModuleIOTalonFX(backLeft),
+      new ModuleIOTalonFX(backRight)
     };
   }
 
@@ -244,7 +293,10 @@ public class Drive extends SubsystemBase {
    */
   public static ModuleIO[] createSimModules() {
     return new ModuleIO[] {
-      new ModuleIOSim(), new ModuleIOSim(), new ModuleIOSim(), new ModuleIOSim()
+      new ModuleIOSim("Front Left"),
+      new ModuleIOSim("Front Right"),
+      new ModuleIOSim("Back Left"),
+      new ModuleIOSim("Back Right")
     };
   }
 

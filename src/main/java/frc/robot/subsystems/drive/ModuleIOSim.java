@@ -32,6 +32,7 @@ import edu.wpi.first.wpilibj.simulation.DCMotorSim;
  */
 public class ModuleIOSim implements ModuleIO {
   private static final double LOOP_PERIOD_SECS = 0.02;
+  private final String name;
 
   private DCMotorSim driveSim = new DCMotorSim(DCMotor.getKrakenX60(1), 6.75, 0.025);
   private DCMotorSim turnSim = new DCMotorSim(DCMotor.getFalcon500(1), 150.0 / 7.0, 0.004);
@@ -47,8 +48,9 @@ public class ModuleIOSim implements ModuleIO {
   private SimpleMotorFeedforward driveFeedForward =
       new SimpleMotorFeedforward(driveSimFeedFowardkS, driveSimFeedFowardkV, driveSimFeedFowardkA);
 
-  public ModuleIOSim() {
+  public ModuleIOSim(final String name) {
     turnController.enableContinuousInput(-Math.PI, Math.PI);
+    this.name = name;
   }
 
   @Override
@@ -97,5 +99,9 @@ public class ModuleIOSim implements ModuleIO {
   public void setTurnSetpoint(final Rotation2d rotation) {
     setTurnVoltage(
         turnController.calculate(turnSim.getAngularPositionRotations(), rotation.getRotations()));
+  }
+
+  public String getModuleName() {
+    return name;
   }
 }

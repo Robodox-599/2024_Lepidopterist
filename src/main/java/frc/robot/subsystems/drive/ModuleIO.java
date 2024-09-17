@@ -35,6 +35,8 @@ public interface ModuleIO {
     public double[] odometryTimestamps = new double[] {};
     public double[] odometryDrivePositionsMeters = new double[] {};
     public Rotation2d[] odometryTurnPositions = new Rotation2d[] {};
+
+    public int index = 0;
   }
 
   /** Updates the set of loggable inputs. */
@@ -61,4 +63,7 @@ public interface ModuleIO {
 
   /** Use onboard PIDF to run the turn motor to the specified rotation */
   public void setTurnSetpoint(final Rotation2d rotation);
+
+  /** Gets the name of the swerve module for logging purposes, should be constant per-module. */
+  public String getModuleName();
 }

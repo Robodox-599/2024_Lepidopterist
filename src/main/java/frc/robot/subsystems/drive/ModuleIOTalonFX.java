@@ -19,7 +19,7 @@ import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.MotionMagicVoltage;
+import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.CANcoder;
@@ -31,6 +31,7 @@ import com.ctre.phoenix6.signals.SensorDirectionValue;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
+import frc.robot.subsystems.drive.Module.ModuleConstants;
 import java.util.Queue;
 
 /**
@@ -73,66 +74,29 @@ public class ModuleIOTalonFX implements ModuleIO {
   private final StatusSignal<Double> turnVelocity;
   private final StatusSignal<Double> turnAppliedVolts;
   private final StatusSignal<Double> turnCurrent;
+  private final String name;
 
-  private final VoltageOut driveVoltage = new VoltageOut(0.0).withEnableFOC(true);
-  private final VoltageOut turnVoltage = new VoltageOut(0.0).withEnableFOC(true);
-  private final VelocityVoltage driveCurrentVelocity =
-      new VelocityVoltage(0.0).withEnableFOC(true).withSlot(0);
-  private final MotionMagicVoltage turnPID = new MotionMagicVoltage(0.0).withEnableFOC(true);
+  private final VoltageOut driveVoltage = new VoltageOut(0.0);
+  private final VoltageOut turnVoltage = new VoltageOut(0.0);
+  private final VelocityVoltage driveCurrentVelocity = new VelocityVoltage(0.0).withSlot(0);
+  private final PositionVoltage turnPID = new PositionVoltage(0.0).withSlot(0);
 
   private final double kAVoltsPerMeterPerSecondSquared;
   // Gear ratios for SDS MK4i L3, adjust as necessary // MATTHEW OR MEER PLEASE SETUP
 
   // Offset angle for the CANcoder to calibrate to zero
-  private final Rotation2d absoluteEncoderOffset;
   private final boolean IS_TURN_MOTOR_INVERTED = true;
   public static final double TURN_STATOR_CURRENT_LIMIT = 40.0;
 
   // Constructor initalizes motor controllers, encoders, and status signals
-  public ModuleIOTalonFX(int index) {
+  public ModuleIOTalonFX(ModuleConstants constants) {
     // Configuration of drive and turn Talon FX motors and CANcoder on module index
     var turnConfig = new TalonFXConfiguration();
+    name = constants.prefix();
 
-    switch (index) {
-        // MODULE 0 HARDWARE IDENTIFIERS
-      case 0:
-        driveTalon = new TalonFX(Module0DriveTalon, canbus);
-        turnTalon = new TalonFX(Module0TurnTalon, canbus);
-        cancoder = new CANcoder(Module0Cancoder, canbus);
-        absoluteEncoderOffset = new Rotation2d(Module0AbsoluteEncoderOffset);
-        turnConfig.Feedback.FeedbackRemoteSensorID = Module3Cancoder;
-        break;
-
-        // MODULE 1 HARDWARE IDENTIFIERS
-      case 1:
-        driveTalon = new TalonFX(Module1DriveTalon, canbus);
-        turnTalon = new TalonFX(Module1TurnTalon, canbus);
-        cancoder = new CANcoder(Module1Cancoder, canbus);
-        absoluteEncoderOffset = new Rotation2d(Module1AbsoluteEncoderOffset);
-        turnConfig.Feedback.FeedbackRemoteSensorID = Module3Cancoder;
-        break;
-
-        // MODULE 2 HARDWARE IDENTIFIERS
-      case 2:
-        driveTalon = new TalonFX(Module2DriveTalon, canbus);
-        turnTalon = new TalonFX(Module2TurnTalon, canbus);
-        cancoder = new CANcoder(Module2Cancoder, canbus);
-        absoluteEncoderOffset = new Rotation2d(Module2AbsoluteEncoderOffset);
-        turnConfig.Feedback.FeedbackRemoteSensorID = Module3Cancoder;
-        break;
-
-        // MODULE 3 HARDWARE IDENTIFIERS
-      case 3:
-        driveTalon = new TalonFX(Module3DriveTalon, canbus);
-        turnTalon = new TalonFX(Module3TurnTalon, canbus);
-        cancoder = new CANcoder(Module3Cancoder, canbus);
-        absoluteEncoderOffset = new Rotation2d(Module3AbsoluteEncoderOffset);
-        turnConfig.Feedback.FeedbackRemoteSensorID = Module3Cancoder;
-        break;
-
-      default:
-        throw new RuntimeException("Invalid module index");
-    }
+    driveTalon = new TalonFX(constants.driveID(), canbus);
+    turnTalon = new TalonFX(constants.turnID(), canbus);
+    cancoder = new CANcoder(constants.cancoderID(), canbus);
 
     var driveConfig = new TalonFXConfiguration();
     // Current limits
@@ -147,6 +111,7 @@ public class ModuleIOTalonFX implements ModuleIO {
     // Sensor
     // Meters per second
     driveConfig.Feedback.SensorToMechanismRatio = Module.DRIVE_ROTOR_TO_METERS;
+    // Voltage Controls Gains
     // Voltage Controls Gains
     driveConfig.Slot0.kV = 2.381;
     kAVoltsPerMeterPerSecondSquared = 0.65;
@@ -179,25 +144,25 @@ public class ModuleIOTalonFX implements ModuleIO {
             : InvertedValue.CounterClockwise_Positive;
     turnConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     // Fused Cancoder
-    turnConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
+    turnConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RemoteCANcoder;
     turnConfig.Feedback.RotorToSensorRatio = DriveConstants.TURN_GEAR_RATIO;
     turnConfig.Feedback.SensorToMechanismRatio = 1.0;
     turnConfig.Feedback.FeedbackRotorOffset =
         0.0; // Is this correct? Cancoder config should handle it
     // Controls Gains
-    turnConfig.Slot0.kV = 2.7935;
-    turnConfig.Slot0.kA = 0.031543;
-    turnConfig.Slot0.kS = 0.28;
-    turnConfig.Slot0.kP = 400.0;
-    turnConfig.Slot0.kD = 0.68275;
+    turnConfig.Slot0.kV = 0.4;
+    turnConfig.Slot0.kS = 0.14;
+    turnConfig.Slot0.kP = 105;
+    turnConfig.Slot0.kD = 2.15;
     turnConfig.MotionMagic.MotionMagicCruiseVelocity = 5500 / TURN_GEAR_RATIO;
     turnConfig.MotionMagic.MotionMagicAcceleration = (5500 * 0.1) / TURN_GEAR_RATIO;
     turnConfig.ClosedLoopGeneral.ContinuousWrap = true;
+    turnConfig.Feedback.FeedbackRemoteSensorID = constants.cancoderID();
 
     turnTalon.getConfigurator().apply(turnConfig);
 
     var cancoderConfig = new CANcoderConfiguration();
-    cancoderConfig.MagnetSensor.MagnetOffset = absoluteEncoderOffset.getRotations();
+    cancoderConfig.MagnetSensor.MagnetOffset = constants.cancoderOffset().getRotations();
     cancoderConfig.MagnetSensor.SensorDirection =
         IS_TURN_MOTOR_INVERTED
             ? SensorDirectionValue.CounterClockwise_Positive
@@ -306,6 +271,10 @@ public class ModuleIOTalonFX implements ModuleIO {
 
   @Override
   public void setTurnSetpoint(final Rotation2d rotation) {
-    turnTalon.setControl(turnPID.withPosition(rotation.getRotations()));
+    turnTalon.setControl(new PositionVoltage(rotation.getRotations()).withSlot(0));
+  }
+
+  public String getModuleName() {
+    return name;
   }
 }

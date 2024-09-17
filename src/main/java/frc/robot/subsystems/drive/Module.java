@@ -29,7 +29,6 @@ public class Module {
 
   private final ModuleIO io;
   private final ModuleIOInputsAutoLogged inputs = new ModuleIOInputsAutoLogged();
-  private final int index;
   private Rotation2d angleSetpoint = null; // Setpoint for closed loop control, null for open loop
   private Double speedSetpoint = null; // Setpoint for closed loop control, null for open loop
   private Rotation2d turnRelativeOffset = null; // Relative + Offset = Absolute
@@ -40,9 +39,11 @@ public class Module {
 
   private SwerveModuleState lastSetpoint = new SwerveModuleState();
 
-  public Module(ModuleIO io, int index) {
+  public record ModuleConstants(
+      String prefix, int driveID, int turnID, int cancoderID, Rotation2d cancoderOffset) {}
+
+  public Module(ModuleIO io) {
     this.io = io;
-    this.index = index;
   }
 
   /**
@@ -54,10 +55,10 @@ public class Module {
   }
 
   public void periodic() {
-    Logger.processInputs(String.format("Drive/%s Module", Integer.toString(index)), inputs);
+    Logger.processInputs(String.format("Drive/%s Module", io.getModuleName()), inputs);
 
     Logger.recordOutput(
-        String.format("Drive/%s Module/Voltage Available", Integer.toString(index)),
+        String.format("Drive/%s Module/Voltage Available", io.getModuleName()),
         Math.abs(inputs.driveAppliedVolts - RoboRioDataJNI.getVInVoltage()));
     // Calculate positions for odometry
     int sampleCount = inputs.odometryTimestamps.length; // All signals are sampled together
