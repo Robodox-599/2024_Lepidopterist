@@ -66,6 +66,21 @@
           "open": true
         },
         "open": true
+      },
+      "Tracer": {
+        "open": true,
+        "robot main": {
+          "RobotPeriodic": {
+            "CommandScheduler": {
+              "SwervePeriodic": {
+                "open": true
+              },
+              "open": true
+            },
+            "open": true
+          },
+          "open": true
+        }
       }
     }
   },

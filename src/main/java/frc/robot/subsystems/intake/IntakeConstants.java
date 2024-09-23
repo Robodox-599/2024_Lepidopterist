@@ -26,30 +26,6 @@ public class IntakeConstants {
   public static final double wristGearRatio = 3.58;
   public static final double kWristTolerance = 0.1; // Change
 
-  public static class WristMotorConstants {
-    public static final int wristMotorID = 18;
-
-    public static final int wristExtendSlot = 0;
-    public static final double wristExtendKP = 7;
-    public static final double wristExtendKI = 0;
-    public static final double wristExtendKD = 0.0;
-    public static final double wristExtendKS = 0.0;
-    public static final double kWristFeedForward = -0.4; // arb feedforward to account for gravity
-
-    public static final double AbsWristP = -7;
-    public static final double AbsWristI = 0;
-    public static final double AbsWristD = 0;
-    public static final double AbsWristFeedForward = -0.8;
-
-    public static final int wristRetractSlot = 1;
-    public static final double wristRetractKP = 8;
-    public static final double wristRetractKI = 0.0;
-    public static final double wristRetractKD = 0.2;
-
-    public static final double maxWristVelocity = 120;
-    public static final double maxWristAccel = 240;
-  }
-
   public static class RollerMotorConstants {
     public static final int intakeRollersMotorID = 19;
     public static String intakeRollersMotorCANbus = "rio";

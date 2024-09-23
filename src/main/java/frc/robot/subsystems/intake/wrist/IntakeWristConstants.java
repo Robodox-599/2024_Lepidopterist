@@ -6,9 +6,6 @@ public class IntakeWristConstants {
   public static final int wristMotorID = 18; // TODO: change later
   public static final String wristMotorCANBus = "LunaDriveCANivore"; // TODO: change later
 
-  public static final double[] intakeWristPIDReal = {3.6, 0, 0, 0.01}; // TODO: calibrate this
-  public static final double[] intakeWristFFReal = {0, 0.45, 0, 0}; // TODO: calibrate this
-
   public static final double intakeWristPositionTolerance =
       Units.degreesToRadians(1); // TODO: calibrate this
   public static final double intakeWristVelocityTolerance = 0.5; // TODO: calibrate this
@@ -20,6 +17,25 @@ public class IntakeWristConstants {
 
   public static final double kWristRetractVal = 0.0; // TODO: calibrate this
   public static final double kWristExtendVal = Units.degreesToRadians(75.0); // TODO: calibrate this
+  public static final int wristExtendSlot = 0;
+  public static final double wristExtendKP = 7;
+  public static final double wristExtendKI = 0;
+  public static final double wristExtendKD = 0.0;
+  public static final double wristExtendKS = 0.0;
+  public static final double kWristFeedForward = -0.4; // arb feedforward to account for gravity
+
+  public static final double AbsWristP = -7;
+  public static final double AbsWristI = 0;
+  public static final double AbsWristD = 0;
+  public static final double AbsWristFeedForward = -0.8; // arb feedforward to account for gravity
+
+  public static final int wristRetractSlot = 1;
+  public static final double wristRetractKP = 8;
+  public static final double wristRetractKI = 0.0;
+  public static final double wristRetractKD = 0.2;
+
+  public static final double maxWristVelocity = 120;
+  public static final double maxWristAccel = 240;
 
   public static class IntakeWristSimConstants {
     public static final double[] kPivotSimPID = {15, 0, 0, 0}; // TODO: calibrate this

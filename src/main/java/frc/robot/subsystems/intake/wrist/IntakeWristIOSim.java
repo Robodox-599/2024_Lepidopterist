@@ -58,7 +58,7 @@ public class IntakeWristIOSim implements IntakeWristIO {
     sim.update(0.02);
     inputs.angleRads = getAngle();
     inputs.angVelocityRadsPerSec = sim.getVelocityRadPerSec();
-    inputs.currentAmps = new double[] {sim.getCurrentDrawAmps()};
+    inputs.currentAmps = sim.getCurrentDrawAmps();
     inputs.setpointAngleRads = m_controller.getSetpoint().position;
   }
 

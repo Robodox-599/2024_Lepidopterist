@@ -1,69 +1,77 @@
 package frc.robot.subsystems.intake.wrist;
 
+import com.ctre.phoenix6.BaseStatusSignal;
+import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.controller.ArmFeedforward;
-import edu.wpi.first.math.controller.ProfiledPIDController;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import org.littletonrobotics.junction.Logger;
 
 public class IntakeWristIOTalonFX implements IntakeWristIO {
   // Motor and Encoders
   private TalonFX pivotMotor;
-  private final ProfiledPIDController pidController;
-  private ArmFeedforward feedforward = new ArmFeedforward(0, 0, 0, 0);
   private double setpoint = 0;
   private double motorEncoder;
+  private int m_WristSlot = 0;
+
+  private final StatusSignal<Double> appliedVolts;
+  private final StatusSignal<Double> angleVelocityRadsPerSec;
+  private final StatusSignal<Double> tempCelcius;
+  private final StatusSignal<Double> currentAmps;
+  private final StatusSignal<Double> angleRads;
 
   public IntakeWristIOTalonFX() {
     pivotMotor =
         new TalonFX(IntakeWristConstants.wristMotorID, IntakeWristConstants.wristMotorCANBus);
 
-    var config = new TalonFXConfiguration();
+    var intakeWristMotorConfig = new TalonFXConfiguration();
 
-    config.CurrentLimits.SupplyCurrentLimit = 30.0;
-    config.CurrentLimits.SupplyCurrentLimitEnable = true;
-    config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+    intakeWristMotorConfig.CurrentLimits.SupplyCurrentLimit = 30.0;
+    intakeWristMotorConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
+    intakeWristMotorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+    intakeWristMotorConfig.Slot0.kP = IntakeWristConstants.wristExtendKP;
+    intakeWristMotorConfig.Slot0.kI = IntakeWristConstants.wristExtendKI;
+    intakeWristMotorConfig.Slot0.kD = IntakeWristConstants.wristExtendKD;
+    intakeWristMotorConfig.Slot0.kS = IntakeWristConstants.wristExtendKS;
 
-    pivotMotor.getConfigurator().apply(config);
+    intakeWristMotorConfig.Slot1.kP = IntakeWristConstants.wristRetractKP;
+    intakeWristMotorConfig.Slot1.kI = IntakeWristConstants.wristRetractKI;
+    intakeWristMotorConfig.Slot1.kD = IntakeWristConstants.wristRetractKD;
+    // chat what in the fricking frickheck is he cooking
+    var motionMagicConfigs = intakeWristMotorConfig.MotionMagic;
+    motionMagicConfigs.MotionMagicCruiseVelocity = IntakeWristConstants.maxWristVelocity;
+    motionMagicConfigs.MotionMagicAcceleration = IntakeWristConstants.maxWristAccel;
+
+    pivotMotor.getConfigurator().apply(intakeWristMotorConfig);
 
     setBrake(true);
-    pidController =
-        new ProfiledPIDController(
-            IntakeWristConstants.intakeWristPIDReal[0],
-            IntakeWristConstants.intakeWristPIDReal[1],
-            IntakeWristConstants.intakeWristPIDReal[2],
-            new TrapezoidProfile.Constraints(2.45, 2.45));
 
-    pidController.setTolerance(
-        IntakeWristConstants.intakeWristPositionTolerance,
-        IntakeWristConstants.intakeWristVelocityTolerance);
     motorEncoder = pivotMotor.getPosition().getValueAsDouble();
-    configurePID();
-  }
+    angleRads = pivotMotor.getPosition();
+    angleVelocityRadsPerSec = pivotMotor.getVelocity();
+    appliedVolts = pivotMotor.getSupplyVoltage();
+    currentAmps = pivotMotor.getSupplyCurrent();
+    tempCelcius = pivotMotor.getDeviceTemp();
 
-  private void configurePID() {
-    pidController.setP(IntakeWristConstants.intakeWristPIDReal[0]);
-    pidController.setI(IntakeWristConstants.intakeWristPIDReal[1]);
-    pidController.setD(IntakeWristConstants.intakeWristPIDReal[2]);
-    pidController.enableContinuousInput(
-        IntakeWristConstants.intakeWristMaxAngle, IntakeWristConstants.intakeWristMaxAngle);
+    BaseStatusSignal.setUpdateFrequencyForAll(
+        50, angleVelocityRadsPerSec, appliedVolts, currentAmps, tempCelcius, angleRads);
+    pivotMotor.optimizeBusUtilization();
   }
 
   /** Updates the set of loggable inputs. */
   @Override
   public void updateInputs(IntakeWristIOInputs inputs) {
-    inputs.angleRads = getAngle();
-    inputs.angVelocityRadsPerSec = pivotMotor.getVelocity().getValueAsDouble();
-    inputs.appliedVolts =
-        pivotMotor.getDutyCycle().getValueAsDouble()
-            * pivotMotor.getSupplyVoltage().getValueAsDouble();
-    inputs.currentAmps = new double[] {pivotMotor.getSupplyCurrent().getValueAsDouble()};
-    inputs.tempCelsius = new double[] {pivotMotor.getDeviceTemp().getValueAsDouble()};
+
+    BaseStatusSignal.refreshAll(
+        angleVelocityRadsPerSec, appliedVolts, currentAmps, tempCelcius, angleRads);
     inputs.setpointAngleRads = setpoint;
+    inputs.angleRads = angleRads.getValueAsDouble();
+    inputs.appliedVolts = appliedVolts.getValueAsDouble();
+    inputs.currentAmps = currentAmps.getValueAsDouble();
+    inputs.tempCelsius = tempCelcius.getValueAsDouble();
+
     Logger.recordOutput("IntakeWrist/MotorEncoder", motorEncoder);
   }
 
@@ -81,20 +89,22 @@ public class IntakeWristIOTalonFX implements IntakeWristIO {
   }
 
   /** Go to Setpoint */
+  public void setDesiredWristPos(double passedInPosition) {
+    m_WristSlot =
+        passedInPosition == IntakeWristConstants.kWristExtendVal
+            ? IntakeWristConstants.wristExtendSlot
+            : IntakeWristConstants.wristRetractSlot;
+    setpoint = passedInPosition;
+    MotionMagicVoltage m_request =
+        new MotionMagicVoltage(setpoint)
+            .withSlot(m_WristSlot)
+            .withFeedForward(IntakeWristConstants.kWristFeedForward);
+    pivotMotor.setControl(m_request.withPosition(setpoint));
+  }
+
   @Override
   public void goToSetpoint(double setpoint) {
-    pidController.setGoal(setpoint);
-    // With the setpoint value we run PID control like normal
-    double pidOutput = MathUtil.clamp(pidController.calculate(getAngle()), -3, 3);
-    double feedforwardOutput =
-        feedforward.calculate(getAngle(), pidController.getSetpoint().velocity);
-
-    Logger.recordOutput("IntakeWrist/FeedforwardOutput", feedforwardOutput);
-    Logger.recordOutput("IntakeWrist/PIDOutput", pidOutput);
-
-    Logger.recordOutput("IntakeWrist/VelocityError", pidController.getVelocityError());
-
-    setVoltage(MathUtil.clamp(pidOutput + feedforwardOutput, -4, 4));
+    setDesiredWristPos(setpoint);
   }
 
   @Override
@@ -105,93 +115,12 @@ public class IntakeWristIOTalonFX implements IntakeWristIO {
   @Override
   public void setBrake(boolean brake) {
     if (brake) {
-      pivotMotor.setNeutralMode(NeutralModeValue.Coast);
+      pivotMotor.setNeutralMode(NeutralModeValue.Brake);
     }
   }
 
   @Override
   public boolean atSetpoint() {
     return Math.abs(getAngle() - setpoint) < IntakeWristConstants.intakeWristPositionTolerance;
-  }
-
-  @Override
-  public void setP(double p) {
-    pidController.setP(p);
-  }
-
-  @Override
-  public void setI(double i) {
-    pidController.setI(i);
-  }
-
-  @Override
-  public void setD(double d) {
-    pidController.setD(d);
-  }
-
-  @Override
-  public void setFF(double ff) {
-    // pidController.setFF(ff);
-  }
-
-  @Override
-  public void setkS(double kS) {
-    feedforward = new ArmFeedforward(kS, feedforward.kg, feedforward.kv, feedforward.ka);
-  }
-
-  @Override
-  public void setkG(double kG) {
-    feedforward = new ArmFeedforward(feedforward.ks, kG, feedforward.kv, feedforward.ka);
-  }
-
-  @Override
-  public void setkV(double kV) {
-    feedforward = new ArmFeedforward(feedforward.ks, feedforward.kg, kV, feedforward.ka);
-  }
-
-  @Override
-  public void setkA(double kA) {
-    feedforward = new ArmFeedforward(feedforward.ks, feedforward.kg, feedforward.kv, kA);
-  }
-
-  @Override
-  public double getkS() {
-    return feedforward.ks;
-  }
-
-  @Override
-  public double getkG() {
-    return feedforward.kg;
-  }
-
-  @Override
-  public double getkV() {
-    return feedforward.kv;
-  }
-
-  @Override
-  public double getkA() {
-    return feedforward.ka;
-  }
-
-  @Override
-  public double getP() {
-    return pidController.getP();
-  }
-
-  @Override
-  public double getI() {
-    return pidController.getI();
-  }
-
-  @Override
-  public double getD() {
-    return pidController.getD();
-  }
-
-  @Override
-  public double getFF() {
-    // return pidController.getFF();
-    return 0;
   }
 }

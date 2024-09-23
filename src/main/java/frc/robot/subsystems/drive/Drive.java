@@ -101,6 +101,7 @@ import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOSim;
 import frc.robot.util.LocalADStarAK;
 import frc.robot.util.LoggedTunableNumber;
+import frc.robot.util.Tracer;
 import java.io.File;
 import java.util.Arrays;
 import java.util.NoSuchElementException;
@@ -348,25 +349,73 @@ public class Drive extends SubsystemBase {
   }
 
   private void updateInputs() {
-    odometryLock.lock(); // Prevents odometry updates while reading data
-    gyroIO.updateInputs(gyroInputs);
-
-    for (var module : modules) {
-      module.updateInputs();
-    }
-
+    Tracer.startTrace("SwervePeriodic");
     for (var camera : cameras) {
-      camera.updateInputs();
-      camera.processInputs();
+      Tracer.traceFunc("Update cam inputs", camera::updateInputs);
+      Tracer.traceFunc("Process cam inputs", camera::processInputs);
     }
 
-    odometryLock.unlock();
-
-    Logger.processInputs("Drive/Gyro", gyroInputs);
-
-    for (var module : modules) {
-      module.periodic();
+    Tracer.traceFunc("update gyro inputs", () -> gyroIO.updateInputs(gyroInputs));
+    // for (var module : modules) {
+    //   module.updateInputs(odometrySamples);
+    // }
+    for (int i = 0; i < modules.length; i++) {
+      int index = i;
+      Tracer.traceFunc("SwerveModule inputs[" + i + "]", () -> modules[index].updateInputs());
     }
+    Tracer.traceFunc("process gyroinputs", () -> Logger.processInputs("Swerve/Gyro", gyroInputs));
+    // for (var module : modules) {
+    //   module.periodic();
+    // }
+    for (int i = 0; i < modules.length; i++) {
+      Tracer.traceFunc("SwerveModule periodic[" + i + "]", modules[i]::periodic);
+    }
+
+    // Stop moving when disabled
+    if (DriverStation.isDisabled()) {
+      for (var module : modules) {
+        module.stop();
+      }
+    }
+    // Log empty setpoint states when disabled
+    if (DriverStation.isDisabled()) {
+      Logger.recordOutput("SwerveStates/Setpoints", new SwerveModuleState[] {});
+      Logger.recordOutput("SwerveStates/SetpointsOptimized", new SwerveModuleState[] {});
+    }
+
+    // updateOdometry();
+    Tracer.traceFunc("Update odometry", () -> updateOdom());
+    Tracer.traceFunc("update vision", () -> updateVision());
+
+    Tracer.traceFunc(
+        "Log pose",
+        () -> Logger.recordOutput("Odometry/Fused Pose", poseEstimator.getEstimatedPosition()));
+    Tracer.traceFunc(
+        "Log pose deviation",
+        () ->
+            Logger.recordOutput(
+                "Odometry/Fused to Odo Deviation",
+                poseEstimator.getEstimatedPosition().minus(pose)));
+    Tracer.endTrace();
+    // odometryLock.lock(); // Prevents odometry updates while reading data
+    // gyroIO.updateInputs(gyroInputs);
+
+    // for (var module : modules) {
+    //   module.updateInputs();
+    // }
+
+    // for (var camera : cameras) {
+    //   camera.updateInputs();
+    //   camera.processInputs();
+    // }
+
+    // odometryLock.unlock();
+
+    // Logger.processInputs("Drive/Gyro", gyroInputs);
+
+    // for (var module : modules) {
+    //   module.periodic();
+    // }
   }
 
   private void updateOdom() {

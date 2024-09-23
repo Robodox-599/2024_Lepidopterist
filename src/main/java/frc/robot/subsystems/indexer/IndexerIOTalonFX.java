@@ -16,7 +16,6 @@ import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import frc.robot.Constants.IndexerConstants;
 
 public class IndexerIOTalonFX implements IndexerIO {
   private TalonFX indexerMotor;
@@ -30,9 +29,7 @@ public class IndexerIOTalonFX implements IndexerIO {
 
   public IndexerIOTalonFX() {
     indexerMotor =
-        new TalonFX(
-            IndexerConstants.motorID,
-            frc.robot.subsystems.indexer.IndexerConstants.indexerMotorCANBus);
+        new TalonFX(IndexerConstants.indexerMotorID, IndexerConstants.indexerMotorCANBus);
     indexerConfig = new TalonFXConfiguration();
     indexerConfig.Slot0.kP = realkP;
     indexerConfig.Slot0.kI = realkI;
@@ -60,6 +57,11 @@ public class IndexerIOTalonFX implements IndexerIO {
   public void updateInputs(IndexerIOInputs inputs) {
     BaseStatusSignal.refreshAll(appliedVoltage, velocityRadsPerSec, tempCelcius, currentAmps);
 
+    inputs.speedSetpoint = desiredSpeed;
+    inputs.appliedVoltage = appliedVoltage.getValueAsDouble();
+    inputs.velocityRadsPerSec = velocityRadsPerSec.getValueAsDouble();
+    inputs.tempCelcius = tempCelcius.getValueAsDouble();
+    inputs.currentAmps = currentAmps.getValueAsDouble();
     inputs.speedSetpoint = desiredSpeed;
   }
 

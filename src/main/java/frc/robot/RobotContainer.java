@@ -170,7 +170,7 @@ public class RobotContainer {
 
     driver
         .leftBumper()
-        .onFalse(
+        .whileFalse(
             Commands.parallel(
                 stowCommand(intakeWrist), stopIndexer(indexer), stopRollers(rollers)));
 

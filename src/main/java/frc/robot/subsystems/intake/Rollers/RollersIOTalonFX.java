@@ -1,5 +1,7 @@
 package frc.robot.subsystems.intake.rollers;
 
+import com.ctre.phoenix6.BaseStatusSignal;
+import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
@@ -9,6 +11,11 @@ public class RollersIOTalonFX implements RollersIO {
   private TalonFX intakeRollerMotor;
   TalonFXConfiguration intakeRollerConfig;
   private double desiredSpeed;
+
+  private final StatusSignal<Double> appliedVoltage;
+  private final StatusSignal<Double> velocityRadsPerSec;
+  private final StatusSignal<Double> tempCelcius;
+  private final StatusSignal<Double> currentAmps;
 
   public RollersIOTalonFX() {
     intakeRollerMotor =
@@ -24,18 +31,28 @@ public class RollersIOTalonFX implements RollersIO {
     intakeRollerConfig.CurrentLimits.SupplyCurrentLimit = RollerConstants.ContinuousCurrentLimit;
     intakeRollerConfig.CurrentLimits.SupplyCurrentThreshold = RollerConstants.PeakCurrentLimit;
     intakeRollerConfig.CurrentLimits.SupplyTimeThreshold = RollerConstants.PeakCurrentDuration;
+
+    appliedVoltage = (intakeRollerMotor.getSupplyVoltage());
+    velocityRadsPerSec = intakeRollerMotor.getVelocity();
+    tempCelcius = intakeRollerMotor.getDeviceTemp();
+    currentAmps = intakeRollerMotor.getSupplyCurrent();
+
+    BaseStatusSignal.setUpdateFrequencyForAll(
+        50.0, appliedVoltage, velocityRadsPerSec, tempCelcius, currentAmps);
+    // optimize comms between Talons and CAN bus
+    intakeRollerMotor.optimizeBusUtilization();
   }
 
   /** updates inputs from robot */
   @Override
   public void updateInputs(RollersIOInputs inputs) {
-    inputs.appliedVoltage =
-        (intakeRollerMotor.getClosedLoopOutput().getValueAsDouble())
-            * (intakeRollerMotor.getSupplyVoltage().getValueAsDouble());
-    inputs.currentAmps = new double[] {(intakeRollerMotor.getSupplyCurrent()).getValueAsDouble()};
-    inputs.tempCelcius = new double[] {(intakeRollerMotor.getDeviceTemp()).getValueAsDouble()};
-    inputs.velocityRadsPerSec = intakeRollerMotor.getVelocity().getValueAsDouble();
+    BaseStatusSignal.refreshAll(appliedVoltage, velocityRadsPerSec, tempCelcius, currentAmps);
+
     inputs.speedSetpoint = desiredSpeed;
+    inputs.appliedVoltage = appliedVoltage.getValueAsDouble();
+    inputs.velocityRadsPerSec = velocityRadsPerSec.getValueAsDouble();
+    inputs.tempCelcius = tempCelcius.getValueAsDouble();
+    inputs.currentAmps = currentAmps.getValueAsDouble();
   }
 
   /** sets voltage to run motor if necessary */

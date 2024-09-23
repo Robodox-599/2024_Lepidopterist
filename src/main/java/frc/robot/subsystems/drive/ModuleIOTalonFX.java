@@ -100,7 +100,6 @@ public class ModuleIOTalonFX implements ModuleIO {
 
     var driveConfig = new TalonFXConfiguration();
     // Current limits
-    // TODO: Do we want to limit supply current?
     driveConfig.CurrentLimits.SupplyCurrentLimit = 80.0;
     driveConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
     driveConfig.CurrentLimits.StatorCurrentLimit = 120.0;
@@ -159,15 +158,15 @@ public class ModuleIOTalonFX implements ModuleIO {
     turnConfig.ClosedLoopGeneral.ContinuousWrap = true;
     turnConfig.Feedback.FeedbackRemoteSensorID = constants.cancoderID();
 
+    turnTalon.getConfigurator().apply(turnConfig);
+
     var cancoderConfig = new CANcoderConfiguration();
     cancoderConfig.MagnetSensor.MagnetOffset = constants.cancoderOffset().getRotations();
     cancoderConfig.MagnetSensor.SensorDirection =
         IS_TURN_MOTOR_INVERTED
             ? SensorDirectionValue.CounterClockwise_Positive
             : SensorDirectionValue.Clockwise_Positive;
-
     cancoder.getConfigurator().apply(cancoderConfig);
-    turnTalon.getConfigurator().apply(turnConfig);
 
     // Initialize timestamp and position queues from odometry
     timestampQueue = PhoenixOdometryThread.getInstance().makeTimestampQueue();
@@ -271,7 +270,7 @@ public class ModuleIOTalonFX implements ModuleIO {
 
   @Override
   public void setTurnSetpoint(final Rotation2d rotation) {
-    turnTalon.setControl(new PositionVoltage(rotation.getRotations()).withSlot(0));
+    turnTalon.setControl(turnPID.withPosition(rotation.getRotations()));
   }
 
   public String getModuleName() {

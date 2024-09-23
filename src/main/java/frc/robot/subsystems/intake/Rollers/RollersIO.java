@@ -8,8 +8,8 @@ public interface RollersIO {
     public double velocityRadsPerSec = 0.0;
     public double appliedVoltage = 0.0;
     public double speedSetpoint = 0.0;
-    public double[] currentAmps = new double[] {};
-    public double[] tempCelcius = new double[] {};
+    public double currentAmps = 0.0;
+    public double tempCelcius = 0.0;
   }
 
   /** updates inputs from robot */

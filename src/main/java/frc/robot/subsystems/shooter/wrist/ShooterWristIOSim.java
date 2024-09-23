@@ -66,7 +66,7 @@ public class ShooterWristIOSim implements ShooterWristIO {
     sim.update(0.02);
     inputs.angleRads = getAngle();
     inputs.angVelocityRadsPerSec = sim.getVelocityRadPerSec();
-    inputs.currentAmps = new double[] {sim.getCurrentDrawAmps()};
+    inputs.currentAmps = sim.getCurrentDrawAmps();
     inputs.setpointAngleRads = m_controller.getSetpoint().position;
   }
 
@@ -93,55 +93,5 @@ public class ShooterWristIOSim implements ShooterWristIO {
   @Override
   public boolean atSetpoint() {
     return m_controller.atGoal();
-  }
-
-  @Override
-  public void setP(double p) {
-    m_controller.setP(p);
-  }
-
-  @Override
-  public void setI(double i) {
-    m_controller.setI(i);
-  }
-
-  @Override
-  public void setD(double d) {
-    m_controller.setD(d);
-  }
-
-  @Override
-  public void setkS(double kS) {
-    m_feedforward = new SimpleMotorFeedforward(kS, m_feedforward.kv);
-  }
-
-  @Override
-  public void setkV(double kV) {
-    m_feedforward = new SimpleMotorFeedforward(m_feedforward.ks, kV);
-  }
-
-  @Override
-  public double getP() {
-    return m_controller.getP();
-  }
-
-  @Override
-  public double getI() {
-    return m_controller.getI();
-  }
-
-  @Override
-  public double getD() {
-    return m_controller.getD();
-  }
-
-  @Override
-  public double getkS() {
-    return m_feedforward.ks;
-  }
-
-  @Override
-  public double getkV() {
-    return m_feedforward.kv;
   }
 }

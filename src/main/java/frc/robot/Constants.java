@@ -45,67 +45,7 @@ public final class Constants {
     REALBOT
   }
 
-  public static class SurfaceSpeed {
-
-    // all surface is mps
-    // TODO: decide intake and indexer percent
-    public static final double shooter_rad = 0.0381; // must be in meters
-    public static final double shooter_GR = 2; // must be rolloer to motor
-    public static final double shooter_max_rpm = 60.5 * 60;
-    public static final double shooter_transfer = 0.7863; // 0.7863
-
-    public static final double feeder_percent = 0.6; // 0.9
-    public static final double feeder_max_rpm = 90 * 60 * feeder_percent;
-    public static final double feeder_rad = 0.015875; // must be in meters
-    public static final double feeder_GR = 1.0 / 1.88; // must be rolloer to motor
-    public static final double feeder_max_surface =
-        feeder_max_rpm * feeder_GR * feeder_rad * 2 * Math.PI / 60.0;
-
-    public static final double indexer_margin = 0; // the margin that hte indexer is slower by
-    // public static final double indexer_percent = 0.5;
-    public static final double indexer_rad = 0.015875; // must be in meters
-    public static final double indexer_GR = 16.0 / 24.0; // must be rolloer to motor
-    public static final double indexer_max_rpm = 83 * 60 * IndexerConstants.kIndexerSpeed;
-    public static final double indexer_max_surface =
-        indexer_max_rpm * indexer_GR * indexer_rad * 2 * Math.PI / 60.0;
-
-    public static final double intake_margin = 0; // the margin that the intake is slower by
-    // public static final double intake_percent = 0.35;
-    public static final double intake_rad = 0.0254; // must be in meters
-    public static final double intake_GR = 1.0 / 3.13; // must be rolloer to motor
-    // public static final double intake_max_rpm =
-    // 5400 * IntakeConstants.kSpeakerIntakeSpeed; // TODO: test this
-    // public static final double intake_max_surface =
-    // intake_max_rpm * intake_GR * intake_rad * 2 * Math.PI / 60.0;
-  }
-
-  public static class IntakeConstants {}
-
-  public static class IndexerConstants {
-    public static final int motorID = 13;
-    public static final double indexerKP = 0.1;
-    public static final double indexerKI = 0.0;
-    public static final double indexerKD = 0.0;
-    public static final double kIndexerSpeed = 0.35;
-    public static final double kIndexerBackSpeed = -0.35;
-    public static final double kIndexerSourceSpeed = -0.6;
-
-    public static final int beakBreak2Port = 1;
-    public static final double beamBreakDebounce = 0.1;
-
-    public static final double extraIndexerTime = 0.05;
-    public static final double extraSourceIndexerTime = 0.15; // seconds
-    public static final double backwardsIndexerTime = 1.0; // seconds
-
-    public static final double shootRPS = 60;
-    public static final double intakeRPS = 30;
-  }
-
   public static class ShooterConstants {
-    public static final double shootTime = 0.15;
-    public static final int feederMotorID = 14;
-    public static final int absEncoderChannel = 4;
-
     public static final double cycle_speed = 0.02;
     public static final double max_manual_wrist_speed = 20;
     public static final double max_manual_ratio = max_manual_wrist_speed / (1.0 / cycle_speed);

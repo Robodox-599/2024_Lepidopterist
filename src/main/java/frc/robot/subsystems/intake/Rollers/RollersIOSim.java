@@ -21,8 +21,8 @@ public class RollersIOSim implements RollersIO {
     sim.update(0.02);
     inputs.velocityRadsPerSec = sim.getAngularVelocityRadPerSec();
     inputs.appliedVoltage = appliedVoltage;
-    inputs.currentAmps = new double[] {sim.getCurrentDrawAmps()};
-    inputs.tempCelcius = new double[] {60};
+    inputs.currentAmps = sim.getCurrentDrawAmps();
+    inputs.tempCelcius = 60;
     inputs.speedSetpoint = desiredSpeed;
   }
 
