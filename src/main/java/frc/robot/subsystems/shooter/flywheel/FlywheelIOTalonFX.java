@@ -69,8 +69,7 @@ public class FlywheelIOTalonFX implements FlywheelIO {
 
   @Override
   public void updateInputs(FlywheelIOInputs inputs) {
-    BaseStatusSignal.setUpdateFrequencyForAll(
-        50.0,
+    BaseStatusSignal.refreshAll(
         topFlywheelPosition,
         topFlywheelVelocity,
         topFlywheelAppliedVolts,

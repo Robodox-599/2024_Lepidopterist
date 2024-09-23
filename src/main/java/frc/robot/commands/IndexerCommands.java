@@ -1,7 +1,5 @@
 package frc.robot.commands;
 
-import static frc.robot.subsystems.intake.rollers.RollerConstants.kSpeakerIntakeSpeed;
-
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -14,7 +12,7 @@ public class IndexerCommands extends Command {
 
   public static Command runIndexerUntilBeamBreak(Indexer indexer) {
     return Commands.sequence(
-        indexer.setSpeed(kSpeakerIntakeSpeed),
+        indexer.setSpeed(0.4),
         // new WaitUntilCommand(() -> !indexerBeambreak.get()),
         new WaitUntilCommand(2),
         indexer.stop());

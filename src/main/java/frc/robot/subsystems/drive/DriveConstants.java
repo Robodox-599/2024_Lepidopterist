@@ -10,6 +10,7 @@ import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.numbers.N5;
 import edu.wpi.first.math.util.Units;
+import frc.robot.subsystems.drive.Module.ModuleConstants;
 
 public final class DriveConstants {
 
@@ -37,10 +38,10 @@ public final class DriveConstants {
 
   // Absolute Encoder Offsets
 
-  public static final double Module0AbsoluteEncoderOffset = -0.624; // FL
-  public static final double Module1AbsoluteEncoderOffset = -3.004; // FR
-  public static final double Module2AbsoluteEncoderOffset = 0.727; // BL
-  public static final double Module3AbsoluteEncoderOffset = -1.513; // BR
+  public static final double Module0AbsoluteEncoderOffset = 0.106934; // FL
+  public static final double Module1AbsoluteEncoderOffset = 0.472168; // FR
+  public static final double Module2AbsoluteEncoderOffset = -0.105225; // BL
+  public static final double Module3AbsoluteEncoderOffset = 0.220703; // BR
 
   public static final ModuleConstants frontLeft =
       new ModuleConstants(

@@ -4,6 +4,8 @@ import static frc.robot.subsystems.shooter.wrist.ShooterWristConstants.shooterWr
 import static frc.robot.subsystems.shooter.wrist.ShooterWristConstants.wristMotorCANBus;
 import static frc.robot.subsystems.shooter.wrist.ShooterWristConstants.wristMotorID;
 
+import com.ctre.phoenix6.BaseStatusSignal;
+import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
@@ -21,7 +23,12 @@ public class ShooterWristIOTalonFX implements ShooterWristIO {
   private final ProfiledPIDController pidController;
   private ArmFeedforward feedforward = new ArmFeedforward(0, 0, 0, 0);
   private double setpoint = 0;
-  private double motorEncoder;
+
+  private final StatusSignal<Double> appliedVolts;
+  private final StatusSignal<Double> angleVelocityRadsPerSec;
+  private final StatusSignal<Double> tempCelcius;
+  private final StatusSignal<Double> currentAmps;
+  private final StatusSignal<Double> angleRads;
 
   public ShooterWristIOTalonFX() {
     pivotMotor = new TalonFX(wristMotorID, wristMotorCANBus);
@@ -47,39 +54,30 @@ public class ShooterWristIOTalonFX implements ShooterWristIO {
         ShooterWristConstants.shooterWristVelocityTolerance);
     pivotMotor.setPosition(
         Units.degreesToRotations(shooterWristMinAngle)); // Assume we boot at hard stop
-    motorEncoder = pivotMotor.getPosition().getValueAsDouble();
 
+    angleRads = pivotMotor.getPosition();
+    angleVelocityRadsPerSec = pivotMotor.getVelocity();
+    appliedVolts = pivotMotor.getSupplyVoltage();
+    currentAmps = pivotMotor.getSupplyCurrent();
+    tempCelcius = pivotMotor.getDeviceTemp();
+
+    BaseStatusSignal.setUpdateFrequencyForAll(
+        50, angleVelocityRadsPerSec, appliedVolts, currentAmps, tempCelcius, angleRads);
     // configurePID();
     // configureFeedForward();
-  }
-
-  private void configurePID() {
-    pidController.setP(ShooterWristConstants.shooterWristPIDReal[0]);
-    pidController.setI(ShooterWristConstants.shooterWristPIDReal[1]);
-    pidController.setD(ShooterWristConstants.shooterWristPIDReal[2]);
-    pidController.enableContinuousInput(
-        ShooterWristConstants.shooterWristMinAngle, ShooterWristConstants.shooterWristMaxAngle);
-  }
-
-  private void configureFeedForward() {
-    setkS(ShooterWristConstants.shooterWristFFReal[0]);
-    setkG(ShooterWristConstants.shooterWristFFReal[1]);
-    setkV(ShooterWristConstants.shooterWristFFReal[2]);
-    setkA(ShooterWristConstants.shooterWristFFReal[3]);
   }
 
   /** Updates the set of loggable inputs. */
   @Override
   public void updateInputs(ShooterWristIOInputs inputs) {
-    inputs.angleRads = getAngle();
-    inputs.angVelocityRadsPerSec = pivotMotor.getVelocity().getValueAsDouble();
-    inputs.appliedVolts =
-        pivotMotor.getDutyCycle().getValueAsDouble()
-            * pivotMotor.getSupplyVoltage().getValueAsDouble();
-    inputs.currentAmps = new double[] {pivotMotor.getSupplyCurrent().getValueAsDouble()};
-    inputs.tempCelsius = new double[] {pivotMotor.getDeviceTemp().getValueAsDouble()};
-    inputs.setpointAngleRads = setpoint;
-    Logger.recordOutput("ShooterWrist/MotorEncoder", motorEncoder);
+    BaseStatusSignal.refreshAll(
+        angleVelocityRadsPerSec, appliedVolts, currentAmps, tempCelcius, angleRads);
+    inputs.setpointAngleRads = pidController.getSetpoint().position;
+    inputs.angleRads = angleRads.getValueAsDouble();
+    inputs.appliedVolts = appliedVolts.getValueAsDouble();
+    inputs.currentAmps = currentAmps.getValueAsDouble();
+    inputs.tempCelsius = tempCelcius.getValueAsDouble();
+    Logger.recordOutput("ShooterWrist/MotorEncoder", angleRads.getValueAsDouble());
   }
 
   /** Run open loop at the specified voltage. */
@@ -92,7 +90,7 @@ public class ShooterWristIOTalonFX implements ShooterWristIO {
   /** Returns the current distance measurement. */
   @Override
   public double getAngle() {
-    return (Units.rotationsToRadians(motorEncoder));
+    return (Units.rotationsToRadians(angleRads.getValueAsDouble()));
   }
 
   /** Go to Setpoint */

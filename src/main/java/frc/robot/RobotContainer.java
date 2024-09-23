@@ -29,7 +29,6 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.ControllerConstants;
 import frc.robot.commands.AutoAlignCommands;
-import frc.robot.commands.DriveCommands;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.DriveConstants;
 import frc.robot.subsystems.drive.GyroIO;
@@ -143,9 +142,10 @@ public class RobotContainer {
       Driver Controls
     -------------------  */
 
-    drive.setDefaultCommand(
-        DriveCommands.joystickDrive(
-            drive, () -> -driver.getLeftY(), () -> -driver.getLeftX(), () -> -driver.getRightX()));
+    // drive.setDefaultCommand(
+    //     DriveCommands.joystickDrive(
+    //         drive, () -> -driver.getLeftY(), () -> -driver.getLeftX(), () ->
+    // -driver.getRightX()));
 
     // driver
     //     .x()
@@ -164,8 +164,8 @@ public class RobotContainer {
                     -joystickDeadbandApply(driver.getRightX())
                         * DriveConstants.MAX_ANGULAR_SPEED)));
 
-    driver.x().whileTrue(AutoAlignShootAnywhereCommand());
-    driver.y().whileTrue(shoot());
+    // driver.x().whileTrue(AutoAlignShootAnywhereCommand());
+    // driver.y().whileTrue(shoot());
     driver.leftBumper().whileTrue(intakeDeployAndIntake(intakeWrist, rollers, indexer));
 
     driver
@@ -181,9 +181,9 @@ public class RobotContainer {
 
     // driver.a().whileTrue(runIndexerStartEnd());
     // driver.a().whileTrue(runIndexer(indexer, 100));
-    // operator.b().whileTrue(runIndexer(indexer, -100));
-    driver.a().whileTrue(runIntakeFwdCMD(rollers));
-    operator.y().whileTrue(runIntakeBackCMD(rollers));
+    // // operator.b().whileTrue(runIndexer(indexer, -100));
+    // driver.a().whileTrue(runIntakeFwdCMD(rollers));
+    // operator.y().whileTrue(runIntakeBackCMD(rollers));
   }
 
   public Command stowRumble() {

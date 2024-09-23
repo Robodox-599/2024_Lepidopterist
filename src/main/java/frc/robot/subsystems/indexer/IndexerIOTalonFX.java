@@ -1,7 +1,17 @@
 package frc.robot.subsystems.indexer;
 
-import static frc.robot.subsystems.indexer.IndexerConstants.*;
+import static frc.robot.subsystems.indexer.IndexerConstants.ContinuousCurrentLimit;
+import static frc.robot.subsystems.indexer.IndexerConstants.EnableCurrentLimit;
+import static frc.robot.subsystems.indexer.IndexerConstants.PeakCurrentDuration;
+import static frc.robot.subsystems.indexer.IndexerConstants.PeakCurrentLimit;
+import static frc.robot.subsystems.indexer.IndexerConstants.realkD;
+import static frc.robot.subsystems.indexer.IndexerConstants.realkI;
+import static frc.robot.subsystems.indexer.IndexerConstants.realkP;
+import static frc.robot.subsystems.indexer.IndexerConstants.realkS;
+import static frc.robot.subsystems.indexer.IndexerConstants.realkV;
 
+import com.ctre.phoenix6.BaseStatusSignal;
+import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -10,35 +20,46 @@ import frc.robot.Constants.IndexerConstants;
 
 public class IndexerIOTalonFX implements IndexerIO {
   private TalonFX indexerMotor;
-  TalonFXConfiguration intakeRollerConfig;
+  TalonFXConfiguration indexerConfig;
   private double desiredSpeed;
+
+  private final StatusSignal<Double> appliedVoltage;
+  private final StatusSignal<Double> velocityRadsPerSec;
+  private final StatusSignal<Double> tempCelcius;
+  private final StatusSignal<Double> currentAmps;
 
   public IndexerIOTalonFX() {
     indexerMotor =
         new TalonFX(
             IndexerConstants.motorID,
             frc.robot.subsystems.indexer.IndexerConstants.indexerMotorCANBus);
-    intakeRollerConfig = new TalonFXConfiguration();
-    intakeRollerConfig.Slot0.kP = realkP;
-    intakeRollerConfig.Slot0.kI = realkI;
-    intakeRollerConfig.Slot0.kD = realkD;
-    intakeRollerConfig.Slot0.kV = realkV;
-    intakeRollerConfig.Slot0.kS = realkS;
-    intakeRollerConfig.CurrentLimits.SupplyCurrentLimitEnable = EnableCurrentLimit;
-    intakeRollerConfig.CurrentLimits.SupplyCurrentLimit = ContinuousCurrentLimit;
-    intakeRollerConfig.CurrentLimits.SupplyCurrentThreshold = PeakCurrentLimit;
-    intakeRollerConfig.CurrentLimits.SupplyTimeThreshold = PeakCurrentDuration;
+    indexerConfig = new TalonFXConfiguration();
+    indexerConfig.Slot0.kP = realkP;
+    indexerConfig.Slot0.kI = realkI;
+    indexerConfig.Slot0.kD = realkD;
+    indexerConfig.Slot0.kV = realkV;
+    indexerConfig.Slot0.kS = realkS;
+    indexerConfig.CurrentLimits.SupplyCurrentLimitEnable = EnableCurrentLimit;
+    indexerConfig.CurrentLimits.SupplyCurrentLimit = ContinuousCurrentLimit;
+    indexerConfig.CurrentLimits.SupplyCurrentThreshold = PeakCurrentLimit;
+    indexerConfig.CurrentLimits.SupplyTimeThreshold = PeakCurrentDuration;
+
+    appliedVoltage = (indexerMotor.getSupplyVoltage());
+    velocityRadsPerSec = indexerMotor.getVelocity();
+    tempCelcius = indexerMotor.getDeviceTemp();
+    currentAmps = indexerMotor.getSupplyCurrent();
+
+    BaseStatusSignal.setUpdateFrequencyForAll(
+        50.0, appliedVoltage, velocityRadsPerSec, tempCelcius, currentAmps);
+    // optimize comms between Talons and CAN bus
+    indexerMotor.optimizeBusUtilization();
   }
 
   /** updates inputs from robot */
   @Override
   public void updateInputs(IndexerIOInputs inputs) {
-    inputs.appliedVoltage =
-        (indexerMotor.getClosedLoopOutput().getValueAsDouble())
-            * (indexerMotor.getSupplyVoltage().getValueAsDouble());
-    inputs.currentAmps = indexerMotor.getSupplyCurrent().getValueAsDouble();
-    inputs.tempCelcius = (indexerMotor.getDeviceTemp()).getValueAsDouble();
-    inputs.velocityRadsPerSec = indexerMotor.getVelocity().getValueAsDouble();
+    BaseStatusSignal.refreshAll(appliedVoltage, velocityRadsPerSec, tempCelcius, currentAmps);
+
     inputs.speedSetpoint = desiredSpeed;
   }
 

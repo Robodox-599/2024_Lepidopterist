@@ -159,15 +159,15 @@ public class ModuleIOTalonFX implements ModuleIO {
     turnConfig.ClosedLoopGeneral.ContinuousWrap = true;
     turnConfig.Feedback.FeedbackRemoteSensorID = constants.cancoderID();
 
-    turnTalon.getConfigurator().apply(turnConfig);
-
     var cancoderConfig = new CANcoderConfiguration();
     cancoderConfig.MagnetSensor.MagnetOffset = constants.cancoderOffset().getRotations();
     cancoderConfig.MagnetSensor.SensorDirection =
         IS_TURN_MOTOR_INVERTED
             ? SensorDirectionValue.CounterClockwise_Positive
             : SensorDirectionValue.Clockwise_Positive;
+
     cancoder.getConfigurator().apply(cancoderConfig);
+    turnTalon.getConfigurator().apply(turnConfig);
 
     // Initialize timestamp and position queues from odometry
     timestampQueue = PhoenixOdometryThread.getInstance().makeTimestampQueue();

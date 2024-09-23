@@ -1,8 +1,8 @@
 package frc.robot.subsystems.shooter.flywheel;
 
 public class FlywheelConstants {
-  public static final int flywheelTopMotorId = 0; // TODO: assign later
-  public static final int flywheelBotomMotorId = 0; // TODO: assign later
+  public static final int flywheelTopMotorId = 16; // TODO: assign later
+  public static final int flywheelBotomMotorId = 17; // TODO: assign later
 
   public static final double simFlywheelFeedForwardkS = 0.0; // TODO: assign later
   public static final double simFlywheelFeedForwardkV = 0.0; // TODO: assign later
