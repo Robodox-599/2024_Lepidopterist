@@ -39,13 +39,13 @@ public class IntakeWristIOTalonFX implements IntakeWristIO {
     intakeWristMotorConfig.Slot1.kP = IntakeWristConstants.wristRetractKP;
     intakeWristMotorConfig.Slot1.kI = IntakeWristConstants.wristRetractKI;
     intakeWristMotorConfig.Slot1.kD = IntakeWristConstants.wristRetractKD;
-    // chat what in the fricking frickheck is he cooking
+
     var motionMagicConfigs = intakeWristMotorConfig.MotionMagic;
     motionMagicConfigs.MotionMagicCruiseVelocity = IntakeWristConstants.maxWristVelocity;
     motionMagicConfigs.MotionMagicAcceleration = IntakeWristConstants.maxWristAccel;
 
     pivotMotor.getConfigurator().apply(intakeWristMotorConfig);
-
+    pivotMotor.setPosition(0);
     setBrake(true);
 
     motorEncoder = pivotMotor.getPosition().getValueAsDouble();

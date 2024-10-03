@@ -79,7 +79,7 @@ public final class DriveConstants {
    * IF THERE IS A NEED TO CHANGE THESE VALUES DURING COMP THEN PLEASE ASK MEER
    */
 
-  public static final double MAX_LINEAR_SPEED = Units.feetToMeters(15.725);
+  public static final double MAX_LINEAR_SPEED = Units.feetToMeters(5);
   public static final double TRACK_WIDTH_X = Units.inchesToMeters(20.75);
   public static final double TRACK_WIDTH_Y = Units.inchesToMeters(20.75);
   public static final double DRIVE_BASE_RADIUS =
@@ -102,19 +102,19 @@ public final class DriveConstants {
    */
 
   // REAL PATH FOLLOW TRANSLATION KP
-  public static final double realPathFollowTranslationkP = 15.0;
+  public static final double realPathFollowTranslationkP = 0.175;
 
   // REAL PATH FOLLOW TRANSLATION KI
-  public static final double realPathFollowTranslationkI = 0.15;
+  public static final double realPathFollowTranslationkI = 0.0;
 
   // REAL PATH FOLLOW TRANSLATION KD
   public static final double realPathFollowTranslationkD = 0.0;
 
   // REAL PATH FOLLOW ROTATION KP
-  public static final double realPathFollowRotationkP = 20.0;
+  public static final double realPathFollowRotationkP = 3.5;
 
   // REAL PATH FOLLOW ROTATION KI
-  public static final double realPathFollowRotationkI = 0.1;
+  public static final double realPathFollowRotationkI = 0.0;
 
   // REAL PATH FOLLOW ROTATION KD
   public static final double realPathFollowRotationkD = 0.0;

@@ -18,8 +18,7 @@ public class RollerConstants {
   public static final int PeakCurrentLimit = 50; // TODO: tune
   public static final double PeakCurrentDuration = 0.1; // TODO: tune
 
-  public static final double kSpeakerIntakeSpeed =
-      Units.rotationsPerMinuteToRadiansPerSecond(100); // TODO: tune
+  public static final double kSpeakerIntakeSpeed = 0.4; // TODO: tune
   public static final double kIntakeBackfeedSpeed =
       Units.rotationsPerMinuteToRadiansPerSecond(100); // TODO: tune
   public static final double extraIntakeTime = 2.0; // TODO: tune

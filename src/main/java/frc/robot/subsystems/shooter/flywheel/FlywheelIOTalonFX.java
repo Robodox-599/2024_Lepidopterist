@@ -19,15 +19,15 @@ import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.MotionMagicVelocityDutyCycle;
+import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.util.Units;
 
 public class FlywheelIOTalonFX implements FlywheelIO {
-  private final TalonFX topFlywheel = new TalonFX(flywheelTopMotorId);
-  private final TalonFX bottomFlywheel = new TalonFX(flywheelTopMotorId);
+  private final TalonFX topFlywheel = new TalonFX(flywheelTopMotorId, "rio");
+  private final TalonFX bottomFlywheel = new TalonFX(flywheelBotomMotorId, "rio");
 
   private final StatusSignal<Double> topFlywheelPosition = topFlywheel.getPosition();
   private final StatusSignal<Double> topFlywheelVelocity = topFlywheel.getVelocity();
@@ -106,26 +106,10 @@ public class FlywheelIOTalonFX implements FlywheelIO {
       double topFFVolts,
       double bottomVelocityRadPerSec,
       double bottomFFVolts) {
-    topFlywheel.setControl(
-        new MotionMagicVelocityDutyCycle(
-            Units.radiansToRotations(topVelocityRadPerSec),
-            0.0,
-            false,
-            topFFVolts,
-            0,
-            false,
-            false,
-            false));
     bottomFlywheel.setControl(
-        new MotionMagicVelocityDutyCycle(
-            Units.radiansToRotations(bottomVelocityRadPerSec),
-            0.0,
-            false,
-            bottomFFVolts,
-            0,
-            false,
-            false,
-            false));
+        new VelocityVoltage(Units.radiansPerSecondToRotationsPerMinute(bottomVelocityRadPerSec)));
+    topFlywheel.setControl(
+        new VelocityVoltage(Units.radiansPerSecondToRotationsPerMinute(topVelocityRadPerSec)));
   }
 
   @Override

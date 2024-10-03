@@ -101,7 +101,6 @@ import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOSim;
 import frc.robot.util.LocalADStarAK;
 import frc.robot.util.LoggedTunableNumber;
-import frc.robot.util.Tracer;
 import java.io.File;
 import java.util.Arrays;
 import java.util.NoSuchElementException;
@@ -235,7 +234,7 @@ public class Drive extends SubsystemBase {
     AutoBuilder.configureHolonomic(
         this::getPose,
         this::setPose,
-        () -> kinematics.toChassisSpeeds(getModuleStates()),
+        this::getRobotRelativeSpeeds,
         this::runVelocity,
         new HolonomicPathFollowerConfig(
             drivePathFollowPID,
@@ -247,6 +246,21 @@ public class Drive extends SubsystemBase {
             DriverStation.getAlliance().isPresent()
                 && DriverStation.getAlliance().get() == Alliance.Red,
         this);
+    // AutoBuilder.configureHolonomic(
+    //   this::getPose,
+    //   this::resetOdometry,
+    //   this::getRobotSpeeds,
+    //   this::driveRobotRelative,
+    //   new HolonomicPathFollowerConfig(
+    //     new PIDConstants(14.0, 0.0, 0.0),
+    //     new PIDConstants(14.0, 0.0, 0.0),
+    //     AutoConstants.MaxSpeedMetersPerSecond,
+    //     Math.hypot(10.375, 10.375),
+    //     new ReplanningConfig()
+    //     ),
+    //     () -> RobotConstants.robotColor == DriverStation.Alliance.Red,
+    //     // this);
+
     Pathfinding.setPathfinder(new LocalADStarAK());
     PathPlannerLogging.setLogActivePathCallback(
         (activePath) -> {
@@ -318,6 +332,7 @@ public class Drive extends SubsystemBase {
     return new VisionIO[] {
       new VisionIOSim(Cam1Constants), new VisionIOSim(Cam2Constants), new VisionIOSim(Cam3Constants)
     };
+    // return new VisionIO[]{};
   }
 
   // Regularly called method to update subsystem state
@@ -349,73 +364,74 @@ public class Drive extends SubsystemBase {
   }
 
   private void updateInputs() {
-    Tracer.startTrace("SwervePeriodic");
-    for (var camera : cameras) {
-      Tracer.traceFunc("Update cam inputs", camera::updateInputs);
-      Tracer.traceFunc("Process cam inputs", camera::processInputs);
-    }
-
-    Tracer.traceFunc("update gyro inputs", () -> gyroIO.updateInputs(gyroInputs));
-    // for (var module : modules) {
-    //   module.updateInputs(odometrySamples);
-    // }
-    for (int i = 0; i < modules.length; i++) {
-      int index = i;
-      Tracer.traceFunc("SwerveModule inputs[" + i + "]", () -> modules[index].updateInputs());
-    }
-    Tracer.traceFunc("process gyroinputs", () -> Logger.processInputs("Swerve/Gyro", gyroInputs));
-    // for (var module : modules) {
-    //   module.periodic();
-    // }
-    for (int i = 0; i < modules.length; i++) {
-      Tracer.traceFunc("SwerveModule periodic[" + i + "]", modules[i]::periodic);
-    }
-
-    // Stop moving when disabled
-    if (DriverStation.isDisabled()) {
-      for (var module : modules) {
-        module.stop();
-      }
-    }
-    // Log empty setpoint states when disabled
-    if (DriverStation.isDisabled()) {
-      Logger.recordOutput("SwerveStates/Setpoints", new SwerveModuleState[] {});
-      Logger.recordOutput("SwerveStates/SetpointsOptimized", new SwerveModuleState[] {});
-    }
-
-    // updateOdometry();
-    Tracer.traceFunc("Update odometry", () -> updateOdom());
-    Tracer.traceFunc("update vision", () -> updateVision());
-
-    Tracer.traceFunc(
-        "Log pose",
-        () -> Logger.recordOutput("Odometry/Fused Pose", poseEstimator.getEstimatedPosition()));
-    Tracer.traceFunc(
-        "Log pose deviation",
-        () ->
-            Logger.recordOutput(
-                "Odometry/Fused to Odo Deviation",
-                poseEstimator.getEstimatedPosition().minus(pose)));
-    Tracer.endTrace();
-    // odometryLock.lock(); // Prevents odometry updates while reading data
-    // gyroIO.updateInputs(gyroInputs);
-
-    // for (var module : modules) {
-    //   module.updateInputs();
-    // }
-
+    // Tracer.startTrace("SwervePeriodic");
     // for (var camera : cameras) {
-    //   camera.updateInputs();
-    //   camera.processInputs();
+    //   Tracer.traceFunc("Update cam inputs", camera::updateInputs);
+    //   Tracer.traceFunc("Process cam inputs", camera::processInputs);
     // }
 
-    // odometryLock.unlock();
-
-    // Logger.processInputs("Drive/Gyro", gyroInputs);
-
-    // for (var module : modules) {
-    //   module.periodic();
+    // Tracer.traceFunc("update gyro inputs", () -> gyroIO.updateInputs(gyroInputs));
+    // // for (var module : modules) {
+    // //   module.updateInputs(odometrySamples);
+    // // }
+    // for (int i = 0; i < modules.length; i++) {
+    //   int index = i;
+    //   Tracer.traceFunc("SwerveModule inputs[" + i + "]", () -> modules[index].updateInputs());
     // }
+    // Tracer.traceFunc("process gyroinputs", () -> Logger.processInputs("Swerve/Gyro",
+    // gyroInputs));
+    // // for (var module : modules) {
+    // //   module.periodic();
+    // // }
+    // for (int i = 0; i < modules.length; i++) {
+    //   Tracer.traceFunc("SwerveModule periodic[" + i + "]", modules[i]::periodic);
+    // }
+
+    // // Stop moving when disabled
+    // if (DriverStation.isDisabled()) {
+    //   for (var module : modules) {
+    //     module.stop();
+    //   }
+    // }
+    // // Log empty setpoint states when disabled
+    // if (DriverStation.isDisabled()) {
+    //   Logger.recordOutput("SwerveStates/Setpoints", new SwerveModuleState[] {});
+    //   Logger.recordOutput("SwerveStates/SetpointsOptimized", new SwerveModuleState[] {});
+    // }
+
+    // // updateOdometry();
+    // Tracer.traceFunc("Update odometry", () -> updateOdom());
+    // Tracer.traceFunc("update vision", () -> updateVision());
+
+    // Tracer.traceFunc(
+    //     "Log pose",
+    //     () -> Logger.recordOutput("Odometry/Fused Pose", poseEstimator.getEstimatedPosition()));
+    // Tracer.traceFunc(
+    //     "Log pose deviation",
+    //     () ->
+    //         Logger.recordOutput(
+    //             "Odometry/Fused to Odo Deviation",
+    //             poseEstimator.getEstimatedPosition().minus(pose)));
+    // Tracer.endTrace();
+    odometryLock.lock(); // Prevents odometry updates while reading data
+    gyroIO.updateInputs(gyroInputs);
+
+    for (var module : modules) {
+      module.updateInputs();
+    }
+
+    for (var camera : cameras) {
+      camera.updateInputs();
+      camera.processInputs();
+    }
+
+    odometryLock.unlock();
+
+    Logger.processInputs("Drive/Gyro", gyroInputs);
+
+    for (var module : modules) {
+      module.periodic();
+    }
   }
 
   private void updateOdom() {
@@ -492,7 +508,6 @@ public class Drive extends SubsystemBase {
     Logger.recordOutput(
         "Swerve/Target Chassis Speeds Field Relative",
         ChassisSpeeds.fromRobotRelativeSpeeds(discreteSpeeds, getRotation()));
-
     // Send setpoints to modules
     SwerveModuleState[] optimizedSetpointStates =
         Streams.zip(
@@ -501,7 +516,7 @@ public class Drive extends SubsystemBase {
 
     // Log setpoint states
     Logger.recordOutput("SwerveStates/Setpoints", setpointStates);
-    // Logger.recordOutput("SwerveStates/SetpointsOptimized", optimizedSetpointStates);
+    Logger.recordOutput("SwerveStates/SetpointsOptimized", optimizedSetpointStates);
   }
 
   /**
@@ -678,6 +693,15 @@ public class Drive extends SubsystemBase {
     poseEstimator.resetPosition(rawGyroRotation, getModulePositions(), pose);
   }
 
+  @AutoLogOutput(key = "Odometry/RobotRelativeVelocity")
+  public ChassisSpeeds getRobotRelativeSpeeds() {
+    ChassisSpeeds speeds =
+        kinematics.toChassisSpeeds(
+            (SwerveModuleState[])
+                Arrays.stream(modules).map((m) -> m.getState()).toArray(SwerveModuleState[]::new));
+    return new ChassisSpeeds(
+        -speeds.vxMetersPerSecond, -speeds.vyMetersPerSecond, speeds.omegaRadiansPerSecond);
+  }
   /**
    * Adds a vision measurement to the pose estimator.
    *

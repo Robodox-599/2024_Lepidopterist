@@ -2,10 +2,10 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 0.7135220170021057,
-      "y": 6.732669353485107
+      "x": 1.3436737060546875,
+      "y": 5.608853816986084
     },
-    "rotation": 58.39248695198467
+    "rotation": -179.25593059772956
   },
   "command": {
     "type": "sequential",
@@ -14,7 +14,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "4 note"
+            "pathName": "auto tuning path"
           }
         }
       ]

@@ -10,7 +10,6 @@ import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.robot.util.Tracer;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
@@ -98,10 +97,10 @@ public class Robot extends LoggedRobot {
     // and running subsystem periodic() methods.  This must be called from the robot's periodic
     // block in order for anything in the Command-based framework to work.
 
-    Tracer.startTrace("RobotPeriodic");
-    Tracer.traceFunc("CommandScheduler", CommandScheduler.getInstance()::run);
-
-    Tracer.endTrace();
+    // Tracer.startTrace("RobotPeriodic");
+    // Tracer.traceFunc("CommandScheduler", CommandScheduler.getInstance()::run);
+    CommandScheduler.getInstance().run();
+    // Tracer.endTrace();
   }
 
   /** This function is called once each time the robot enters Disabled mode. */

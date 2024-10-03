@@ -4,7 +4,7 @@ import edu.wpi.first.math.util.Units;
 
 public class ShooterWristConstants {
   public static final int wristMotorID = 15; // TODO: change later
-  public static final String wristMotorCANBus = "LunaDriveCANivore"; // TODO: change later
+  public static final String wristMotorCANBus = "rio"; // TODO: change later
 
   public static final double[] shooterWristPIDReal = {0.1, 0, 0.01}; // TODO: calibrate this
   public static final double[] shooterWristFFReal = {0, 0.45, 0}; // TODO: calibrate this

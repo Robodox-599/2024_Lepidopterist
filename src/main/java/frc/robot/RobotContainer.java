@@ -13,6 +13,7 @@ import static frc.robot.subsystems.shooter.flywheel.FlywheelConstants.bottomFlyw
 import static frc.robot.subsystems.shooter.flywheel.FlywheelConstants.topFlywheelVelocityRPM;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -122,7 +123,12 @@ public class RobotContainer {
     }
 
     // NamedCommands.registerCommand("AutoAlignShoot", AutoAlignShootAnywhereCommand());
-    // NamedCommands.registerCommand("Intake", intakeStartEnd(intakeWrist, rollers, indexer, 2));
+    NamedCommands.registerCommand(
+        "ExtendIntake", intakeDeployAndIntake(intakeWrist, rollers, indexer));
+    NamedCommands.registerCommand(
+        "RetractIntake",
+        Commands.parallel(stopIndexer(indexer), stopRollers(rollers), stowCommand(intakeWrist)));
+    NamedCommands.registerCommand("Stop Drive", drive.stopCmd());
     m_Chooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
     configureBindings();
   }
@@ -163,16 +169,21 @@ public class RobotContainer {
                     -joystickDeadbandApply(driver.getLeftX()) * DriveConstants.MAX_LINEAR_SPEED,
                     -joystickDeadbandApply(driver.getRightX())
                         * DriveConstants.MAX_ANGULAR_SPEED)));
-
+    // driver.rightBumper().whileTrue()
     // driver.x().whileTrue(AutoAlignShootAnywhereCommand());
     // driver.y().whileTrue(shoot());
     driver.leftBumper().whileTrue(intakeDeployAndIntake(intakeWrist, rollers, indexer));
 
     driver
         .leftBumper()
-        .whileFalse(
+        .onFalse(
             Commands.parallel(
-                stowCommand(intakeWrist), stopIndexer(indexer), stopRollers(rollers)));
+                stopIndexer(indexer), stopRollers(rollers), stowCommand(intakeWrist)));
+    driver.rightBumper().onFalse(Commands.parallel(stopIndexer(indexer), stopRollers(rollers)));
+
+    driver
+        .rightBumper()
+        .whileTrue(Commands.parallel(runIntakeBackCMD(rollers), runIndexer(indexer, -0.4)));
 
     // driver.x().onFalse(Commands.parallel(stopFlywheels(), stopIndexer(indexer)));
     /*  ---------------------

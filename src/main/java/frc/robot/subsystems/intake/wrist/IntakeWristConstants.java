@@ -4,7 +4,7 @@ import edu.wpi.first.math.util.Units;
 
 public class IntakeWristConstants {
   public static final int wristMotorID = 18; // TODO: change later
-  public static final String wristMotorCANBus = "LunaDriveCANivore"; // TODO: change later
+  public static final String wristMotorCANBus = "rio"; // TODO: change later
 
   public static final double intakeWristPositionTolerance =
       Units.degreesToRadians(1); // TODO: calibrate this
@@ -16,7 +16,7 @@ public class IntakeWristConstants {
       Units.degreesToRadians(80); // TODO: calibrate this
 
   public static final double kWristRetractVal = 0.0; // TODO: calibrate this
-  public static final double kWristExtendVal = Units.degreesToRadians(75.0); // TODO: calibrate this
+  public static final double kWristExtendVal = 7.95; // TODO: calibrate this
   public static final int wristExtendSlot = 0;
   public static final double wristExtendKP = 7;
   public static final double wristExtendKI = 0;
@@ -34,8 +34,8 @@ public class IntakeWristConstants {
   public static final double wristRetractKI = 0.0;
   public static final double wristRetractKD = 0.2;
 
-  public static final double maxWristVelocity = 120;
-  public static final double maxWristAccel = 240;
+  public static final double maxWristVelocity = 100;
+  public static final double maxWristAccel = 200;
 
   public static class IntakeWristSimConstants {
     public static final double[] kPivotSimPID = {15, 0, 0, 0}; // TODO: calibrate this
