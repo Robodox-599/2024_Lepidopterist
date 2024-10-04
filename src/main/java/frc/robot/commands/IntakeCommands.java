@@ -1,7 +1,7 @@
 package frc.robot.commands;
 
 import static frc.robot.commands.IndexerCommands.*;
-import static frc.robot.subsystems.intake.rollers.RollerConstants.*;
+import static frc.robot.subsystems.intake.Rollers.RollerConstants.*;
 import static frc.robot.subsystems.intake.wrist.IntakeWristConstants.*;
 
 import edu.wpi.first.wpilibj2.command.Command;
@@ -9,7 +9,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.subsystems.indexer.Indexer;
-import frc.robot.subsystems.intake.rollers.Rollers;
+import frc.robot.subsystems.intake.Rollers.Rollers;
 import frc.robot.subsystems.intake.wrist.IntakeWrist;
 
 public class IntakeCommands extends Command {
