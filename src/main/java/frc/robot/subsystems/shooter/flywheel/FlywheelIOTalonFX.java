@@ -101,11 +101,7 @@ public class FlywheelIOTalonFX implements FlywheelIO {
   }
 
   @Override
-  public void setVelocity(
-      double topVelocityRadPerSec,
-      double topFFVolts,
-      double bottomVelocityRadPerSec,
-      double bottomFFVolts) {
+  public void setVelocity(double topVelocityRadPerSec, double bottomVelocityRadPerSec) {
     bottomFlywheel.setControl(
         new VelocityVoltage(Units.radiansPerSecondToRotationsPerMinute(bottomVelocityRadPerSec)));
     topFlywheel.setControl(

@@ -10,9 +10,6 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.controller.ArmFeedforward;
-import edu.wpi.first.math.controller.ProfiledPIDController;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 // import frc.robot.Constants.ElectricalLayout;
 import org.littletonrobotics.junction.Logger;
@@ -20,8 +17,6 @@ import org.littletonrobotics.junction.Logger;
 public class ShooterWristIOTalonFX implements ShooterWristIO {
   // Motor and Encoders
   private TalonFX pivotMotor;
-  private final ProfiledPIDController pidController;
-  private ArmFeedforward feedforward = new ArmFeedforward(0, 0, 0, 0);
   private double setpoint = 0;
 
   private final StatusSignal<Double> appliedVolts;
@@ -38,20 +33,14 @@ public class ShooterWristIOTalonFX implements ShooterWristIO {
     config.CurrentLimits.SupplyCurrentLimit = 30.0;
     config.CurrentLimits.SupplyCurrentLimitEnable = true;
     config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+    config.Slot0.kP = ShooterWristConstants.shooterWristPIDReal[0];
+    config.Slot0.kI = ShooterWristConstants.shooterWristPIDReal[1];
+    config.Slot0.kD = ShooterWristConstants.shooterWristPIDReal[2];
 
     pivotMotor.getConfigurator().apply(config);
 
     setBrake(true);
-    pidController =
-        new ProfiledPIDController(
-            ShooterWristConstants.shooterWristPIDReal[0],
-            ShooterWristConstants.shooterWristPIDReal[1],
-            ShooterWristConstants.shooterWristPIDReal[2],
-            new TrapezoidProfile.Constraints(2.45, 2.45));
 
-    pidController.setTolerance(
-        ShooterWristConstants.shooterWristPIDTolerance,
-        ShooterWristConstants.shooterWristVelocityTolerance);
     pivotMotor.setPosition(
         Units.degreesToRotations(shooterWristMinAngle)); // Assume we boot at hard stop
 

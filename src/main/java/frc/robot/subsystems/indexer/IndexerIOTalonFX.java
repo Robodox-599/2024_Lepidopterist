@@ -49,7 +49,7 @@ public class IndexerIOTalonFX implements IndexerIO {
     BaseStatusSignal.setUpdateFrequencyForAll(
         50.0, appliedVoltage, velocityRadsPerSec, tempCelcius, currentAmps);
     // optimize comms between Talons and CAN bus
-    
+
     indexerMotor.getConfigurator().apply(indexerConfig);
 
     indexerMotor.optimizeBusUtilization();

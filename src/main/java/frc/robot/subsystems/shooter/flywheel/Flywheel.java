@@ -35,36 +35,6 @@ public class Flywheel extends SubsystemBase {
   /** Creates a new Flywheel. */
   public Flywheel(FlywheelIO io) {
     this.io = io;
-
-    // Switch constants based on mode (the physics simulator is treated as a
-    // separate robot with different tuning)
-
-    switch (robotType) {
-      case REALBOT:
-        ffModel =
-            new SimpleMotorFeedforward(
-                realFlywheelFeedForwardkS, realFlywheelFeedForwardkV, realFlywheelFeedForwardkA);
-        io.configurePID(realFlywheelFeedBackkP, realFlywheelFeedBackkI, realFlywheelFeedBackkD);
-
-        break;
-      case REPLAYBOT:
-        ffModel =
-            new SimpleMotorFeedforward(
-                simFlywheelFeedForwardkS, simFlywheelFeedForwardkV, simFlywheelFeedForwardkA);
-        io.configurePID(simFlywheelFeedBackkP, simFlywheelFeedBackkI, simFlywheelFeedBackkD);
-
-        break;
-      case SIMBOT:
-        ffModel =
-            new SimpleMotorFeedforward(
-                simFlywheelFeedForwardkS, simFlywheelFeedForwardkV, simFlywheelFeedForwardkA);
-        io.configurePID(simFlywheelFeedBackkP, simFlywheelFeedBackkI, simFlywheelFeedBackkD);
-
-        break;
-      default:
-        ffModel = new SimpleMotorFeedforward(0.0, 0.0);
-        break;
-    }
   }
 
   @Override
@@ -105,11 +75,7 @@ public class Flywheel extends SubsystemBase {
   public void runVelocity(double topVelocityRPM, double bottomVelocityRPM) {
     var topVelocityRadPerSec = Units.rotationsPerMinuteToRadiansPerSecond(topVelocityRPM);
     var bottomVelocityRadPerSec = Units.rotationsPerMinuteToRadiansPerSecond(bottomVelocityRPM);
-    io.setVelocity(
-        topVelocityRadPerSec,
-        ffModel.calculate(topVelocityRadPerSec),
-        bottomVelocityRadPerSec,
-        ffModel.calculate(bottomVelocityRadPerSec));
+    io.setVelocity(topVelocityRadPerSec, bottomVelocityRadPerSec);
     topGoalVelocityRPM = topVelocityRPM;
     bottomGoalVelocityRPM = bottomVelocityRPM;
   }

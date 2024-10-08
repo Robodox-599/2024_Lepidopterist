@@ -13,8 +13,6 @@
 
 package frc.robot.subsystems.shooter.flywheel;
 
-import static frc.robot.subsystems.shooter.flywheel.FlywheelConstants.*;
-
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.system.plant.DCMotor;
@@ -68,18 +66,12 @@ public class FlywheelIOSim implements FlywheelIO {
   }
 
   @Override
-  public void setVelocity(
-      double topVelocityRadPerSec,
-      double topFFVolts,
-      double bottomVelocityRadPerSec,
-      double bottomFFVolts) {
+  public void setVelocity(double topVelocityRadPerSec, double bottomVelocityRadPerSec) {
     closedLoop = true;
 
     pid.setSetpoint(topVelocityRadPerSec);
-    this.ffVoltsTop = topFFVolts;
 
     pid.setSetpoint(bottomVelocityRadPerSec);
-    this.ffVoltsBottom = topFFVolts;
   }
 
   @Override

@@ -123,12 +123,7 @@ public class RobotContainer {
     }
 
     // NamedCommands.registerCommand("AutoAlignShoot", AutoAlignShootAnywhereCommand());
-    NamedCommands.registerCommand(
-        "ExtendIntake", intakeDeployAndIntake(intakeWrist, rollers, indexer));
-    NamedCommands.registerCommand(
-        "RetractIntake",
-        Commands.parallel(stopIndexer(indexer), stopRollers(rollers), stowCommand(intakeWrist)));
-    NamedCommands.registerCommand("Stop Drive", drive.stopCmd());
+    NamedCommands.registerCommand("Intake", deployAndIntake());
     m_Chooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
     configureBindings();
   }
@@ -164,38 +159,23 @@ public class RobotContainer {
                     -joystickDeadbandApply(driver.getRightX())
                         * DriveConstants.MAX_ANGULAR_SPEED)));
 
-    driver.leftBumper().whileTrue(autoSpeakerIntake(intakeWrist, rollers, indexer).andThen(rumbleControllers().withTimeout(1)), indexer.runIndexerBeamBreak());
+    driver.leftBumper().whileTrue(deployAndIntake());
 
     driver
         .leftBumper()
         .onFalse(
             Commands.parallel(
                 stopIndexer(indexer), stopRollers(rollers), stowCommand(intakeWrist)));
-    driver.rightBumper().onFalse(Commands.parallel(stopIndexer(indexer), stopRollers(rollers)));
-
-    driver
-        .rightBumper()
-        .whileTrue(Commands.parallel(runIntakeBackCMD(rollers), runIndexer(indexer, -0.4)));
-
-    // driver.x().onFalse(Commands.parallel(stopFlywheels(), stopIndexer(indexer)));
     /*  ---------------------
       Operator Controls
     ---------------------  */
-
-    // driver.a().whileTrue(runIndexerStartEnd());
-    // driver.a().whileTrue(runIndexer(indexer, 100));
-    // // operator.b().whileTrue(runIndexer(indexer, -100));
-    // driver.a().whileTrue(runIntakeFwdCMD(rollers));
-    // operator.y().whileTrue(runIntakeBackCMD(rollers));
-  }
-
-  public Command stowRumble() {
-    return Commands.parallel(stowCommand(intakeWrist), rumbleControllers());
   }
 
   public Command AutoAlignShootAnywhereCommand() {
     return Commands.parallel(
-        AutoAlign(), /*rumbleIfNotSpeakerWing(),*/ wristToSpeakerForever(), shoot());
+        AutoAlign(),
+        rumbleIfNotSpeakerWing(),
+        Commands.parallel(wristToSpeakerForever(), shoot()).onlyIf(() -> isInSpeakerWing(drive)));
   }
 
   public Command AutoAlign() {
@@ -215,13 +195,19 @@ public class RobotContainer {
         flywheels.runFlywheelVelocity(topFlywheelVelocityRPM, bottomFlywheelVelocityRPM),
         new WaitUntilCommand(() -> (flywheels.flywheelsSpunUp())),
         runIndexer(indexer, kIndexerSpeed),
-        new WaitCommand(1),
+        new WaitCommand(0.2),
         stopFlywheels(),
         stopIndexer(indexer));
   }
 
   public Command stopFlywheels() {
     return flywheels.runVoltage(0);
+  }
+
+  public Command deployAndIntake() {
+    return Commands.parallel(
+        intakeDeployAndIntake(intakeWrist, rollers).andThen(rumbleControllers().withTimeout(1)),
+        indexer.runIndexerBeamBreak());
   }
 
   public Command rumbleControllers() {
@@ -241,12 +227,13 @@ public class RobotContainer {
   private Transform2d getEstimatedTransform() {
     return new Transform2d(
         new Translation2d(
-            drive.getFieldGe().vxMetersPerSecond * 0.02,
-            drive.getFieldVelocity().vyMetersPerSecond * 0.02),
+            drive.getVelocity().vxMetersPerSecond * 0.02,
+            drive.getVelocity().vyMetersPerSecond * 0.02),
         new Rotation2d(0.0));
   }
 
   // Returns the estimated robot position
+
   private Pose2d getEstimatedPosition() {
     return drive.getPose().plus(getEstimatedTransform().inverse());
   }

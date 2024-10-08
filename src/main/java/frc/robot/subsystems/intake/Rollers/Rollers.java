@@ -9,7 +9,6 @@ import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.indexer.IndexerConstants;
 import frc.robot.subsystems.intake.IntakeConstants;
-
 import java.util.function.DoubleSupplier;
 import org.littletonrobotics.junction.Logger;
 
@@ -32,10 +31,9 @@ public class Rollers extends SubsystemBase {
     io.updateInputs(inputs);
 
     Logger.processInputs("Rollers", inputs);
-    if(beamBreak1.get()){
+    if (beamBreak1.get()) {
       beamBreakTimer.restart();
     }
-
   }
 
   public void setVoltage(double voltage) {
@@ -75,7 +73,8 @@ public class Rollers extends SubsystemBase {
     return new FunctionalCommand(
         () -> {}, () -> io.setVoltage(0), (stop) -> io.stop(), () -> false, this);
   }
-  public boolean getBeamBreak(){
-    return(beamBreakTimer.get() >= IndexerConstants.beamBreakDebounce)
+
+  public boolean getBeamBreak() {
+    return (beamBreakTimer.get() >= IndexerConstants.beamBreakDebounce);
   }
 }
