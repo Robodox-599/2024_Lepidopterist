@@ -1,23 +1,31 @@
 package frc.robot.commands;
 
 import static frc.robot.commands.IndexerCommands.*;
-import static frc.robot.subsystems.intake.Rollers.RollerConstants.*;
+import static frc.robot.subsystems.intake.rollers.RollerConstants.*;
 import static frc.robot.subsystems.intake.wrist.IntakeWristConstants.*;
+
+import javax.management.relation.RoleResult;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.subsystems.indexer.Indexer;
-import frc.robot.subsystems.intake.Rollers.Rollers;
+import frc.robot.subsystems.indexer.IndexerConstants;
+import frc.robot.subsystems.intake.IntakeConstants;
+import frc.robot.subsystems.intake.rollers.Rollers;
 import frc.robot.subsystems.intake.wrist.IntakeWrist;
 
 public class IntakeCommands extends Command {
-  public static Command runIntakeuntilBeamBreak(Rollers rollers) {
+  public Command autoSpeakerIntake(IntakeWrist intake, Rollers rollers){
     return Commands.sequence(
-        runIntakeFwdCMD(rollers), new WaitUntilCommand(extraIntakeTime), stopRollers(rollers));
+      extendCommand(intake),
+      runIntakeFwdCMD(rollers),
+      new WaitUntilCommand(()-> rollers.getBeamBreak()),
+      // new WaitUntilCommand(IntakeConstants.extraIntakeTime),  
+      stowCommand(intake));
   }
-
   public static Command stopRollers(Rollers rollers) {
     return rollers.stop();
   }
@@ -27,7 +35,7 @@ public class IntakeCommands extends Command {
   }
 
   public static Command runIntakeFwdCMD(Rollers rollers) {
-    return rollers.setSpeed(0.4);
+    return rollers.setSpeed(0.9);
   }
 
   public static Command stowCommand(IntakeWrist wrist) {
@@ -40,13 +48,6 @@ public class IntakeCommands extends Command {
 
   public static Command intakeDeployAndIntake(IntakeWrist wrist, Rollers rollers, Indexer indexer) {
     return Commands.parallel(
-        extendCommand(wrist), runIndexerUntilBeamBreak(indexer), runIntakeFwdCMD(rollers));
-  }
-
-  public static Command intakeStartEnd(
-      IntakeWrist wrist, Rollers rollers, Indexer indexer, double time) {
-    return new StartEndCommand(
-        () -> intakeDeployAndIntake(wrist, rollers, indexer).andThen(new WaitUntilCommand(time)),
-        () -> stowCommand(wrist));
+        extendCommand(wrist), indexer.runIndexerBeamBreak(), runIntakeFwdCMD(rollers));
   }
 }

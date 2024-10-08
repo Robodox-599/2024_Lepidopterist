@@ -38,10 +38,10 @@ import frc.robot.subsystems.indexer.Indexer;
 import frc.robot.subsystems.indexer.IndexerIO;
 import frc.robot.subsystems.indexer.IndexerIOSim;
 import frc.robot.subsystems.indexer.IndexerIOTalonFX;
-import frc.robot.subsystems.intake.Rollers.Rollers;
-import frc.robot.subsystems.intake.Rollers.RollersIO;
-import frc.robot.subsystems.intake.Rollers.RollersIOSim;
-import frc.robot.subsystems.intake.Rollers.RollersIOTalonFX;
+import frc.robot.subsystems.intake.rollers.Rollers;
+import frc.robot.subsystems.intake.rollers.RollersIO;
+import frc.robot.subsystems.intake.rollers.RollersIOSim;
+import frc.robot.subsystems.intake.rollers.RollersIOTalonFX;
 import frc.robot.subsystems.intake.wrist.IntakeWrist;
 import frc.robot.subsystems.intake.wrist.IntakeWristIO;
 import frc.robot.subsystems.intake.wrist.IntakeWristIOSim;
@@ -147,12 +147,6 @@ public class RobotContainer {
     /*  -------------------
       Driver Controls
     -------------------  */
-
-    // drive.setDefaultCommand(
-    //     DriveCommands.joystickDrive(
-    //         drive, () -> -driver.getLeftY(), () -> -driver.getLeftX(), () ->
-    // -driver.getRightX()));
-
     // driver
     //     .x()
     //     .whileTrue(
@@ -169,10 +163,8 @@ public class RobotContainer {
                     -joystickDeadbandApply(driver.getLeftX()) * DriveConstants.MAX_LINEAR_SPEED,
                     -joystickDeadbandApply(driver.getRightX())
                         * DriveConstants.MAX_ANGULAR_SPEED)));
-    // driver.rightBumper().whileTrue()
-    // driver.x().whileTrue(AutoAlignShootAnywhereCommand());
-    // driver.y().whileTrue(shoot());
-    driver.leftBumper().whileTrue(intakeDeployAndIntake(intakeWrist, rollers, indexer));
+
+    driver.leftBumper().whileTrue(autoSpeakerIntake(intakeWrist, rollers, indexer).andThen(rumbleControllers().withTimeout(1)), indexer.runIndexerBeamBreak());
 
     driver
         .leftBumper()
@@ -222,7 +214,7 @@ public class RobotContainer {
         Commands.waitUntil(() -> (isPointedAtSpeaker())),
         flywheels.runFlywheelVelocity(topFlywheelVelocityRPM, bottomFlywheelVelocityRPM),
         new WaitUntilCommand(() -> (flywheels.flywheelsSpunUp())),
-        runIndexerUntilBeamBreak(indexer),
+        runIndexer(indexer, kIndexerSpeed),
         new WaitCommand(1),
         stopFlywheels(),
         stopIndexer(indexer));
@@ -249,7 +241,7 @@ public class RobotContainer {
   private Transform2d getEstimatedTransform() {
     return new Transform2d(
         new Translation2d(
-            drive.getFieldVelocity().vxMetersPerSecond * 0.02,
+            drive.getFieldGe().vxMetersPerSecond * 0.02,
             drive.getFieldVelocity().vyMetersPerSecond * 0.02),
         new Rotation2d(0.0));
   }

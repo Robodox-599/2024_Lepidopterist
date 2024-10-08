@@ -364,55 +364,6 @@ public class Drive extends SubsystemBase {
   }
 
   private void updateInputs() {
-    // Tracer.startTrace("SwervePeriodic");
-    // for (var camera : cameras) {
-    //   Tracer.traceFunc("Update cam inputs", camera::updateInputs);
-    //   Tracer.traceFunc("Process cam inputs", camera::processInputs);
-    // }
-
-    // Tracer.traceFunc("update gyro inputs", () -> gyroIO.updateInputs(gyroInputs));
-    // // for (var module : modules) {
-    // //   module.updateInputs(odometrySamples);
-    // // }
-    // for (int i = 0; i < modules.length; i++) {
-    //   int index = i;
-    //   Tracer.traceFunc("SwerveModule inputs[" + i + "]", () -> modules[index].updateInputs());
-    // }
-    // Tracer.traceFunc("process gyroinputs", () -> Logger.processInputs("Swerve/Gyro",
-    // gyroInputs));
-    // // for (var module : modules) {
-    // //   module.periodic();
-    // // }
-    // for (int i = 0; i < modules.length; i++) {
-    //   Tracer.traceFunc("SwerveModule periodic[" + i + "]", modules[i]::periodic);
-    // }
-
-    // // Stop moving when disabled
-    // if (DriverStation.isDisabled()) {
-    //   for (var module : modules) {
-    //     module.stop();
-    //   }
-    // }
-    // // Log empty setpoint states when disabled
-    // if (DriverStation.isDisabled()) {
-    //   Logger.recordOutput("SwerveStates/Setpoints", new SwerveModuleState[] {});
-    //   Logger.recordOutput("SwerveStates/SetpointsOptimized", new SwerveModuleState[] {});
-    // }
-
-    // // updateOdometry();
-    // Tracer.traceFunc("Update odometry", () -> updateOdom());
-    // Tracer.traceFunc("update vision", () -> updateVision());
-
-    // Tracer.traceFunc(
-    //     "Log pose",
-    //     () -> Logger.recordOutput("Odometry/Fused Pose", poseEstimator.getEstimatedPosition()));
-    // Tracer.traceFunc(
-    //     "Log pose deviation",
-    //     () ->
-    //         Logger.recordOutput(
-    //             "Odometry/Fused to Odo Deviation",
-    //             poseEstimator.getEstimatedPosition().minus(pose)));
-    // Tracer.endTrace();
     odometryLock.lock(); // Prevents odometry updates while reading data
     gyroIO.updateInputs(gyroInputs);
 
@@ -466,11 +417,7 @@ public class Drive extends SubsystemBase {
       poseEstimator.updateWithTime(sampleTimestamps[i], rawGyroRotation, modulePositions);
     }
   }
-  /**
-   * Runs the drive at the desired velocity.
-   *
-   * @param speeds Speeds in meters/sec
-   */
+
   private void updateVision() {
     for (var camera : cameras) {
       PhotonPipelineResult result =
@@ -563,7 +510,7 @@ public class Drive extends SubsystemBase {
           SwerveDriveKinematics.desaturateWheelSpeeds(setpointStates, MAX_LINEAR_SPEED);
 
           Logger.recordOutput("Swerve/Target Speeds", discreteSpeeds);
-          Logger.recordOutput("Swerve/Speed Error", discreteSpeeds.minus(getVelocity()));
+          Logger.recordOutput("Swerve/Field Speed Error", discreteSpeeds.minus(getVelocity()));
           Logger.recordOutput(
               "Swerve/Target Chassis Speeds Field Relative",
               ChassisSpeeds.fromRobotRelativeSpeeds(discreteSpeeds, getRotation()));
@@ -610,16 +557,6 @@ public class Drive extends SubsystemBase {
           }
         });
   }
-
-  public ChassisSpeeds getFieldVelocity() {
-    // ChassisSpeeds has a method to convert from field-relative to robot-relative speeds,
-    // but not the reverse.  However, because this transform is a simple rotation, negating the
-    // angle
-    // given as the robot angle reverses the direction of rotation, and the conversion is reversed.
-    return ChassisSpeeds.fromFieldRelativeSpeeds(
-        kinematics.toChassisSpeeds(getModuleStates()), getRotation());
-  }
-
   public void resetOdometry(Pose2d pose) {
     setPose(pose);
   }

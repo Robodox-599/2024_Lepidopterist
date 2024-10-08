@@ -1,11 +1,11 @@
-package frc.robot.subsystems.intake.Rollers;
+package frc.robot.subsystems.intake.rollers;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import frc.robot.subsystems.intake.Rollers.RollerConstants.*;
+import frc.robot.subsystems.intake.rollers.RollerConstants.*;
 
 public class RollersIOTalonFX implements RollersIO {
   private TalonFX intakeRollerMotor;
@@ -40,6 +40,7 @@ public class RollersIOTalonFX implements RollersIO {
     BaseStatusSignal.setUpdateFrequencyForAll(
         50.0, appliedVoltage, velocityRadsPerSec, tempCelcius, currentAmps);
     // optimize comms between Talons and CAN bus
+    intakeRollerMotor.getConfigurator().apply(intakeRollerConfig);
     intakeRollerMotor.optimizeBusUtilization();
   }
 
