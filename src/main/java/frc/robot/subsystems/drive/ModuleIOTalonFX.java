@@ -153,8 +153,8 @@ public class ModuleIOTalonFX implements ModuleIO {
     turnConfig.Slot0.kS = 0.14;
     turnConfig.Slot0.kP = 105;
     turnConfig.Slot0.kD = 2.15;
-    turnConfig.MotionMagic.MotionMagicCruiseVelocity = 5500 / TURN_GEAR_RATIO;
-    turnConfig.MotionMagic.MotionMagicAcceleration = (5500 * 0.1) / TURN_GEAR_RATIO;
+    turnConfig.MotionMagic.MotionMagicCruiseVelocity = 6000 / TURN_GEAR_RATIO;
+    turnConfig.MotionMagic.MotionMagicAcceleration = (6000 * 0.1) / TURN_GEAR_RATIO;
     turnConfig.ClosedLoopGeneral.ContinuousWrap = true;
     turnConfig.Feedback.FeedbackRemoteSensorID = constants.cancoderID();
 

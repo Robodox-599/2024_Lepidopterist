@@ -6,8 +6,13 @@ public class ShooterWristConstants {
   public static final int wristMotorID = 15; // TODO: change later
   public static final String wristMotorCANBus = "rio"; // TODO: change later
 
-  public static final double[] shooterWristPIDReal = {0.1, 0, 0.01}; // TODO: calibrate this
-  public static final double[] shooterWristFFReal = {0, 0.45, 0}; // TODO: calibrate this
+  public static final double shooterWristRealkP = 0.0;
+  public static final double shooterWristRealkI = 0.0;
+  public static final double shooterWristRealkD = 0.0;
+  public static final double shooterWristRealkS = 0.0;
+  public static final double shooterWristRealkV = 0.0;
+  public static final double shooterWristRealkA = 0.0;
+  public static final double shooterWristRealkG = 0.0;
 
   public static final double shooterWristPIDTolerance =
       Units.degreesToRadians(1); // TODO: calibrate this
@@ -17,6 +22,23 @@ public class ShooterWristConstants {
       Units.degreesToRadians(90); // TODO: calibrate this
   public static final double shooterWristMinAngle =
       Units.degreesToRadians(0.0); // TODO: calibrate this
+
+  public static final double kWristRetractVal = 0.0; // TODO: calibrate this
+  public static final double kWristExtendVal = 7.95; // TODO: calibrate this
+  public static final int wristExtendSlot = 0;
+  public static final double wristExtendKP = 7;
+  public static final double wristExtendKI = 0;
+  public static final double wristExtendKD = 0.0;
+  public static final double wristExtendKS = 0.0;
+  public static final double kWristFeedForward = -0.4; // arb feedforward to account for gravity
+
+  public static final int wristRetractSlot = 1;
+  public static final double wristRetractKP = 8;
+  public static final double wristRetractKI = 0.0;
+  public static final double wristRetractKD = 0.2;
+
+  public static final double maxWristVelocity = 100;
+  public static final double maxWristAccel = 200;
 
   public static class ShooterWristSimConstants {
     public static final double[] kPivotSimPID = {15, 0, 0, 0}; // TODO: calibrate this
