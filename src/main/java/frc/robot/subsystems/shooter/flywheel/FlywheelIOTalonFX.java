@@ -96,7 +96,7 @@ public class FlywheelIOTalonFX implements FlywheelIO {
 
   @Override
   public void setVoltage(double volts) {
-    topFlywheel.setControl(new VoltageOut(volts));
+    topFlywheel.setControl(new VoltageOut(-volts));
     bottomFlywheel.setControl(new VoltageOut(volts));
   }
 

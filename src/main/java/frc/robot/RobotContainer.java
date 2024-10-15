@@ -169,6 +169,12 @@ public class RobotContainer {
     /*  ---------------------
       Operator Controls
     ---------------------  */
+    driver.x().whileTrue(Commands.parallel(shooter(), runIndexer(indexer, -0.4)));
+    driver.x().onFalse(Commands.parallel(shooter(), runIndexer(indexer, 0)));
+  }
+
+  public Command shooter() {
+    return flywheels.runVoltage(3);
   }
 
   public Command AutoAlignShootAnywhereCommand() {

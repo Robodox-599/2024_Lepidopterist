@@ -1,0 +1,49 @@
+{
+  "version": 1.0,
+  "startingPose": {
+    "position": {
+      "x": 0.6866991519927979,
+      "y": 6.697738170623779
+    },
+    "rotation": -118.9888214015625
+  },
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "named",
+          "data": {
+            "name": "ExtendIntake"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": null
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "jaidens 4 note.1"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "jaidens 4 note.2"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "jaidens 4 note.3"
+          }
+        }
+      ]
+    }
+  },
+  "folder": null,
+  "choreoAuto": true
+}
