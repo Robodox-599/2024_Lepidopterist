@@ -139,14 +139,6 @@ public class RobotContainer {
     /*  -------------------
       Driver Controls
     -------------------  */
-    // driver
-    //     .x()
-    //     .whileTrue(
-    //         AutoAlignCommands.autoAlignSourceCommand(drive, driver)
-    //             .onlyIf(() -> isInSourceWing(drive))
-    //             .andThen(rumbleControllers())
-    //             .onlyIf(() -> !isInSourceWing(drive)));
-    // test
     drive.setDefaultCommand(
         drive.runVoltageTeleopFieldRelative(
             () ->
@@ -208,7 +200,8 @@ public class RobotContainer {
   public Command shooting() {
     return Commands.parallel(
         flywheels.runFlywheelVelocity(45, 45),
-        Commands.sequence(new WaitCommand(1), indexer.setSpeed(-0.4)));
+        Commands.sequence(
+            new WaitCommand(1), indexer.setSpeed(-0.4), new WaitCommand(1), indexer.setSpeed(0)));
   }
 
   public Command stopFlywheels() {

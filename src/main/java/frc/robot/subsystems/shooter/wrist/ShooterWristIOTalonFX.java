@@ -1,9 +1,13 @@
 package frc.robot.subsystems.shooter.wrist;
 
-import static frc.robot.subsystems.shooter.wrist.ShooterWristConstants.*;
+import static frc.robot.subsystems.shooter.wrist.ShooterWristConstants.shooterWristRealkD;
+import static frc.robot.subsystems.shooter.wrist.ShooterWristConstants.shooterWristRealkI;
+import static frc.robot.subsystems.shooter.wrist.ShooterWristConstants.wristMotorCANBus;
+import static frc.robot.subsystems.shooter.wrist.ShooterWristConstants.wristMotorID;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
+import com.ctre.phoenix6.configs.SoftwareLimitSwitchConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -23,7 +27,8 @@ public class ShooterWristIOTalonFX implements ShooterWristIO {
   private final StatusSignal<Double> tempCelcius;
   private final StatusSignal<Double> currentAmps;
   private final StatusSignal<Double> angleRads;
-  private int m_WristSlot = 0;
+  private Boolean isHomed = false;
+  private final SoftwareLimitSwitchConfigs limitConfig;
 
   public ShooterWristIOTalonFX() {
     pivotMotor = new TalonFX(wristMotorID, wristMotorCANBus);
@@ -42,11 +47,15 @@ public class ShooterWristIOTalonFX implements ShooterWristIO {
     config.Slot0.kI = shooterWristRealkI;
     config.Slot0.kD = shooterWristRealkD;
 
-    var motionMagicConfigs = config.MotionMagic;
-    motionMagicConfigs.MotionMagicCruiseVelocity = 100;
-    motionMagicConfigs.MotionMagicAcceleration = 200;
+    var limitConfig = new SoftwareLimitSwitchConfigs();
+    limitConfig.ForwardSoftLimitEnable = false;
+    limitConfig.ForwardSoftLimitThreshold = 14;
+    limitConfig.ReverseSoftLimitEnable = false;
+    limitConfig.ReverseSoftLimitThreshold = 0;
+    this.limitConfig = limitConfig;
 
     pivotMotor.getConfigurator().apply(config);
+    pivotMotor.getConfigurator().apply(limitConfig);
 
     setBrake(true);
 
@@ -88,10 +97,7 @@ public class ShooterWristIOTalonFX implements ShooterWristIO {
   public void zeroPosition() {
     pivotMotor.setPosition(0);
   }
-  // @AutoLogOutput(key = "ShooterWrist/Position")
-  // public double getAngles() {
-  // return absEncoder.getAbsolutePosition();
-  // }
+
   /** Returns the current distance measurement. */
   @Override
   public double getAngle() {
@@ -99,15 +105,7 @@ public class ShooterWristIOTalonFX implements ShooterWristIO {
   }
 
   public void setDesiredWristPos(double passedInPosition) {
-    m_WristSlot = passedInPosition < getAngle() ? wristRetractSlot : wristExtendSlot;
-
     setpoint = passedInPosition;
-
-    // MotionMagicVoltage m_request =
-    //     new MotionMagicVoltage(setpoint)
-    //         .withSlot(m_WristSlot)
-    //         .withFeedForward(IntakeWristConstants.kWristFeedForward);
-
     pivotMotor.setControl(new PositionVoltage(passedInPosition));
   }
 
@@ -133,5 +131,24 @@ public class ShooterWristIOTalonFX implements ShooterWristIO {
   @Override
   public boolean atSetpoint() {
     return Math.abs(getAngle() - setpoint) < ShooterWristConstants.shooterWristPIDTolerance;
+  }
+
+  @Override
+  public boolean homeWrist(boolean force) {
+    if (force) {
+      isHomed = false;
+    }
+    if (isHomed) {
+      return true;
+    }
+    pivotMotor.setVoltage(3);
+    if (pivotMotor.getStatorCurrent().getValue() > 40) {
+      pivotMotor.setVoltage(0);
+      pivotMotor.setPosition(0);
+      pivotMotor.getConfigurator().apply(limitConfig.withForwardSoftLimitEnable(true));
+      pivotMotor.getConfigurator().apply(limitConfig.withReverseSoftLimitEnable(true));
+      isHomed = true;
+    }
+    return isHomed;
   }
 }

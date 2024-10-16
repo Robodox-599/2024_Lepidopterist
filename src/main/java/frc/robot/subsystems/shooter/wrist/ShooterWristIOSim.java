@@ -99,4 +99,9 @@ public class ShooterWristIOSim implements ShooterWristIO {
   public boolean atSetpoint() {
     return m_controller.atGoal();
   }
+
+  @Override
+  public boolean homeWrist(boolean force) {
+    return true;
+  }
 }

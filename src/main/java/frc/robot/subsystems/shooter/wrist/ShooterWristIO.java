@@ -40,4 +40,8 @@ public interface ShooterWristIO {
   public default boolean atSetpoint() {
     return false;
   }
+
+  public default boolean homeWrist(boolean force) {
+    return true;
+  }
 }

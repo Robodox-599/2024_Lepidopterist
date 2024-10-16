@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import java.util.function.DoubleSupplier;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
@@ -21,7 +22,7 @@ public class ShooterWrist extends SubsystemBase {
   private double setpoint = 0;
 
   private final ShooterWristIO io;
-
+  private boolean isHomed = false;
   // Create a Mechanism2d visualization of the arm
   private MechanismLigament2d armMechanism = getArmMechanism();
 
@@ -175,23 +176,19 @@ public class ShooterWrist extends SubsystemBase {
         () -> {}, () -> io.setVoltage(0), (stop) -> io.stop(), () -> false, this);
   }
 
-  public Command bringDownCommand() {
-    return new FunctionalCommand(
-        () -> {},
-        () -> {
-          move(-1);
-          setpoint = 0;
-        },
-        (interrupted) -> {
-          move(0);
-        },
-        () -> {
-          return io.getAngle() < 0.1;
-        },
-        this);
-  }
-
   public Command zero() {
     return new InstantCommand(() -> io.zeroPosition());
+  }
+
+  public Command homeCommand() {
+    return new WaitUntilCommand(() -> home());
+  }
+
+  public boolean home() {
+    if (io.homeWrist(true)) {
+      isHomed = true;
+      return true;
+    }
+    return false;
   }
 }
