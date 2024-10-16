@@ -9,8 +9,6 @@ import static frc.robot.FieldConstants.*;
 import static frc.robot.commands.IndexerCommands.*;
 import static frc.robot.commands.IntakeCommands.*;
 import static frc.robot.subsystems.indexer.IndexerConstants.*;
-import static frc.robot.subsystems.shooter.flywheel.FlywheelConstants.bottomFlywheelVelocityRPM;
-import static frc.robot.subsystems.shooter.flywheel.FlywheelConstants.topFlywheelVelocityRPM;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
@@ -25,7 +23,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
-import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.ControllerConstants;
@@ -159,18 +156,21 @@ public class RobotContainer {
                     -joystickDeadbandApply(driver.getRightX())
                         * DriveConstants.MAX_ANGULAR_SPEED)));
 
-    driver.leftBumper().whileTrue(deployAndIntake());
+    driver.rightTrigger().whileTrue(deployAndIntake());
 
     driver
-        .leftBumper()
+        .rightTrigger()
         .onFalse(
             Commands.parallel(
                 stopIndexer(indexer), stopRollers(rollers), stowCommand(intakeWrist)));
+    driver.y().onTrue(drive.zeroGyroCommand());
     /*  ---------------------
       Operator Controls
     ---------------------  */
-    driver.x().whileTrue(Commands.parallel(shooter(), runIndexer(indexer, -0.4)));
-    driver.x().onFalse(Commands.parallel(shooter(), runIndexer(indexer, 0)));
+    operator.y().onTrue(shooterWrist.zero());
+    operator.x().whileTrue(shooting());
+    operator.x().onFalse(Commands.parallel(flywheels.runVoltage(0), indexer.setSpeed(0)));
+    // operator.a().onTrue()
   }
 
   public Command shooter() {
@@ -196,14 +196,19 @@ public class RobotContainer {
   }
 
   public Command shoot() {
-    return Commands.sequence(
-        Commands.waitUntil(() -> (isPointedAtSpeaker())),
-        flywheels.runFlywheelVelocity(topFlywheelVelocityRPM, bottomFlywheelVelocityRPM),
-        new WaitUntilCommand(() -> (flywheels.flywheelsSpunUp())),
+    return Commands.parallel(
+        flywheels.runFlywheelVelocity(45, 45),
+        new WaitCommand(1.25),
         runIndexer(indexer, kIndexerSpeed),
         new WaitCommand(0.2),
         stopFlywheels(),
         stopIndexer(indexer));
+  }
+
+  public Command shooting() {
+    return Commands.parallel(
+        flywheels.runFlywheelVelocity(45, 45),
+        Commands.sequence(new WaitCommand(1), indexer.setSpeed(-0.4)));
   }
 
   public Command stopFlywheels() {
@@ -211,19 +216,17 @@ public class RobotContainer {
   }
 
   public Command deployAndIntake() {
-    return Commands.parallel(
-        intakeDeployAndIntake(intakeWrist, rollers).andThen(rumbleControllers().withTimeout(1)),
-        indexer.runIndexerBeamBreak());
+    return Commands.parallel(intakeDeployAndIntake(intakeWrist, rollers, indexer, driver));
   }
 
   public Command rumbleControllers() {
     return new StartEndCommand(
-            () -> driver.getHID().setRumble(RumbleType.kBothRumble, 1),
-            () -> driver.getHID().setRumble(RumbleType.kBothRumble, 0))
-        .alongWith(
-            new StartEndCommand(
-                () -> operator.getHID().setRumble(RumbleType.kBothRumble, 1),
-                () -> operator.getHID().setRumble(RumbleType.kBothRumble, 0)));
+        () -> driver.getHID().setRumble(RumbleType.kBothRumble, 1),
+        () -> driver.getHID().setRumble(RumbleType.kBothRumble, 0));
+    // .alongWith(
+    // new StartEndCommand(
+    // () -> operator.getHID().setRumble(RumbleType.kBothRumble, 1),
+    // () -> operator.getHID().setRumble(RumbleType.kBothRumble, 0)));
   }
 
   public Command wristToSpeakerForever() {

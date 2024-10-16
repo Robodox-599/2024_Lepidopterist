@@ -13,7 +13,19 @@
 
 package frc.robot.subsystems.shooter.flywheel;
 
-import static frc.robot.subsystems.shooter.flywheel.FlywheelConstants.*;
+import static frc.robot.subsystems.shooter.flywheel.FlywheelConstants.FLYWHEEL_GEAR_RATIO;
+import static frc.robot.subsystems.shooter.flywheel.FlywheelConstants.flywheelBotomMotorId;
+import static frc.robot.subsystems.shooter.flywheel.FlywheelConstants.flywheelTopMotorId;
+import static frc.robot.subsystems.shooter.flywheel.FlywheelConstants.realBottomFlywheelFeedBackkD;
+import static frc.robot.subsystems.shooter.flywheel.FlywheelConstants.realBottomFlywheelFeedBackkI;
+import static frc.robot.subsystems.shooter.flywheel.FlywheelConstants.realBottomFlywheelFeedBackkP;
+import static frc.robot.subsystems.shooter.flywheel.FlywheelConstants.realBottomFlywheelFeedForwardkS;
+import static frc.robot.subsystems.shooter.flywheel.FlywheelConstants.realBottomFlywheelFeedForwardkV;
+import static frc.robot.subsystems.shooter.flywheel.FlywheelConstants.realTopFlywheelFeedBackkD;
+import static frc.robot.subsystems.shooter.flywheel.FlywheelConstants.realTopFlywheelFeedBackkI;
+import static frc.robot.subsystems.shooter.flywheel.FlywheelConstants.realTopFlywheelFeedBackkP;
+import static frc.robot.subsystems.shooter.flywheel.FlywheelConstants.realTopFlywheelFeedForwardkS;
+import static frc.robot.subsystems.shooter.flywheel.FlywheelConstants.realTopFlywheelFeedForwardkV;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
@@ -22,6 +34,7 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.util.Units;
 
@@ -40,18 +53,43 @@ public class FlywheelIOTalonFX implements FlywheelIO {
   private final StatusSignal<Double> bottomFlywheelCurrent = bottomFlywheel.getSupplyCurrent();
 
   public FlywheelIOTalonFX() {
-    var config = new TalonFXConfiguration();
+    var configUpper = new TalonFXConfiguration();
+    var configLower = new TalonFXConfiguration();
 
-    config.CurrentLimits.SupplyCurrentLimit = 30.0;
-    config.CurrentLimits.SupplyCurrentLimitEnable = true;
-    config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+    configUpper.CurrentLimits.SupplyCurrentLimit = 30.0;
+    configUpper.CurrentLimits.SupplyCurrentLimitEnable = true;
+    configUpper.MotorOutput.NeutralMode = NeutralModeValue.Coast;
 
-    config.Slot0.kP = realFlywheelFeedBackkP;
-    config.Slot0.kI = realFlywheelFeedBackkI;
-    config.Slot0.kD = realFlywheelFeedBackkD;
+    configUpper.Slot0.kP = realTopFlywheelFeedBackkP;
+    configUpper.Slot0.kI = realTopFlywheelFeedBackkI;
+    configUpper.Slot0.kD = realTopFlywheelFeedBackkD;
 
-    topFlywheel.getConfigurator().apply(config);
-    bottomFlywheel.getConfigurator().apply(config);
+    configUpper.Slot0.kS = realTopFlywheelFeedForwardkS;
+    configUpper.Slot0.kV = realTopFlywheelFeedForwardkV;
+
+    configUpper.MotorOutput.PeakReverseDutyCycle = 0.0;
+    configUpper.Voltage.PeakReverseVoltage = 0.0;
+    configUpper.TorqueCurrent.PeakReverseTorqueCurrent = 0.0;
+
+    configUpper.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+
+    configLower.CurrentLimits.SupplyCurrentLimit = 30.0;
+    configLower.CurrentLimits.SupplyCurrentLimitEnable = true;
+    configLower.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+
+    configLower.Slot0.kP = realBottomFlywheelFeedBackkP;
+    configLower.Slot0.kI = realBottomFlywheelFeedBackkI;
+    configLower.Slot0.kD = realBottomFlywheelFeedBackkD;
+
+    configLower.Slot0.kS = realBottomFlywheelFeedForwardkS;
+    configLower.Slot0.kV = realBottomFlywheelFeedForwardkV;
+
+    configLower.MotorOutput.PeakReverseDutyCycle = 0.0;
+    configLower.Voltage.PeakReverseVoltage = 0.0;
+    configLower.TorqueCurrent.PeakReverseTorqueCurrent = 0.0;
+
+    topFlywheel.getConfigurator().apply(configUpper);
+    bottomFlywheel.getConfigurator().apply(configLower);
 
     BaseStatusSignal.setUpdateFrequencyForAll(
         50.0,
@@ -102,10 +140,8 @@ public class FlywheelIOTalonFX implements FlywheelIO {
 
   @Override
   public void setVelocity(double topVelocityRadPerSec, double bottomVelocityRadPerSec) {
-    bottomFlywheel.setControl(
-        new VelocityVoltage(Units.radiansPerSecondToRotationsPerMinute(bottomVelocityRadPerSec)));
-    topFlywheel.setControl(
-        new VelocityVoltage(Units.radiansPerSecondToRotationsPerMinute(topVelocityRadPerSec)));
+    bottomFlywheel.setControl(new VelocityVoltage(bottomVelocityRadPerSec));
+    topFlywheel.setControl(new VelocityVoltage(topVelocityRadPerSec));
   }
 
   @Override

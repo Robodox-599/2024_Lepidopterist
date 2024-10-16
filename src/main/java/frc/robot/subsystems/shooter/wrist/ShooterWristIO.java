@@ -25,6 +25,8 @@ public interface ShooterWristIO {
     return 0.0;
   }
 
+  public default void zeroPosition() {}
+
   /** Sets the pivot arm voltage to 0 */
   public default void stop() {}
 

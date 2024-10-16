@@ -3,7 +3,7 @@ package frc.robot.subsystems.shooter.wrist;
 import edu.wpi.first.math.util.Units;
 
 public class ShooterWristConstants {
-  public static final int wristMotorID = 15; // TODO: change later
+  public static final int wristMotorID = 21; // TODO: change later
   public static final String wristMotorCANBus = "rio"; // TODO: change later
 
   public static final double shooterWristRealkP = 0.0;

@@ -582,6 +582,15 @@ public class Drive extends SubsystemBase {
         });
   }
 
+  public Command zeroGyroCommand() {
+    // Implement the logic to toggle the gyro if needed
+    return new InstantCommand(
+        () -> {
+          overrideGyroAngle(0);
+          gyroIO.setYaw(0);
+        });
+  }
+
   /** Returns the module states (turn angles and drive velocities) for all of the modules. */
   @AutoLogOutput(key = "SwerveStates/Measured")
   private SwerveModuleState[] getModuleStates() {

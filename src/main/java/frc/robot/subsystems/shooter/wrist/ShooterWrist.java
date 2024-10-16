@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import java.util.function.DoubleSupplier;
 import org.littletonrobotics.junction.AutoLogOutput;
@@ -81,11 +82,7 @@ public class ShooterWrist extends SubsystemBase {
 
   public void addPID(double setpointAdd) {
     this.setpoint += setpointAdd;
-    this.setpoint =
-        MathUtil.clamp(
-            this.setpoint,
-            ShooterWristConstants.shooterWristMinAngle,
-            ShooterWristConstants.shooterWristMaxAngle);
+    this.setpoint = MathUtil.clamp(this.setpoint, 0, 14);
 
     Logger.recordOutput("ShooterWrist/Setpoint", setpoint);
   }
@@ -192,5 +189,9 @@ public class ShooterWrist extends SubsystemBase {
           return io.getAngle() < 0.1;
         },
         this);
+  }
+
+  public Command zero() {
+    return new InstantCommand(() -> io.zeroPosition());
   }
 }

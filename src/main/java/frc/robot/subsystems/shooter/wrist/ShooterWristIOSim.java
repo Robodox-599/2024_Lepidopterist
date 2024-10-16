@@ -86,6 +86,11 @@ public class ShooterWristIOSim implements ShooterWristIO {
   }
 
   @Override
+  public void zeroPosition() {
+    m_encoderSim.setReset(true);
+  }
+
+  @Override
   public double getAngle() {
     return sim.getAngleRads();
   }

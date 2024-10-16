@@ -5,12 +5,11 @@ import static frc.robot.subsystems.shooter.wrist.ShooterWristConstants.*;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.MotionMagicVoltage;
+import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
-import frc.robot.subsystems.intake.wrist.IntakeWristConstants;
 import org.littletonrobotics.junction.Logger;
 
 public class ShooterWristIOTalonFX implements ShooterWristIO {
@@ -38,17 +37,10 @@ public class ShooterWristIOTalonFX implements ShooterWristIO {
     config.CurrentLimits.SupplyCurrentLimitEnable = true;
     config.CurrentLimits.StatorCurrentLimitEnable = true;
     config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
-    config.Feedback.SensorToMechanismRatio = 160;
 
-    config.Slot0.kP = shooterWristRealkP;
+    config.Slot0.kP = 1.75;
     config.Slot0.kI = shooterWristRealkI;
     config.Slot0.kD = shooterWristRealkD;
-
-    config.Slot0.kS = shooterWristRealkS;
-    config.Slot0.kV = shooterWristRealkV;
-    config.Slot0.kA = shooterWristRealkA;
-
-    config.Slot0.kG = shooterWristRealkG;
 
     var motionMagicConfigs = config.MotionMagic;
     motionMagicConfigs.MotionMagicCruiseVelocity = 100;
@@ -60,7 +52,7 @@ public class ShooterWristIOTalonFX implements ShooterWristIO {
 
     absEncoder.setDistancePerRotation(360);
 
-    pivotMotor.setPosition(Units.degreesToRotations(absEncoder.getAbsolutePosition()));
+    pivotMotor.setPosition(0);
 
     angleRads = pivotMotor.getPosition();
     angleVelocityRadsPerSec = pivotMotor.getVelocity();
@@ -92,6 +84,14 @@ public class ShooterWristIOTalonFX implements ShooterWristIO {
     pivotMotor.setVoltage(motorVolts);
   }
 
+  @Override
+  public void zeroPosition() {
+    pivotMotor.setPosition(0);
+  }
+  // @AutoLogOutput(key = "ShooterWrist/Position")
+  // public double getAngles() {
+  // return absEncoder.getAbsolutePosition();
+  // }
   /** Returns the current distance measurement. */
   @Override
   public double getAngle() {
@@ -103,12 +103,12 @@ public class ShooterWristIOTalonFX implements ShooterWristIO {
 
     setpoint = passedInPosition;
 
-    MotionMagicVoltage m_request =
-        new MotionMagicVoltage(setpoint)
-            .withSlot(m_WristSlot)
-            .withFeedForward(IntakeWristConstants.kWristFeedForward);
+    // MotionMagicVoltage m_request =
+    //     new MotionMagicVoltage(setpoint)
+    //         .withSlot(m_WristSlot)
+    //         .withFeedForward(IntakeWristConstants.kWristFeedForward);
 
-    pivotMotor.setControl(m_request.withPosition(setpoint));
+    pivotMotor.setControl(new PositionVoltage(passedInPosition));
   }
 
   /** Go to Setpoint */

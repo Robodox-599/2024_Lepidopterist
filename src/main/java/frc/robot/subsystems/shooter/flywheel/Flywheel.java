@@ -29,8 +29,8 @@ public class Flywheel extends SubsystemBase {
   private final FlywheelIO io;
   private final FlywheelIOInputsAutoLogged inputs = new FlywheelIOInputsAutoLogged();
   private SimpleMotorFeedforward ffModel;
-  private double topGoalVelocityRPM = 0;
-  private double bottomGoalVelocityRPM = 0;
+  private double topGoalVelocityRPS = 0;
+  private double bottomGoalVelocityRPS = 0;
   private double motorVoltage = 0;
   /** Creates a new Flywheel. */
   public Flywheel(FlywheelIO io) {
@@ -41,30 +41,28 @@ public class Flywheel extends SubsystemBase {
   public void periodic() {
     io.updateInputs(inputs);
     Logger.processInputs("Flywheel", inputs);
-    Logger.recordOutput("Flywheel/topGoalVelocityRPM", topGoalVelocityRPM);
-    Logger.recordOutput("Flywheel/bottomGoalVelocityRPM", bottomGoalVelocityRPM);
+    Logger.recordOutput("Flywheel/topGoalVelocityRPM", topGoalVelocityRPS);
+    Logger.recordOutput("Flywheel/bottomGoalVelocityRPM", bottomGoalVelocityRPS);
   }
 
   @AutoLogOutput
   public boolean flywheelsSpunUp() {
-    return bottomFlywheelSpunUp(bottomGoalVelocityRPM) && topFlywheelSpunUp(topGoalVelocityRPM);
+    return bottomFlywheelSpunUp(bottomGoalVelocityRPS) && topFlywheelSpunUp(topGoalVelocityRPS);
   }
 
   private boolean topFlywheelSpunUp(double goalVelocity) {
-    return inDeadBand(
-        getTopVelocityRPM(), Units.rotationsPerMinuteToRadiansPerSecond(goalVelocity));
+    return inDeadBand(getTopVelocityRPM(), (goalVelocity));
   }
 
   private boolean bottomFlywheelSpunUp(double goalVelocity) {
-    return inDeadBand(
-        getBottomVelocityRPM(), Units.rotationsPerMinuteToRadiansPerSecond(goalVelocity));
+    return inDeadBand(getBottomVelocityRPM(), goalVelocity);
   }
 
-  private boolean inDeadBand(double currentVelocityRPM, double goalVelocityRadPerSec) {
-    double targetRPM = Units.radiansPerSecondToRotationsPerMinute(goalVelocityRadPerSec);
-    double error = targetRPM - currentVelocityRPM;
+  private boolean inDeadBand(double currentVelocityRPS, double goalVelocityRPS) {
+    double targetRPS = goalVelocityRPS;
+    double error = targetRPS - currentVelocityRPS;
     Logger.recordOutput("Flywheel/ErrorRPM", Math.abs(error));
-    return (!(Math.abs(error) > acceptableErrorRPM));
+    return (!(Math.abs(error) > 0.5));
   }
   /** Run open loop at the specified voltage. */
   public void runVolts(double volts) {
@@ -72,12 +70,10 @@ public class Flywheel extends SubsystemBase {
   }
 
   /** Run closed loop at the specified velocity. */
-  public void runVelocity(double topVelocityRPM, double bottomVelocityRPM) {
-    var topVelocityRadPerSec = Units.rotationsPerMinuteToRadiansPerSecond(topVelocityRPM);
-    var bottomVelocityRadPerSec = Units.rotationsPerMinuteToRadiansPerSecond(bottomVelocityRPM);
-    io.setVelocity(topVelocityRadPerSec, bottomVelocityRadPerSec);
-    topGoalVelocityRPM = topVelocityRPM;
-    bottomGoalVelocityRPM = bottomVelocityRPM;
+  public void runVelocity(double topVelocityRPS, double bottomVelocityRPS) {
+    io.setVelocity(topVelocityRPS, topVelocityRPS);
+    topGoalVelocityRPS = topVelocityRPS;
+    bottomGoalVelocityRPS = topVelocityRPS;
   }
 
   /** Stops the flywheel. */
