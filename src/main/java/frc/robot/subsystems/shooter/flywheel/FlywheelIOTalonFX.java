@@ -55,10 +55,7 @@ public class FlywheelIOTalonFX implements FlywheelIO {
     var configUpper = new TalonFXConfiguration();
     var configLower = new TalonFXConfiguration();
 
-    configUpper.CurrentLimits.SupplyCurrentLimit = 40.0;
-    configUpper.CurrentLimits.SupplyCurrentLimitEnable = true;
-    configUpper.MotorOutput.NeutralMode = NeutralModeValue.Coast;
-
+    // upper flywheel config
     configUpper.Slot0.kP = realTopFlywheelFeedBackkP;
     configUpper.Slot0.kI = realTopFlywheelFeedBackkI;
     configUpper.Slot0.kD = realTopFlywheelFeedBackkD;
@@ -66,23 +63,21 @@ public class FlywheelIOTalonFX implements FlywheelIO {
     configUpper.Slot0.kS = realTopFlywheelFeedForwardkS;
     configUpper.Slot0.kV = realTopFlywheelFeedForwardkV;
 
+    configUpper.CurrentLimits.SupplyCurrentLimit = 40.0;
+    configUpper.CurrentLimits.SupplyCurrentLimitEnable = true;
+
+    configUpper.CurrentLimits.StatorCurrentLimit = 45.0;
+    configUpper.CurrentLimits.StatorCurrentLimitEnable = true;
+
     configUpper.MotorOutput.PeakReverseDutyCycle = 0.0;
     configUpper.Voltage.PeakReverseVoltage = 0.0;
     configUpper.TorqueCurrent.PeakReverseTorqueCurrent = 0.0;
 
     configUpper.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
-    configLower.CurrentLimits.SupplyCurrentLimit = 40.0;
-    configLower.CurrentLimits.SupplyCurrentLimitEnable = true;
+    configUpper.MotorOutput.NeutralMode = NeutralModeValue.Coast;
 
-    configLower.CurrentLimits.StatorCurrentLimit = 45.0;
-    configLower.CurrentLimits.StatorCurrentLimitEnable = true;
-
-    configUpper.CurrentLimits.StatorCurrentLimit = 45.0;
-    configUpper.CurrentLimits.StatorCurrentLimitEnable = true;
-
-    configLower.MotorOutput.NeutralMode = NeutralModeValue.Coast;
-
+    // lower flywheel config
     configLower.Slot0.kP = realBottomFlywheelFeedBackkP;
     configLower.Slot0.kI = realBottomFlywheelFeedBackkI;
     configLower.Slot0.kD = realBottomFlywheelFeedBackkD;
@@ -90,9 +85,17 @@ public class FlywheelIOTalonFX implements FlywheelIO {
     configLower.Slot0.kS = realBottomFlywheelFeedForwardkS;
     configLower.Slot0.kV = realBottomFlywheelFeedForwardkV;
 
+    configLower.CurrentLimits.SupplyCurrentLimit = 40.0;
+    configLower.CurrentLimits.SupplyCurrentLimitEnable = true;
+
+    configLower.CurrentLimits.StatorCurrentLimit = 45.0;
+    configLower.CurrentLimits.StatorCurrentLimitEnable = true;
+
     configLower.MotorOutput.PeakReverseDutyCycle = 0.0;
     configLower.Voltage.PeakReverseVoltage = 0.0;
     configLower.TorqueCurrent.PeakReverseTorqueCurrent = 0.0;
+
+    configLower.MotorOutput.NeutralMode = NeutralModeValue.Coast;
 
     topFlywheel.getConfigurator().apply(configUpper);
     bottomFlywheel.getConfigurator().apply(configLower);
