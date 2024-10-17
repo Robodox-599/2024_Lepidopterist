@@ -5,10 +5,11 @@
 package frc.robot;
 
 import static frc.robot.Constants.robotType;
-import static frc.robot.FieldConstants.*;
-import static frc.robot.commands.IndexerCommands.*;
-import static frc.robot.commands.IntakeCommands.*;
-import static frc.robot.subsystems.indexer.IndexerConstants.*;
+import static frc.robot.FieldConstants.isInSpeakerWing;
+import static frc.robot.commands.IndexerCommands.stopIndexer;
+import static frc.robot.commands.IntakeCommands.intakeDeployAndIntake;
+import static frc.robot.commands.IntakeCommands.stopRollers;
+import static frc.robot.commands.IntakeCommands.stowCommand;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
@@ -120,7 +121,9 @@ public class RobotContainer {
     }
 
     // NamedCommands.registerCommand("AutoAlignShoot", AutoAlignShootAnywhereCommand());
-    NamedCommands.registerCommand("Intake", deployAndIntake());
+    NamedCommands.registerCommand("shoot bud", autoShoot());
+    NamedCommands.registerCommand("stop bud", stopAll());
+
     m_Chooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
     configureBindings();
   }
@@ -159,14 +162,30 @@ public class RobotContainer {
     /*  ---------------------
       Operator Controls
     ---------------------  */
-    operator.y().onTrue(shooterWrist.zero());
-    operator.x().whileTrue(shooting());
-    operator.x().onFalse(Commands.parallel(flywheels.runVoltage(0), indexer.setSpeed(0)));
-    // operator.a().onTrue()
-  }
 
-  public Command shooter() {
-    return flywheels.runVoltage(3);
+    operator.a().whileTrue(indexer.setSpeed(0.4));
+    operator.b().whileTrue(indexer.setSpeed(-0.4));
+    operator.x().whileTrue(rollers.setSpeed(0.4));
+    operator.y().whileTrue(rollers.setSpeed(-0.4));
+
+    operator.rightTrigger().whileTrue(shoot().andThen(rumbleControllers().withTimeout(1.0)));
+    operator.leftBumper().whileTrue(feedShot());
+
+    // auto Stow
+    operator.leftTrigger().negate().and(operator.rightTrigger().negate()).onTrue(stowShooter());
+
+    // Stow All
+    operator
+        .start()
+        .onTrue(
+            Commands.parallel(
+                stowCommand(intakeWrist),
+                rollers.setSpeed(0),
+                stopIndexer(indexer),
+                stowShooter()));
+    // operator.povDown().onTrue(flywheels.runVoltage(12));
+    // operator.povDown().onFalse(flywheels.runVoltage(0));
+    operator.povUp().onTrue(Commands.parallel(rollers.setSpeed(0), indexer.setSpeed(0)));
   }
 
   public Command AutoAlignShootAnywhereCommand() {
@@ -188,20 +207,32 @@ public class RobotContainer {
   }
 
   public Command shoot() {
-    return Commands.parallel(
-        flywheels.runFlywheelVelocity(45, 45),
-        new WaitCommand(1.25),
-        runIndexer(indexer, kIndexerSpeed),
-        new WaitCommand(0.2),
-        stopFlywheels(),
-        stopIndexer(indexer));
+    return Commands.parallel(flywheels.runFlywheelVelocity(45, 45));
   }
 
-  public Command shooting() {
-    return Commands.parallel(
-        flywheels.runFlywheelVelocity(45, 45),
-        Commands.sequence(
-            new WaitCommand(1), indexer.setSpeed(-0.4), new WaitCommand(1), indexer.setSpeed(0)));
+  public Command autoShoot() {
+    return Commands.parallel(shoot(), autoFeedShot());
+  }
+
+  // public Command shooting() {
+  //   return Commands.parallel(
+  //       flywheels.runFlywheelVelocity(45, 45),
+  //       Commands.sequence(
+  //           new WaitCommand(1), indexer.setSpeed(-0.4), new WaitCommand(1), indexer.setSpeed(0),
+  // stopFlywheels()));
+  // }
+
+  public Command autoFeedShot() {
+    return Commands.sequence(new WaitCommand(3), indexer.setSpeed(-0.4));
+  }
+
+  public Command stopAll() {
+    return Commands.parallel(stopIndexer(indexer), stopFlywheels());
+  }
+
+  public Command feedShot() {
+    return Commands.sequence(
+        indexer.setSpeed(-0.4), new WaitCommand(0.25), stopFlywheels(), stopIndexer(indexer));
   }
 
   public Command stopFlywheels() {
@@ -220,6 +251,10 @@ public class RobotContainer {
     // new StartEndCommand(
     // () -> operator.getHID().setRumble(RumbleType.kBothRumble, 1),
     // () -> operator.getHID().setRumble(RumbleType.kBothRumble, 0)));
+  }
+
+  public Command stowShooter() {
+    return shooterWrist.PIDCommand(0);
   }
 
   public Command wristToSpeakerForever() {
@@ -289,6 +324,8 @@ public class RobotContainer {
   }
 
   private static double joystickDeadbandApply(double x) {
-    return MathUtil.applyDeadband(Math.abs(Math.pow(x, 2)) * Math.signum(x), 0.02);
+    // return MathUtil.applyDeadband(Math.abs(Math.pow(x, 3) * Math.signum(x)), 0.02);
+    return MathUtil.applyDeadband(
+        (Math.signum(x) * (1.01 * Math.pow(x, 2) - 0.0202 * x + 0.0101)), 0.02);
   }
 }

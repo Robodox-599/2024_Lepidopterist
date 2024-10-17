@@ -2,10 +2,10 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 0.6866991519927979,
-      "y": 6.697738170623779
+      "x": 1.3257739543914795,
+      "y": 5.590954303741455
     },
-    "rotation": -118.9888214015625
+    "rotation": 180.0
   },
   "command": {
     "type": "sequential",
@@ -14,31 +14,25 @@
         {
           "type": "named",
           "data": {
-            "name": "ExtendIntake"
+            "name": "shoot bud"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 1.5
           }
         },
         {
           "type": "named",
           "data": {
-            "name": null
+            "name": "stop bud"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "jaidens 4 note.1"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "jaidens 4 note.2"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "jaidens 4 note.3"
+            "pathName": "Comp Front Auto"
           }
         }
       ]

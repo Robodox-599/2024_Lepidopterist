@@ -33,7 +33,7 @@ public class ShooterWristIOTalonFX implements ShooterWristIO {
   public ShooterWristIOTalonFX() {
     pivotMotor = new TalonFX(wristMotorID, wristMotorCANBus);
 
-    absEncoder = new DutyCycleEncoder(3);
+    absEncoder = new DutyCycleEncoder(2);
 
     var config = new TalonFXConfiguration();
 
@@ -96,6 +96,7 @@ public class ShooterWristIOTalonFX implements ShooterWristIO {
   @Override
   public void zeroPosition() {
     pivotMotor.setPosition(0);
+    absEncoder.reset();
   }
 
   /** Returns the current distance measurement. */

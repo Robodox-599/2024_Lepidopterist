@@ -8,7 +8,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
@@ -63,7 +62,6 @@ public class Indexer extends SubsystemBase {
     return Commands.sequence(
         new InstantCommand(() -> io.setSpeed(-0.4), this),
         new WaitUntilCommand(() -> (beamBreakTimer.get() >= beamBreakDebounce)),
-        new WaitCommand(0.5),
         new InstantCommand(() -> io.setSpeed(0), this));
   }
 }
