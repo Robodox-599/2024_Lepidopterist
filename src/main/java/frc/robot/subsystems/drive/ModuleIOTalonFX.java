@@ -111,7 +111,6 @@ public class ModuleIOTalonFX implements ModuleIO {
     // Meters per second
     driveConfig.Feedback.SensorToMechanismRatio = Module.DRIVE_ROTOR_TO_METERS;
     // Voltage Controls Gains
-    // Voltage Controls Gains
     driveConfig.Slot0.kV = 2.381;
     kAVoltsPerMeterPerSecondSquared = 0.65;
     driveConfig.Slot0.kA = kAVoltsPerMeterPerSecondSquared;
@@ -148,6 +147,7 @@ public class ModuleIOTalonFX implements ModuleIO {
     turnConfig.Feedback.SensorToMechanismRatio = 1.0;
     turnConfig.Feedback.FeedbackRotorOffset =
         0.0; // Is this correct? Cancoder config should handle it
+
     // Controls Gains
     turnConfig.Slot0.kV = 0.4;
     turnConfig.Slot0.kS = 0.14;
