@@ -11,8 +11,13 @@ import static frc.robot.commands.IntakeCommands.intakeDeployAndIntake;
 import static frc.robot.commands.IntakeCommands.stopRollers;
 import static frc.robot.commands.IntakeCommands.stowCommand;
 
+import org.littletonrobotics.junction.AutoLogOutput;
+import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
+
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
+
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -54,9 +59,6 @@ import frc.robot.subsystems.shooter.wrist.ShooterWristIOSim;
 import frc.robot.subsystems.shooter.wrist.ShooterWristIOTalonFX;
 import frc.robot.util.AllianceFlipUtil;
 import frc.robot.util.Lookup;
-import org.littletonrobotics.junction.AutoLogOutput;
-import org.littletonrobotics.junction.Logger;
-import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -158,6 +160,7 @@ public class RobotContainer {
         .onFalse(
             Commands.parallel(
                 stopIndexer(indexer), stopRollers(rollers), stowCommand(intakeWrist)));
+
     driver.y().onTrue(drive.zeroGyroCommand());
     /*  ---------------------
       Operator Controls
@@ -168,24 +171,14 @@ public class RobotContainer {
     operator.x().whileTrue(rollers.setSpeed(0.4));
     operator.y().whileTrue(rollers.setSpeed(-0.4));
 
-    operator.rightTrigger().whileTrue(shoot().andThen(rumbleControllers().withTimeout(1.0)));
-    operator.leftBumper().whileTrue(feedShot());
+    operator.rightTrigger().whileTrue(shoot());
+    // operator.leftBumper().whileTrue(feedShot());
 
     // auto Stow
-    operator.leftTrigger().negate().and(operator.rightTrigger().negate()).onTrue(stowShooter());
+    // operator.leftTrigger().negate().and(operator.rightTrigger().negate()).onTrue(stowShooter());
 
-    // Stow All
-    operator
-        .start()
-        .onTrue(
-            Commands.parallel(
-                stowCommand(intakeWrist),
-                rollers.setSpeed(0),
-                stopIndexer(indexer),
-                stowShooter()));
-    // operator.povDown().onTrue(flywheels.runVoltage(12));
-    // operator.povDown().onFalse(flywheels.runVoltage(0));
-    operator.povUp().onTrue(Commands.parallel(rollers.setSpeed(0), indexer.setSpeed(0)));
+    // stop and stow all
+    operator.start().onTrue(stopAll());
   }
 
   public Command AutoAlignShootAnywhereCommand() {
@@ -207,7 +200,15 @@ public class RobotContainer {
   }
 
   public Command shoot() {
-    return Commands.parallel(flywheels.runFlywheelVelocity(45, 45));
+    return Commands.sequence(
+      indexer.prepNote(),
+      flywheels.runFlywheelVelocity(45, 45), 
+      Commands.waitUntil( ()-> flywheels.flywheelsSpunUp()), 
+      Commands.startEnd(
+        () -> operator.getHID().setRumble(RumbleType.kBothRumble, 1),
+        () -> operator.getHID().setRumble(RumbleType.kBothRumble, 0)
+      ).withTimeout(0.5),
+      feedShot());
   }
 
   public Command autoShoot() {
@@ -227,7 +228,12 @@ public class RobotContainer {
   }
 
   public Command stopAll() {
-    return Commands.parallel(stopIndexer(indexer), stopFlywheels());
+    return Commands.parallel(
+                stowCommand(intakeWrist),
+                rollers.setSpeed(0),
+                stopIndexer(indexer),
+                stowShooter(),
+                stopFlywheels());
   }
 
   public Command feedShot() {
@@ -246,11 +252,10 @@ public class RobotContainer {
   public Command rumbleControllers() {
     return new StartEndCommand(
         () -> driver.getHID().setRumble(RumbleType.kBothRumble, 1),
-        () -> driver.getHID().setRumble(RumbleType.kBothRumble, 0));
-    // .alongWith(
-    // new StartEndCommand(
-    // () -> operator.getHID().setRumble(RumbleType.kBothRumble, 1),
-    // () -> operator.getHID().setRumble(RumbleType.kBothRumble, 0)));
+        () -> driver.getHID().setRumble(RumbleType.kBothRumble, 0)).alongWith(
+    new StartEndCommand(
+    () -> operator.getHID().setRumble(RumbleType.kBothRumble, 1),
+    () -> operator.getHID().setRumble(RumbleType.kBothRumble, 0)));
   }
 
   public Command stowShooter() {

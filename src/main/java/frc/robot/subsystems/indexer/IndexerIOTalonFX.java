@@ -14,6 +14,7 @@ import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
@@ -85,6 +86,12 @@ public class IndexerIOTalonFX implements IndexerIO {
   public void setSpeed(double speed) {
     desiredSpeed = speed;
     indexerMotor.set(speed);
+  }
+
+  @Override
+  public void prepNote() {
+    indexerMotor.setControl(
+        new PositionVoltage((indexerMotor.getPosition().getValueAsDouble() + 10)));
   }
 
   @Override

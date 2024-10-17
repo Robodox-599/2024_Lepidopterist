@@ -64,4 +64,11 @@ public class Indexer extends SubsystemBase {
         new WaitUntilCommand(() -> (beamBreakTimer.get() >= beamBreakDebounce)),
         new InstantCommand(() -> io.setSpeed(0), this));
   }
+
+  public Command prepNote() {
+    return Commands.run(
+        () -> {
+          io.prepNote();
+        });
+  }
 }

@@ -13,9 +13,6 @@
 
 package frc.robot.subsystems.shooter.flywheel;
 
-import static frc.robot.Constants.*;
-import static frc.robot.subsystems.shooter.flywheel.FlywheelConstants.*;
-
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -61,7 +58,7 @@ public class Flywheel extends SubsystemBase {
   private boolean inDeadBand(double currentVelocityRPS, double goalVelocityRPS) {
     double targetRPS = goalVelocityRPS;
     double error = targetRPS - currentVelocityRPS;
-    Logger.recordOutput("Flywheel/ErrorRPM", Math.abs(error));
+    Logger.recordOutput("Flywheel/ErrorRPS", Math.abs(error));
     return (!(Math.abs(error) > 0.5));
   }
   /** Run open loop at the specified voltage. */
@@ -73,7 +70,7 @@ public class Flywheel extends SubsystemBase {
   public void runVelocity(double topVelocityRPS, double bottomVelocityRPS) {
     io.setVelocity(topVelocityRPS, topVelocityRPS);
     topGoalVelocityRPS = topVelocityRPS;
-    bottomGoalVelocityRPS = topVelocityRPS;
+    bottomGoalVelocityRPS = bottomVelocityRPS;
   }
 
   /** Stops the flywheel. */
@@ -83,32 +80,20 @@ public class Flywheel extends SubsystemBase {
   /** Returns the current velocity in RPM. */
   @AutoLogOutput
   public double getTopVelocityRPM() {
-    return Units.radiansPerSecondToRotationsPerMinute(inputs.upperFlywheelVelocityRadPerSec)
-        * FLYWHEEL_GEAR_RATIO;
+    return Units.radiansToRotations(inputs.upperFlywheelVelocityRadPerSec);
   }
 
   @AutoLogOutput
   public double getBottomVelocityRPM() {
-    return Units.radiansPerSecondToRotationsPerMinute(inputs.lowerFlywheelVelocityRadPerSec)
-        * FLYWHEEL_GEAR_RATIO;
+    return Units.radiansToRotations(inputs.lowerFlywheelVelocityRadPerSec);
   }
 
   public void setVoltage(double volts) {
     setVoltage(() -> volts);
   }
 
-  /** Returns the current velocity in radians per second. */
-  public double getTopCharacterizationVelocity() {
-    return inputs.upperFlywheelVelocityRadPerSec;
-  }
-
-  public double getBottomCharacterizationVelocity() {
-    return inputs.lowerFlywheelVelocityRadPerSec;
-  }
-
   public Command runVoltage(DoubleSupplier volts) {
     return new FunctionalCommand(
-        // () -> setRPM(speed.getAsDouble(), speed.getAsDouble()),
         () -> setVoltage(volts), // no PID for now
         () -> {
           setVoltage(volts);
@@ -157,7 +142,7 @@ public class Flywheel extends SubsystemBase {
             io.stop();
           }
         },
-        () -> false,
+        () -> flywheelsSpunUp(),
         this);
   }
 }

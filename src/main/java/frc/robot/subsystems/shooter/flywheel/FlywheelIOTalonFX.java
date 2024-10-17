@@ -13,7 +13,6 @@
 
 package frc.robot.subsystems.shooter.flywheel;
 
-import static frc.robot.subsystems.shooter.flywheel.FlywheelConstants.FLYWHEEL_GEAR_RATIO;
 import static frc.robot.subsystems.shooter.flywheel.FlywheelConstants.flywheelBotomMotorId;
 import static frc.robot.subsystems.shooter.flywheel.FlywheelConstants.flywheelTopMotorId;
 import static frc.robot.subsystems.shooter.flywheel.FlywheelConstants.realBottomFlywheelFeedBackkD;
@@ -125,16 +124,16 @@ public class FlywheelIOTalonFX implements FlywheelIO {
         bottomFlywheelCurrent);
 
     inputs.upperFlywheelPositionRad =
-        Units.rotationsToRadians(topFlywheelPosition.getValueAsDouble()) / FLYWHEEL_GEAR_RATIO;
+        Units.rotationsToRadians(topFlywheelPosition.getValueAsDouble());
     inputs.upperFlywheelVelocityRadPerSec =
-        Units.rotationsToRadians(topFlywheelVelocity.getValueAsDouble()) / FLYWHEEL_GEAR_RATIO;
+        Units.rotationsToRadians(topFlywheelVelocity.getValueAsDouble());
     inputs.upperFlywheelAppliedVolts = topFlywheelAppliedVolts.getValueAsDouble();
     inputs.upperFlywheelCurrentAmps = topFlywheelCurrent.getValueAsDouble();
 
     inputs.lowerFlywheelPositionRad =
-        Units.rotationsToRadians(bottomFlywheelPosition.getValueAsDouble()) / FLYWHEEL_GEAR_RATIO;
+        Units.rotationsToRadians(bottomFlywheelPosition.getValueAsDouble());
     inputs.lowerFlywheelVelocityRadPerSec =
-        Units.rotationsToRadians(bottomFlywheelVelocity.getValueAsDouble()) / FLYWHEEL_GEAR_RATIO;
+        Units.rotationsToRadians(bottomFlywheelVelocity.getValueAsDouble());
     inputs.lowerFlywheelAppliedVolts = bottomFlywheelAppliedVolts.getValueAsDouble();
     inputs.lowerFlywheelCurrentAmps = bottomFlywheelCurrent.getValueAsDouble();
   }
