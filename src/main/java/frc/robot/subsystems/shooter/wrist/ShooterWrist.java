@@ -192,11 +192,11 @@ public class ShooterWrist extends SubsystemBase {
     return false;
   }
 
-  // public Command incrementShooterUp() {
-  //   return Commands.run(io.incrementShooterUp();
-  // }
+  public Command incrementShooterUp() {
+    return new InstantCommand(() -> io.incrementShooterUp());
+  }
 
-  // public Command incrementShooterDown() {
-  //   return Commands.run(io.incrementShooterUp());
-  // }
+  public Command incrementShooterDown() {
+    return new InstantCommand(() -> io.incrementShooterDown());
+  }
 }
