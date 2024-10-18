@@ -13,7 +13,6 @@
 
 package frc.robot.subsystems.shooter.flywheel;
 
-import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
@@ -25,7 +24,6 @@ import org.littletonrobotics.junction.Logger;
 public class Flywheel extends SubsystemBase {
   private final FlywheelIO io;
   private final FlywheelIOInputsAutoLogged inputs = new FlywheelIOInputsAutoLogged();
-  private SimpleMotorFeedforward ffModel;
   private double topGoalVelocityRPS = 0;
   private double bottomGoalVelocityRPS = 0;
   private double motorVoltage = 0;
@@ -71,6 +69,10 @@ public class Flywheel extends SubsystemBase {
     io.setVelocity(topVelocityRPS, topVelocityRPS);
     topGoalVelocityRPS = topVelocityRPS;
     bottomGoalVelocityRPS = bottomVelocityRPS;
+  }
+
+  public void setSpeeds(double speed) {
+    io.setSpeed(speed);
   }
 
   /** Stops the flywheel. */
@@ -143,6 +145,21 @@ public class Flywheel extends SubsystemBase {
           }
         },
         () -> flywheelsSpunUp(),
+        this);
+  }
+
+  public Command setSpeed(double speed) {
+    return new FunctionalCommand(
+        () -> setSpeeds(speed),
+        () -> {
+          setSpeeds(speed);
+        },
+        (interrupted) -> {
+          if (interrupted) {
+            io.stop();
+          }
+        },
+        () -> false,
         this);
   }
 }

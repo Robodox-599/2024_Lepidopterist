@@ -4,11 +4,6 @@ import static frc.robot.subsystems.indexer.IndexerConstants.ContinuousCurrentLim
 import static frc.robot.subsystems.indexer.IndexerConstants.EnableCurrentLimit;
 import static frc.robot.subsystems.indexer.IndexerConstants.PeakCurrentDuration;
 import static frc.robot.subsystems.indexer.IndexerConstants.PeakCurrentLimit;
-import static frc.robot.subsystems.indexer.IndexerConstants.realkD;
-import static frc.robot.subsystems.indexer.IndexerConstants.realkI;
-import static frc.robot.subsystems.indexer.IndexerConstants.realkP;
-import static frc.robot.subsystems.indexer.IndexerConstants.realkS;
-import static frc.robot.subsystems.indexer.IndexerConstants.realkV;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
@@ -32,11 +27,10 @@ public class IndexerIOTalonFX implements IndexerIO {
     indexerMotor =
         new TalonFX(IndexerConstants.indexerMotorID, IndexerConstants.indexerMotorCANBus);
     indexerConfig = new TalonFXConfiguration();
-    indexerConfig.Slot0.kP = realkP;
-    indexerConfig.Slot0.kI = realkI;
-    indexerConfig.Slot0.kD = realkD;
-    indexerConfig.Slot0.kV = realkV;
-    indexerConfig.Slot0.kS = realkS;
+    indexerConfig.Slot0.kP = 0.75;
+    indexerConfig.Slot0.kI = 0.0;
+    indexerConfig.Slot0.kD = 0.0465;
+    indexerConfig.Slot0.kS = 0.336;
     indexerConfig.CurrentLimits.SupplyCurrentLimitEnable = EnableCurrentLimit;
     indexerConfig.CurrentLimits.SupplyCurrentLimit = ContinuousCurrentLimit;
     indexerConfig.CurrentLimits.SupplyCurrentThreshold = PeakCurrentLimit;
@@ -91,7 +85,8 @@ public class IndexerIOTalonFX implements IndexerIO {
   @Override
   public void prepNote() {
     indexerMotor.setControl(
-        new PositionVoltage((indexerMotor.getPosition().getValueAsDouble() + 10)));
+        new PositionVoltage((indexerMotor.getPosition().getValueAsDouble() + 1))
+            .withVelocity(0.25));
   }
 
   @Override

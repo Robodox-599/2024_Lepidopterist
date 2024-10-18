@@ -13,14 +13,13 @@
 
 package frc.robot.subsystems.drive;
 
-import static frc.robot.Constants.*;
-import static frc.robot.subsystems.drive.DriveConstants.*;
-
 import edu.wpi.first.hal.simulation.RoboRioDataJNI;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import org.littletonrobotics.junction.Logger;
 
 public class Module {
@@ -138,6 +137,16 @@ public class Module {
     return inputs.turnPosition;
   }
 
+  public void settingBrake() {
+    io.setBrake();
+  }
+
+  public Command setDaBrake() {
+    return Commands.run(
+        () -> {
+          settingBrake();
+        });
+  }
   /** Returns the current drive position of the module in meters at normal sampling frequency. */
   public double getPositionMeters() {
     return inputs.drivePositionMeters;

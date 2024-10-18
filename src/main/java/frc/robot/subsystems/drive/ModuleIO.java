@@ -66,4 +66,6 @@ public interface ModuleIO {
 
   /** Gets the name of the swerve module for logging purposes, should be constant per-module. */
   public String getModuleName();
+
+  public default void setBrake() {}
 }

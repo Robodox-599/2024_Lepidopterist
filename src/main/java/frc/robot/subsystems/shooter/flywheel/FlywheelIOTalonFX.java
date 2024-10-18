@@ -66,7 +66,7 @@ public class FlywheelIOTalonFX implements FlywheelIO {
     configUpper.CurrentLimits.SupplyCurrentLimit = 40.0;
     configUpper.CurrentLimits.SupplyCurrentLimitEnable = true;
 
-    configUpper.CurrentLimits.StatorCurrentLimit = 45.0;
+    configUpper.CurrentLimits.StatorCurrentLimit = 60.0;
     configUpper.CurrentLimits.StatorCurrentLimitEnable = true;
 
     configUpper.MotorOutput.PeakReverseDutyCycle = 0.0;
@@ -88,7 +88,7 @@ public class FlywheelIOTalonFX implements FlywheelIO {
     configLower.CurrentLimits.SupplyCurrentLimit = 40.0;
     configLower.CurrentLimits.SupplyCurrentLimitEnable = true;
 
-    configLower.CurrentLimits.StatorCurrentLimit = 45.0;
+    configLower.CurrentLimits.StatorCurrentLimit = 60.0;
     configLower.CurrentLimits.StatorCurrentLimitEnable = true;
 
     configLower.MotorOutput.PeakReverseDutyCycle = 0.0;
@@ -167,5 +167,11 @@ public class FlywheelIOTalonFX implements FlywheelIO {
     config.kD = kD;
     topFlywheel.getConfigurator().apply(config);
     bottomFlywheel.getConfigurator().apply(config);
+  }
+
+  @Override
+  public void setSpeed(double speed) {
+    topFlywheel.set(speed);
+    bottomFlywheel.set(speed);
   }
 }

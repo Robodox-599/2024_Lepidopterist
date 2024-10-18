@@ -13,7 +13,11 @@
 
 package frc.robot.subsystems.drive;
 
-import static frc.robot.subsystems.drive.DriveConstants.*;
+import static frc.robot.subsystems.drive.DriveConstants.DRIVE_GEAR_RATIO;
+import static frc.robot.subsystems.drive.DriveConstants.MAX_LINEAR_ACCELERATION;
+import static frc.robot.subsystems.drive.DriveConstants.MAX_LINEAR_SPEED;
+import static frc.robot.subsystems.drive.DriveConstants.TURN_GEAR_RATIO;
+import static frc.robot.subsystems.drive.DriveConstants.canbus;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
@@ -33,19 +37,6 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import frc.robot.subsystems.drive.Module.ModuleConstants;
 import java.util.Queue;
-
-/**
- * Module IO implementation for Talon FX drive motor controller, Talon FX turn motor controller, and
- * CANcoder
- *
- * <p>NOTE: This implementation should be used as a starting point and adapted to different hardware
- * configurations (e.g. If using an analog encoder, copy from "ModuleIOSparkMax")
- *
- * <p>To calibrate the absolute encoder offsets, point the modules straight (such that forward
- * motion on the drive motor will propel the robot forward) and copy the reported values from the
- * absolute encoders using AdvantageScope. These values are logged under
- * "/Drive/ModuleX/TurnAbsolutePositionRad"
- */
 
 // Class for interfacing with Talon FX motor controllers and CANcoders
 // Each instance corresponds to one swerve module
@@ -87,18 +78,18 @@ public class ModuleIOTalonFX implements ModuleIO {
   // Offset angle for the CANcoder to calibrate to zero
   private final boolean IS_TURN_MOTOR_INVERTED = true;
   public static final double TURN_STATOR_CURRENT_LIMIT = 40.0;
+  private final TalonFXConfiguration turnConfig = new TalonFXConfiguration();
+  private final TalonFXConfiguration driveConfig = new TalonFXConfiguration();
 
   // Constructor initalizes motor controllers, encoders, and status signals
   public ModuleIOTalonFX(ModuleConstants constants) {
     // Configuration of drive and turn Talon FX motors and CANcoder on module index
-    var turnConfig = new TalonFXConfiguration();
     name = constants.prefix();
 
     driveTalon = new TalonFX(constants.driveID(), canbus);
     turnTalon = new TalonFX(constants.turnID(), canbus);
     cancoder = new CANcoder(constants.cancoderID(), canbus);
 
-    var driveConfig = new TalonFXConfiguration();
     // Current limits
     driveConfig.CurrentLimits.SupplyCurrentLimit = 35.0;
     driveConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
@@ -275,5 +266,13 @@ public class ModuleIOTalonFX implements ModuleIO {
 
   public String getModuleName() {
     return name;
+  }
+
+  @Override
+  public void setBrake() {
+    turnConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+    driveConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+    turnTalon.getConfigurator().apply(turnConfig);
+    driveTalon.getConfigurator().apply(driveConfig);
   }
 }
