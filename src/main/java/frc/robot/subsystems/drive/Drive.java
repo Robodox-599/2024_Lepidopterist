@@ -98,6 +98,7 @@ import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.Vision.VisionConstants;
 import frc.robot.subsystems.vision.VisionHelper;
 import frc.robot.subsystems.vision.VisionIO;
+import frc.robot.subsystems.vision.VisionIOReal;
 import frc.robot.subsystems.vision.VisionIOSim;
 import frc.robot.util.LocalADStarAK;
 import frc.robot.util.LoggedTunableNumber;
@@ -319,7 +320,7 @@ public class Drive extends SubsystemBase {
     return new VisionIO[] {
       // new VisionIOReal(Cam1Constants),
       // new VisionIOReal(Cam2Constants),
-      // new VisionIOReal(Cam3Constants)
+      new VisionIOReal(Cam3Constants)
     };
   }
 
@@ -330,7 +331,9 @@ public class Drive extends SubsystemBase {
    */
   public static VisionIO[] createSimCameras() {
     return new VisionIO[] {
-      new VisionIOSim(Cam1Constants), new VisionIOSim(Cam2Constants), new VisionIOSim(Cam3Constants)
+      // new VisionIOSim(Cam1Constants),
+      // new VisionIOSim(Cam2Constants),
+      new VisionIOSim(Cam3Constants)
     };
     // return new VisionIO[]{};
   }

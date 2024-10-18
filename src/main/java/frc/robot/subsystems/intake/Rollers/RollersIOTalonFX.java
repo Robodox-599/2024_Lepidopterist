@@ -1,11 +1,11 @@
-package frc.robot.subsystems.intake.rollers;
+package frc.robot.subsystems.intake.Rollers;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import frc.robot.subsystems.intake.rollers.RollerConstants.*;
+import frc.robot.subsystems.intake.Rollers.RollerConstants.*;
 
 public class RollersIOTalonFX implements RollersIO {
   private TalonFX intakeRollerMotor;
