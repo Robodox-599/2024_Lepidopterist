@@ -44,4 +44,8 @@ public interface ShooterWristIO {
   public default boolean homeWrist(boolean force) {
     return true;
   }
+
+  public default void incrementShooterUp() {}
+
+  public default void incrementShooterDown() {}
 }

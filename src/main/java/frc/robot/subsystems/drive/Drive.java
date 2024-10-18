@@ -558,13 +558,13 @@ public class Drive extends SubsystemBase {
         });
   }
 
-  public Command setBrakeCommand() {
-    return Commands.parallel(
-        modules[0].setDaBrake(),
-        modules[1].setDaBrake(),
-        modules[3].setDaBrake(),
-        modules[2].setDaBrake());
-  }
+  // public Command setBrakeCommand() {
+  //   return Commands.parallel(
+  //       modules[0].setDaBrake(),
+  //       modules[1].setDaBrake(),
+  //       modules[3].setDaBrake(),
+  //       modules[2].setDaBrake());
+  // }
 
   public void resetOdometry(Pose2d pose) {
     setPose(pose);

@@ -152,4 +152,14 @@ public class ShooterWristIOTalonFX implements ShooterWristIO {
     }
     return isHomed;
   }
+
+  @Override
+  public void incrementShooterUp() {
+    setDesiredWristPos(pivotMotor.getPosition().getValueAsDouble() - 0.5);
+  }
+
+  @Override
+  public void incrementShooterDown() {
+    setDesiredWristPos(pivotMotor.getPosition().getValueAsDouble() + 0.5);
+  }
 }

@@ -145,7 +145,7 @@ public class RobotContainer {
     /*  -------------------
       Driver Controls
     -------------------  */
-    drive.setBrakeCommand();
+    // drive.setBrakeCommand();
     drive.setDefaultCommand(
         drive.runVoltageTeleopFieldRelative(
             () ->
@@ -203,6 +203,11 @@ public class RobotContainer {
   public Command rumbleIfNotSpeakerWing() {
     return rumbleControllers().onlyIf(() -> !isInSpeakerWing(drive));
   }
+
+  // public Command adjustShooter() {
+  // operator.povUp().onTrue(incrementShooterUp());
+  // operator.povDown().onTrue(incrementShooterDown());
+  // }
 
   public Command shoot() {
     return Commands.sequence(
