@@ -2,10 +2,10 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 1.3845461606979377,
-      "y": 5.577234268188477
+      "x": 0.7139363884925842,
+      "y": 4.374081134796143
     },
-    "rotation": 179.99984796050427
+    "rotation": 120.25175354846465
   },
   "command": {
     "type": "sequential",
@@ -32,7 +32,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "jaiden's one note middle"
+            "pathName": "jaiden's one note source"
           }
         }
       ]

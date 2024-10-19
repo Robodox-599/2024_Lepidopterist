@@ -2,10 +2,10 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 1.3845461606979377,
-      "y": 5.577234268188477
+      "x": 0.6744887232780457,
+      "y": 6.740939140319824
     },
-    "rotation": 179.99984796050427
+    "rotation": -119.98163418024295
   },
   "command": {
     "type": "sequential",
@@ -24,15 +24,21 @@
           }
         },
         {
+          "type": "path",
+          "data": {
+            "pathName": "jaiden's one note amp.1"
+          }
+        },
+        {
           "type": "wait",
           "data": {
-            "waitTime": 7.0
+            "waitTime": 6.0
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "jaiden's one note middle"
+            "pathName": "jaiden's one note amp.2"
           }
         }
       ]

@@ -1,0 +1,193 @@
+{
+  "version": 1.0,
+  "startingPose": {
+    "position": {
+      "x": 0.6350411176681519,
+      "y": 6.760663032531738
+    },
+    "rotation": -119.0017023344266
+  },
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "named",
+          "data": {
+            "name": "shoot bud"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "stop bud"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "jaiden's four note.1"
+          }
+        },
+        {
+          "type": "deadline",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "jaiden's four note.2"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "intake bud"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "jaiden's four note.3"
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "shoot bud"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "retract bud"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "stop bud"
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "jaiden's four note.4"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "intake bud"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "jaiden's four note.5"
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "shoot bud"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "retract bud"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "stop bud"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "jaiden's four note.6"
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "intake bud"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "jaiden's four note.7"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "jaiden's four note.8"
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "shoot bud"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "retract bud"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "stop bud"
+          }
+        }
+      ]
+    }
+  },
+  "folder": null,
+  "choreoAuto": true
+}
