@@ -41,7 +41,7 @@ public class ShooterWristIOTalonFX implements ShooterWristIO {
     config.CurrentLimits.StatorCurrentLimit = 30.0;
     config.CurrentLimits.SupplyCurrentLimitEnable = true;
     config.CurrentLimits.StatorCurrentLimitEnable = true;
-    config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+    config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 
     config.Slot0.kP = 1.75;
     config.Slot0.kI = shooterWristRealkI;
@@ -71,6 +71,7 @@ public class ShooterWristIOTalonFX implements ShooterWristIO {
 
     BaseStatusSignal.setUpdateFrequencyForAll(
         50, angleVelocityRadsPerSec, appliedVolts, currentAmps, tempCelcius, angleRads);
+    pivotMotor.optimizeBusUtilization();
   }
 
   /** Updates the set of loggable inputs. */
@@ -155,11 +156,11 @@ public class ShooterWristIOTalonFX implements ShooterWristIO {
 
   @Override
   public void incrementShooterUp() {
-    setDesiredWristPos(pivotMotor.getPosition().getValueAsDouble() - 0.5);
+    setDesiredWristPos(pivotMotor.getPosition().getValueAsDouble() - 1.5);
   }
 
   @Override
   public void incrementShooterDown() {
-    setDesiredWristPos(pivotMotor.getPosition().getValueAsDouble() + 0.5);
+    setDesiredWristPos(pivotMotor.getPosition().getValueAsDouble() + 1.5);
   }
 }

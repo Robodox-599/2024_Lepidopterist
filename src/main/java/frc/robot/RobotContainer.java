@@ -163,18 +163,25 @@ public class RobotContainer {
             Commands.parallel(
                 stopIndexer(indexer), stopRollers(rollers), stowCommand(intakeWrist)));
 
+    driver.leftTrigger().whileTrue(drive.setBrakeCommand().withTimeout(0.01));
+
     driver.y().onTrue(drive.zeroGyroCommand());
 
     /*  ---------------------
       Operator Controls
     ---------------------  */
 
-    operator.a().whileTrue(indexer.setSpeed(0.4));
-    operator.b().whileTrue(indexer.setSpeed(-0.4));
-    operator.x().whileTrue(rollers.setSpeed(0.4));
-    operator.y().whileTrue(rollers.setSpeed(-0.4));
+    operator.x().whileTrue(indexer.setSpeed(0.4));
+    operator.x().whileFalse(indexer.setSpeed(0).withTimeout(0.1));
+    operator.y().whileFalse(indexer.setSpeed(0).withTimeout(0.1));
+    operator.y().whileTrue(indexer.setSpeed(-0.4));
 
-    operator.rightTrigger().whileTrue(shoot());
+    operator.b().whileFalse(rollers.setSpeed(0).withTimeout(0.1));
+    operator.a().whileTrue(rollers.setSpeed(0.4));
+    operator.a().whileFalse(rollers.setSpeed(0).withTimeout(0.1));
+    operator.b().whileTrue(rollers.setSpeed(-0.4));
+
+    operator.rightTrigger().onTrue(shoot());
     // operator.leftBumper().whileTrue(feedShot());
 
     // auto Stow
@@ -184,6 +191,10 @@ public class RobotContainer {
     operator.start().onTrue(Commands.parallel(stopAll(), stowAll()));
     operator.rightBumper().onTrue(stopFlywheels());
     operator.leftBumper().onTrue(stopAll());
+
+    operator.povUp().onTrue(shooterWrist.incrementShooterUp().withTimeout(0.25));
+    operator.povDown().onTrue(shooterWrist.incrementShooterDown().withTimeout(0.25));
+    operator.leftTrigger().onTrue(funnelShoot());
   }
 
   public Command AutoAlignShootAnywhereCommand() {
@@ -211,20 +222,34 @@ public class RobotContainer {
 
   public Command shoot() {
     return Commands.sequence(
+        shooterWrist.PIDCommand(0.5).withTimeout(0.25),
         indexer.prepNote().withTimeout(0.25),
-        flywheels.runFlywheelVelocity(40, 40),
+        flywheels.runFlywheelVelocity(42.5, 42.5),
         Commands.waitUntil(() -> flywheels.flywheelsSpunUp()),
         Commands.startEnd(
                 () -> operator.getHID().setRumble(RumbleType.kBothRumble, 1),
                 () -> operator.getHID().setRumble(RumbleType.kBothRumble, 0))
             .withTimeout(0.5),
         indexer.setSpeed(-0.4).withTimeout(1),
-        indexer.setSpeed(0).withTimeout(0.25),
-        flywheels.runVoltage(0).withTimeout(0.25));
+        indexer.setSpeed(0).withTimeout(0.25));
   }
 
   public Command autoShoot() {
     return Commands.parallel(shoot());
+  }
+
+  public Command funnelShoot() {
+    return Commands.sequence(
+        shooterWrist.PIDCommand(13.5).withTimeout(0.25),
+        indexer.prepNote().withTimeout(0.25),
+        flywheels.runFlywheelVelocity(42.5, 42.5),
+        Commands.waitUntil(() -> flywheels.flywheelsSpunUp()),
+        Commands.startEnd(
+                () -> operator.getHID().setRumble(RumbleType.kBothRumble, 1),
+                () -> operator.getHID().setRumble(RumbleType.kBothRumble, 0))
+            .withTimeout(0.5),
+        indexer.setSpeed(-0.4).withTimeout(1),
+        indexer.setSpeed(0).withTimeout(0.25));
   }
 
   // public Command shooting() {

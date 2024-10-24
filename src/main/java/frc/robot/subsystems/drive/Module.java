@@ -144,7 +144,7 @@ public class Module {
   public Command setDaBrake() {
     return Commands.run(
         () -> {
-          settingBrake();
+          io.setBrake();
         });
   }
   /** Returns the current drive position of the module in meters at normal sampling frequency. */

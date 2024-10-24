@@ -1,7 +1,5 @@
 package frc.robot.subsystems.indexer;
 
-import static frc.robot.subsystems.indexer.IndexerConstants.beamBreakDebounce;
-
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -61,7 +59,7 @@ public class Indexer extends SubsystemBase {
   public Command runIndexerBeamBreak() {
     return Commands.sequence(
         new InstantCommand(() -> io.setSpeed(-0.4), this),
-        new WaitUntilCommand(() -> (beamBreakTimer.get() >= beamBreakDebounce)),
+        new WaitUntilCommand(() -> (beamBreakTimer.get() >= 0.1)),
         new InstantCommand(() -> io.setSpeed(0), this));
   }
 

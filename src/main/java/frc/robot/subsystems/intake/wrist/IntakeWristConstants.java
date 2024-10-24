@@ -16,7 +16,7 @@ public class IntakeWristConstants {
       Units.degreesToRadians(80); // TODO: calibrate this
 
   public static final double kWristRetractVal = 0.0; // TODO: calibrate this
-  public static final double kWristExtendVal = 7.95; // TODO: calibrate this
+  public static final double kWristExtendVal = 8.125; // TODO: calibrate this
   public static final int wristExtendSlot = 0;
   public static final double wristExtendKP = 7;
   public static final double wristExtendKI = 0;

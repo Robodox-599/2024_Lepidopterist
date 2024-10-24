@@ -192,6 +192,7 @@ public class ModuleIOTalonFX implements ModuleIO {
     // optimize comms between Talons and CAN bus
     driveTalon.optimizeBusUtilization();
     turnTalon.optimizeBusUtilization();
+    cancoder.optimizeBusUtilization();
   }
 
   // Method to update Inputs
@@ -270,9 +271,7 @@ public class ModuleIOTalonFX implements ModuleIO {
 
   @Override
   public void setBrake() {
-    turnConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-    driveConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-    turnTalon.getConfigurator().apply(turnConfig);
-    driveTalon.getConfigurator().apply(driveConfig);
+    turnTalon.setNeutralMode(NeutralModeValue.Brake);
+    driveTalon.setNeutralMode(NeutralModeValue.Brake);
   }
 }

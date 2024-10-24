@@ -1,13 +1,38 @@
 {
   "NetworkTables": {
-    "Retained Values": {
-      "open": false
+    "transitory": {
+      "photonvision": {
+        "FR Camera": {
+          "open": true
+        },
+        "open": true
+      }
     },
-    "Transitory Values": {
-      "open": false
+    "types": {
+      "/FMSInfo": "FMSInfo",
+      "/SmartDashboard/Auto Choices": "String Chooser",
+      "/SmartDashboard/IntakeWrist": "Subsystem",
+      "/SmartDashboard/Rollers": "Subsystem",
+      "/SmartDashboard/ShooterWrist": "Subsystem"
     }
   },
   "NetworkTables Info": {
+    "Clients": {
+      "open": true
+    },
+    "Server": {
+      "open": true
+    },
+    "photonvision@2": {
+      "open": true
+    },
+    "photonvision@3": {
+      "open": true
+    },
     "visible": true
+  },
+  "NetworkTables Settings": {
+    "mode": "Client (NT4)",
+    "serverTeam": "599"
   }
 }

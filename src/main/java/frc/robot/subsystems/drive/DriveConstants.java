@@ -84,7 +84,7 @@ public final class DriveConstants {
   public static final double TRACK_WIDTH_Y = Units.inchesToMeters(20.75);
   public static final double DRIVE_BASE_RADIUS =
       Math.hypot(TRACK_WIDTH_X / 2.0, TRACK_WIDTH_Y / 2.0);
-  public static final double MAX_ANGULAR_SPEED = (MAX_LINEAR_SPEED * 0.75) / DRIVE_BASE_RADIUS;
+  public static final double MAX_ANGULAR_SPEED = (MAX_LINEAR_SPEED * 0.85) / DRIVE_BASE_RADIUS;
   public static final double MAX_LINEAR_ACCELERATION = 8.0;
   public static final double MAX_ANGULAR_ACCELERATION = MAX_LINEAR_ACCELERATION / DRIVE_BASE_RADIUS;
   public static final double MAX_AUTOAIM_SPEED = MAX_LINEAR_SPEED / 4;
@@ -111,7 +111,7 @@ public final class DriveConstants {
   public static final double realPathFollowTranslationkD = 0.0;
 
   // REAL PATH FOLLOW ROTATION KP
-  public static final double realPathFollowRotationkP = 3.5;
+  public static final double realPathFollowRotationkP = 3.0;
 
   // REAL PATH FOLLOW ROTATION KI
   public static final double realPathFollowRotationkI = 0.0;
@@ -285,7 +285,7 @@ public final class DriveConstants {
   // Camera 3 (FM) Constants
 
   // CAMERA 3 NAME
-  public static final String camera3Name = "FM Camera";
+  public static final String camera3Name = "FR Camera";
 
   // CAMERA 3 POSE (X)
   public static final double camera3PoseX = Units.inchesToMeters(0);

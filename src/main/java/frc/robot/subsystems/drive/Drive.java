@@ -98,6 +98,7 @@ import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.Vision.VisionConstants;
 import frc.robot.subsystems.vision.VisionHelper;
 import frc.robot.subsystems.vision.VisionIO;
+import frc.robot.subsystems.vision.VisionIOReal;
 import frc.robot.subsystems.vision.VisionIOSim;
 import frc.robot.util.LocalADStarAK;
 import frc.robot.util.LoggedTunableNumber;
@@ -319,7 +320,7 @@ public class Drive extends SubsystemBase {
     return new VisionIO[] {
       // new VisionIOReal(Cam1Constants),
       // new VisionIOReal(Cam2Constants),
-      // new VisionIOReal(Cam3Constants)
+      new VisionIOReal(Cam3Constants)
     };
   }
 
@@ -558,13 +559,14 @@ public class Drive extends SubsystemBase {
         });
   }
 
-  // public Command setBrakeCommand() {
-  //   return Commands.parallel(
-  //       modules[0].setDaBrake(),
-  //       modules[1].setDaBrake(),
-  //       modules[3].setDaBrake(),
-  //       modules[2].setDaBrake());
-  // }
+  public Command setBrakeCommand() {
+    return this.run(
+        () -> {
+          for (int i = 0; i < modules.length; i++) {
+            modules[i].setDaBrake();
+          }
+        });
+  }
 
   public void resetOdometry(Pose2d pose) {
     setPose(pose);
